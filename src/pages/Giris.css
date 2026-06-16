@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #E53935 0%, #B71C1C 100%);
+  background: #F5F5F5;
 }
 
 .giris-kutu {

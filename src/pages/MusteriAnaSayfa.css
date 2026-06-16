@@ -10,19 +10,9 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 
-.header-logo {
-  color: #E53935;
-  font-size: 22px;
-  font-weight: 800;
-}
+.header-logo { color: #E53935; font-size: 22px; font-weight: 800; }
 
-.header-sag {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  color: #555;
-  font-size: 14px;
-}
+.header-sag { display: flex; align-items: center; gap: 16px; color: #555; font-size: 14px; }
 
 .cikis-btn {
   background: white;
@@ -41,13 +31,7 @@
 .icerik { max-width: 960px; margin: 0 auto; padding: 36px 20px; }
 
 .arama-bolum { margin-bottom: 28px; }
-
-.arama-bolum h2 {
-  font-size: 26px;
-  font-weight: 800;
-  color: #1A1A1A;
-}
-
+.arama-bolum h2 { font-size: 26px; font-weight: 800; color: #1A1A1A; }
 .arama-bolum p { color: #777; margin-top: 6px; font-size: 15px; }
 
 .kategori-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
@@ -65,12 +49,7 @@
 }
 
 .kategori-btn:hover { border-color: #E53935; color: #E53935; }
-
-.kategori-btn.aktif {
-  background: #E53935;
-  color: white;
-  border-color: #E53935;
-}
+.kategori-btn.aktif { background: #E53935; color: white; border-color: #E53935; }
 
 .isletme-grid {
   display: grid;
@@ -78,45 +57,18 @@
   gap: 16px;
 }
 
-.isletme-kart {
-  padding: 22px;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-
+.isletme-kart { padding: 22px; transition: all 0.2s; }
 .isletme-kart:hover {
   border-color: #E53935;
   box-shadow: 0 4px 20px rgba(229,57,53,0.12);
   transform: translateY(-2px);
 }
 
-.isletme-kart-ust {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
+.isletme-kart-ust { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; }
 .isletme-emoji { font-size: 34px; }
-
-.isletme-kart-ust h3 {
-  font-size: 15px;
-  font-weight: 700;
-  color: #1A1A1A;
-}
-
-.isletme-kart-ust p {
-  font-size: 12px;
-  color: #999;
-  margin-top: 3px;
-}
-
-.puan {
-  margin-left: auto;
-  font-size: 14px;
-  font-weight: 700;
-  color: #FFA726;
-}
+.isletme-kart-ust h3 { font-size: 15px; font-weight: 700; color: #1A1A1A; }
+.isletme-kart-ust p { font-size: 12px; color: #999; margin-top: 3px; }
+.puan { margin-left: auto; text-align: right; }
 
 .hizmet-satir {
   display: flex;
@@ -128,13 +80,7 @@
 }
 
 .fiyat { font-weight: 700; color: #E53935; }
-
-.calisma-saati {
-  font-size: 12px;
-  color: #999;
-  margin-top: 12px;
-}
-
+.calisma-saati { font-size: 12px; color: #999; margin-top: 12px; }
 .yukleniyor { text-align: center; padding: 60px; color: #999; }
 .bos { text-align: center; padding: 60px; color: #999; }
 
@@ -178,9 +124,6 @@
   border-radius: 50%;
   cursor: pointer;
   font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .modal-label {
@@ -206,57 +149,7 @@
 }
 
 .hizmet-secim-item:hover { border-color: #E53935; }
-
-.hizmet-secim-item.secili {
-  border-color: #E53935;
-  background: #FFF5F5;
-}
-
-.tarih-input {
-  width: 100%;
-  padding: 11px 14px;
-  border: 1.5px solid #E0E0E0;
-  border-radius: 8px;
-  font-size: 14px;
-  outline: none;
-  background: #FAFAFA;
-}
-
-.tarih-input:focus { border-color: #E53935; }
-
-.saat-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-}
-
-.saat-btn {
-  padding: 9px;
-  border: 1.5px solid #E0E0E0;
-  border-radius: 8px;
-  background: white;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.saat-btn:hover { border-color: #E53935; color: #E53935; }
-
-.saat-btn.secili {
-  background: #E53935;
-  color: white;
-  border-color: #E53935;
-}
-
-.basari {
-  background: #F1F8E9;
-  color: #2E7D32;
-  padding: 14px;
-  border-radius: 8px;
-  font-size: 14px;
-  border: 1px solid #C8E6C9;
-}
-
+.hizmet-secim-item.secili { border-color: #E53935; background: #FFF5F5; }
 
 .toplam-fiyat {
   display: flex;
@@ -270,7 +163,101 @@
   color: #555;
 }
 
-.toplam-fiyat strong {
-  color: #E53935;
-  font-weight: 700;
+.tarih-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid #E0E0E0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  background: #FAFAFA;
+  color: #1A1A1A;
 }
+
+.tarih-input:focus { border-color: #E53935; }
+
+.saat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+
+.saat-btn {
+  padding: 9px;
+  border: 1.5px solid #E0E0E0;
+  border-radius: 8px;
+  background: white;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.saat-btn:hover { border-color: #E53935; color: #E53935; }
+.saat-btn.secili { background: #E53935; color: white; border-color: #E53935; }
+.saat-btn.dolu { background: #F5F5F5; color: #BDBDBD; border-color: #EEEEEE; cursor: not-allowed; }
+
+.basari {
+  background: #F1F8E9;
+  color: #2E7D32;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  border: 1px solid #C8E6C9;
+  margin-bottom: 12px;
+}
+
+/* YORUM */
+.yorum-yaz { margin-bottom: 8px; }
+
+.yildiz-row { display: flex; align-items: center; margin-bottom: 12px; gap: 4px; }
+
+.yildiz-tam {
+  font-size: 30px;
+  color: #E0E0E0;
+  cursor: pointer;
+  transition: color 0.15s;
+  margin-right: 4px;
+}
+
+.yildiz-tam.dolu { color: #FFA726; }
+.yildiz-tam:hover { color: #FFA726; }
+
+.yorum-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #E0E0E0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  resize: none;
+  font-family: 'Segoe UI', sans-serif;
+  margin-bottom: 12px;
+  background: #FAFAFA;
+}
+
+.yorum-textarea:focus { border-color: #E53935; }
+
+.yorum-kart {
+  background: #FAFAFA;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 10px;
+  border: 1px solid #F0F0F0;
+}
+
+.yorum-ust { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+
+.yorum-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #E53935;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.yorum-isim { font-size: 14px; font-weight: 600; color: #1A1A1A; }
+.yorum-tarih { font-size: 12px; color: #999; margin-top: 2px; }
+.yorum-puan { margin-left: auto; font-size: 16px; display: flex; align-items: center; }
+.yorum-metin { font-size: 13px; color: #555; line-height: 1.5; }

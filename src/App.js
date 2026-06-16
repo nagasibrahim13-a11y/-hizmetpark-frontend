@@ -3,11 +3,13 @@ import Giris from './pages/Giris';
 import Kayit from './pages/Kayit';
 import MusteriAnaSayfa from './pages/MusteriAnaSayfa';
 import IsletmePanel from './pages/IsletmePanel';
+import IsletmeProfil from './pages/IsletmeProfil';
 import './App.css';
 
 function App() {
   const [sayfa, setSayfa] = useState('giris');
   const [kullanici, setKullanici] = useState(null);
+  const [profilIsletmeId, setProfilIsletmeId] = useState(null);
 
   const girisYap = (kullaniciData) => {
     setKullanici(kullaniciData);
@@ -23,30 +25,34 @@ function App() {
     setSayfa('giris');
   };
 
+  const profilAc = (isletmeId) => {
+    setProfilIsletmeId(isletmeId);
+    setSayfa('isletmeProfil');
+  };
+
   return (
     <div className="app">
       {sayfa === 'giris' && (
-        <Giris
-          onGiris={girisYap}
-          onKayitGit={() => setSayfa('kayit')}
-        />
+        <Giris onGiris={girisYap} onKayitGit={() => setSayfa('kayit')} />
       )}
       {sayfa === 'kayit' && (
-        <Kayit
-          onKayit={girisYap}
-          onGirisGit={() => setSayfa('giris')}
-        />
+        <Kayit onGirisGit={() => setSayfa('giris')} />
       )}
       {sayfa === 'musteriAnaSayfa' && (
         <MusteriAnaSayfa
           kullanici={kullanici}
           onCikis={cikisYap}
+          onProfilAc={profilAc}
         />
       )}
       {sayfa === 'isletmePanel' && (
-        <IsletmePanel
+        <IsletmePanel kullanici={kullanici} onCikis={cikisYap} />
+      )}
+      {sayfa === 'isletmeProfil' && (
+        <IsletmeProfil
+          isletmeId={profilIsletmeId}
           kullanici={kullanici}
-          onCikis={cikisYap}
+          onGeri={() => setSayfa('musteriAnaSayfa')}
         />
       )}
     </div>
