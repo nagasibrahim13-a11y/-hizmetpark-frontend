@@ -3,7 +3,11 @@ import './MusteriAnaSayfa.css';
 
 function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSadakat }) {
   const [isletmeler, setIsletmeler] = useState([]);
+  const [filtreliIsletmeler, setFiltreliIsletmeler] = useState([]);
   const [kategori, setKategori] = useState('');
+  const [aramaMetni, setAramaMetni] = useState('');
+  const [sehir, setSehir] = useState('');
+  const [siralama, setSiralama] = useState('varsayilan');
   const [yukleniyor, setYukleniyor] = useState(true);
   const [secilenIsletme, setSecilenIsletme] = useState(null);
   const [randevuModal, setRandevuModal] = useState(false);
@@ -23,6 +27,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
   const [yorumYukleniyor, setYorumYukleniyor] = useState(false);
   const [tamamlananRandevular, setTamamlananRandevular] = useState([]);
   const [secilenRandevu, setSecilenRandevu] = useState('');
+  const [sehirler, setSehirler] = useState([]);
 
   const kategoriler = [
     { deger: '', label: 'Tümü', emoji: '🏪' },
@@ -42,21 +47,61 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
   useEffect(() => {
     isletmeleriGetir();
     tamamlananRandevulariGetir();
-  }, [kategori]);
+  }, []);
+
+  useEffect(() => {
+    filtreUygula();
+  }, [isletmeler, kategori, aramaMetni, sehir, siralama]);
 
   const isletmeleriGetir = async () => {
     setYukleniyor(true);
     try {
-      const url = kategori
-        ? `http://localhost:5000/api/isletmeler?kategori=${kategori}`
-        : 'http://localhost:5000/api/isletmeler';
-      const cevap = await fetch(url);
+      const cevap = await fetch('http://localhost:5000/api/isletmeler');
       const veri = await cevap.json();
       setIsletmeler(veri);
+
+      // Benzersiz şehirleri çıkar
+      const benzersizSehirler = [...new Set(veri.map(i => i.adres?.il).filter(Boolean))];
+      setSehirler(benzersizSehirler);
     } catch (err) {
       console.error(err);
     }
     setYukleniyor(false);
+  };
+
+  const filtreUygula = () => {
+    let sonuc = [...isletmeler];
+
+    // Kategori filtresi
+    if (kategori) {
+      sonuc = sonuc.filter(i => i.kategori === kategori);
+    }
+
+    // Arama filtresi
+    if (aramaMetni.trim()) {
+      const ara = aramaMetni.toLowerCase();
+      sonuc = sonuc.filter(i =>
+        i.isletmeAdi?.toLowerCase().includes(ara) ||
+        i.adres?.il?.toLowerCase().includes(ara) ||
+        i.adres?.ilce?.toLowerCase().includes(ara)
+      );
+    }
+
+    // Şehir filtresi
+    if (sehir) {
+      sonuc = sonuc.filter(i => i.adres?.il === sehir);
+    }
+
+    // Sıralama
+    if (siralama === 'puan') {
+      sonuc.sort((a, b) => (b.ortalamaPuan || 0) - (a.ortalamaPuan || 0));
+    } else if (siralama === 'yorum') {
+      sonuc.sort((a, b) => (b.yorumSayisi || 0) - (a.yorumSayisi || 0));
+    } else if (siralama === 'isim') {
+      sonuc.sort((a, b) => a.isletmeAdi?.localeCompare(b.isletmeAdi));
+    }
+
+    setFiltreliIsletmeler(sonuc);
   };
 
   const tamamlananRandevulariGetir = async () => {
@@ -168,14 +213,8 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
   };
 
   const yorumGonder = async () => {
-    if (!yeniYorum.trim()) {
-      setYorumHata('Yorum yazınız');
-      return;
-    }
-    if (!secilenRandevu) {
-      setYorumHata('Lütfen hangi randevu için yorum yaptığınızı seçin');
-      return;
-    }
+    if (!yeniYorum.trim()) { setYorumHata('Yorum yazınız'); return; }
+    if (!secilenRandevu) { setYorumHata('Lütfen hangi randevu için yorum yaptığınızı seçin'); return; }
     setYorumHata('');
     try {
       const cevap = await fetch('http://localhost:5000/api/yorumlar', {
@@ -219,19 +258,24 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
 
   const bugunTarih = new Date().toISOString().split('T')[0];
 
+  const filtreleriSifirla = () => {
+    setKategori('');
+    setAramaMetni('');
+    setSehir('');
+    setSiralama('varsayilan');
+  };
+
+  const aktifFiltreVar = kategori || aramaMetni || sehir || siralama !== 'varsayilan';
+
   return (
     <div className="musteri-sayfa">
       <header className="header">
         <div className="header-logo">✂️ HizmetPark</div>
         <div className="header-sag">
           <span>Merhaba, {kullanici.ad}</span>
-          <button onClick={onRandevularim} className="cikis-btn" style={{ marginRight: '8px' }}>
-  📅 Randevularım
-</button>
-<button onClick={onSadakat} className="cikis-btn" style={{ marginRight: '8px' }}>
-  🎁 Sadakat
-</button>
-<button onClick={onCikis} className="cikis-btn">Çıkış</button>
+          <button onClick={onRandevularim} className="cikis-btn" style={{ marginRight: '8px' }}>📅 Randevularım</button>
+          <button onClick={onSadakat} className="cikis-btn" style={{ marginRight: '8px' }}>🎁 Sadakat</button>
+          <button onClick={onCikis} className="cikis-btn">Çıkış</button>
         </div>
       </header>
 
@@ -241,77 +285,130 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
           <p>Berber, kuaför, güzellik salonu ve daha fazlası</p>
         </div>
 
-        <div className="kategori-row">
-          {kategoriler.map(k => (
-            <button
-              key={k.deger}
-              className={`kategori-btn ${kategori === k.deger ? 'aktif' : ''}`}
-              onClick={() => setKategori(k.deger)}
-            >
-              {k.emoji} {k.label}
-            </button>
-          ))}
+        {/* ARAMA KUTUSU */}
+        <div className="arama-kutusu">
+          <span className="arama-icon">🔍</span>
+          <input
+            type="text"
+            placeholder="İşletme adı veya şehir ara..."
+            value={aramaMetni}
+            onChange={e => setAramaMetni(e.target.value)}
+            className="arama-input"
+          />
+          {aramaMetni && (
+            <button onClick={() => setAramaMetni('')} className="temizle-btn">✕</button>
+          )}
         </div>
 
+        {/* FİLTRELER */}
+        <div className="filtre-bolum">
+          {/* Kategoriler */}
+          <div className="kategori-row">
+            {kategoriler.map(k => (
+              <button
+                key={k.deger}
+                className={`kategori-btn ${kategori === k.deger ? 'aktif' : ''}`}
+                onClick={() => setKategori(k.deger)}
+              >
+                {k.emoji} {k.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Şehir ve Sıralama */}
+          <div className="alt-filtre-row">
+            <select
+              value={sehir}
+              onChange={e => setSehir(e.target.value)}
+              className="filtre-select"
+            >
+              <option value="">📍 Tüm Şehirler</option>
+              {sehirler.map(s => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+
+            <select
+              value={siralama}
+              onChange={e => setSiralama(e.target.value)}
+              className="filtre-select"
+            >
+              <option value="varsayilan">🔀 Varsayılan Sıralama</option>
+              <option value="puan">⭐ En Yüksek Puan</option>
+              <option value="yorum">💬 En Çok Yorum</option>
+              <option value="isim">🔤 İsme Göre (A-Z)</option>
+            </select>
+
+            {aktifFiltreVar && (
+              <button onClick={filtreleriSifirla} className="sifirla-btn">
+                🔄 Filtreleri Sıfırla
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* SONUÇ SAYISI */}
+        <div className="sonuc-satiri">
+          <span className="sonuc-sayi">
+            {filtreliIsletmeler.length} işletme bulundu
+            {aktifFiltreVar && <span className="filtre-aktif-badge"> • Filtre aktif</span>}
+          </span>
+        </div>
+
+        {/* İŞLETME LİSTESİ */}
         {yukleniyor ? (
           <div className="yukleniyor">Yükleniyor...</div>
+        ) : filtreliIsletmeler.length === 0 ? (
+          <div className="bos">
+            <div style={{ fontSize: '48px', marginBottom: '12px' }}>🔍</div>
+            <p>Sonuç bulunamadı</p>
+            <button onClick={filtreleriSifirla} style={{ marginTop: '12px', padding: '8px 16px', background: '#E53935', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}>
+              Filtreleri Temizle
+            </button>
+          </div>
         ) : (
           <div className="isletme-grid">
-            {isletmeler.length === 0 ? (
-              <div className="bos">Henüz işletme yok</div>
-            ) : (
-              isletmeler.map(isletme => (
-                <div
-                  key={isletme._id}
-                  className="isletme-kart card"
-                  onClick={() => onProfilAc(isletme._id)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className="isletme-kart-ust">
-                    <span className="isletme-emoji">
-                      {isletme.kategori === 'berber' ? '✂️' :
-                       isletme.kategori === 'kuafor' ? '💅' :
-                       isletme.kategori === 'guzellik' ? '💆' : '⚽'}
+            {filtreliIsletmeler.map(isletme => (
+              <div
+                key={isletme._id}
+                className="isletme-kart card"
+                onClick={() => onProfilAc(isletme._id)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className="isletme-kart-ust">
+                  <span className="isletme-emoji">
+                    {isletme.kategori === 'berber' ? '✂️' :
+                     isletme.kategori === 'kuafor' ? '💅' :
+                     isletme.kategori === 'guzellik' ? '💆' : '⚽'}
+                  </span>
+                  <div>
+                    <h3>{isletme.isletmeAdi}</h3>
+                    <p>{isletme.adres?.il} / {isletme.adres?.ilce}</p>
+                  </div>
+                  <div className="puan">
+                    <div>{yildizGoster(Math.round(isletme.ortalamaPuan || 0))}</div>
+                    <span style={{ fontSize: '12px', color: '#999' }}>
+                      {isletme.ortalamaPuan || 0} ({isletme.yorumSayisi || 0})
                     </span>
-                    <div>
-                      <h3>{isletme.isletmeAdi}</h3>
-                      <p>{isletme.adres?.il} / {isletme.adres?.ilce}</p>
-                    </div>
-                    <div className="puan">
-                      <div>{yildizGoster(Math.round(isletme.ortalamaPuan || 0))}</div>
-                      <span style={{ fontSize: '12px', color: '#999' }}>
-                        {isletme.ortalamaPuan || 0} ({isletme.yorumSayisi || 0})
-                      </span>
-                    </div>
                   </div>
-                  <div className="hizmet-listesi">
-                    {isletme.hizmetler?.slice(0, 3).map((h, i) => (
-                      <div key={i} className="hizmet-satir">
-                        <span>{h.ad}</span>
-                        <span className="fiyat">{h.fiyat} ₺</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="calisma-saati">
-                    🕐 {isletme.calismaBaslangic} - {isletme.calismaBitis}
-                  </div>
-                  <button
-                    className="btn-primary"
-                    style={{ marginTop: '14px' }}
-                    onClick={(e) => modalAc(isletme, e)}
-                  >
-                    Randevu Al
-                  </button>
-                  <button
-                    className="btn-secondary"
-                    style={{ marginTop: '8px' }}
-                    onClick={(e) => yorumModalAc(isletme, e)}
-                  >
-                    ⭐ Yorumlar ({isletme.yorumSayisi || 0})
-                  </button>
                 </div>
-              ))
-            )}
+                <div className="hizmet-listesi">
+                  {isletme.hizmetler?.slice(0, 3).map((h, i) => (
+                    <div key={i} className="hizmet-satir">
+                      <span>{h.ad}</span>
+                      <span className="fiyat">{h.fiyat} ₺</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="calisma-saati">🕐 {isletme.calismaBaslangic} - {isletme.calismaBitis}</div>
+                <button className="btn-primary" style={{ marginTop: '14px' }} onClick={(e) => modalAc(isletme, e)}>
+                  Randevu Al
+                </button>
+                <button className="btn-secondary" style={{ marginTop: '8px' }} onClick={(e) => yorumModalAc(isletme, e)}>
+                  ⭐ Yorumlar ({isletme.yorumSayisi || 0})
+                </button>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -352,13 +449,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
                   </div>
                 )}
                 <p className="modal-label">Tarih Seç</p>
-                <input
-                  type="date"
-                  min={bugunTarih}
-                  value={secilenTarih}
-                  onChange={e => setSecilenTarih(e.target.value)}
-                  className="tarih-input"
-                />
+                <input type="date" min={bugunTarih} value={secilenTarih} onChange={e => setSecilenTarih(e.target.value)} className="tarih-input" />
                 <p className="modal-label">
                   Saat Seç
                   {toplamSure > 0 && secilenSaat && (
@@ -386,12 +477,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
                     );
                   })}
                 </div>
-                <button
-                  className="btn-primary"
-                  style={{ marginTop: '20px' }}
-                  onClick={randevuAl}
-                  disabled={gonderiyor}
-                >
+                <button className="btn-primary" style={{ marginTop: '20px' }} onClick={randevuAl} disabled={gonderiyor}>
                   {gonderiyor ? 'Gönderiliyor...' : `Randevuyu Onayla${toplamFiyat > 0 ? ` — ${toplamFiyat} ₺` : ''}`}
                 </button>
               </>
@@ -408,15 +494,10 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
               <h2>⭐ {yorumIsletme.isletmeAdi}</h2>
               <button className="modal-kapat" onClick={() => setYorumModal(false)}>✕</button>
             </div>
-
             {isletmeRandevulari.length > 0 ? (
               <div className="yorum-yaz">
                 <p className="modal-label">Hangi randevu için yorum yapıyorsun?</p>
-                <select
-                  className="tarih-input"
-                  value={secilenRandevu}
-                  onChange={e => setSecilenRandevu(e.target.value)}
-                >
+                <select className="tarih-input" value={secilenRandevu} onChange={e => setSecilenRandevu(e.target.value)}>
                   <option value="">Seç...</option>
                   {isletmeRandevulari.map(r => (
                     <option key={r._id} value={r._id}>
@@ -424,39 +505,24 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
                     </option>
                   ))}
                 </select>
-
                 <p className="modal-label">Puanın</p>
                 <div className="yildiz-row">
                   {[1, 2, 3, 4, 5].map(y => (
-                    <span
-                      key={y}
-                      className={`yildiz-tam ${y <= yeniPuan ? 'dolu' : ''}`}
-                      onClick={() => setYeniPuan(y)}
-                    >★</span>
+                    <span key={y} className={`yildiz-tam ${y <= yeniPuan ? 'dolu' : ''}`} onClick={() => setYeniPuan(y)}>★</span>
                   ))}
                   <span style={{ fontSize: '13px', color: '#999', marginLeft: '8px' }}>{yeniPuan}/5</span>
                 </div>
-
                 <p className="modal-label">Yorumun</p>
-                <textarea
-                  className="yorum-textarea"
-                  placeholder="Deneyimini paylaş..."
-                  value={yeniYorum}
-                  onChange={e => setYeniYorum(e.target.value)}
-                  rows={3}
-                />
+                <textarea className="yorum-textarea" placeholder="Deneyimini paylaş..." value={yeniYorum} onChange={e => setYeniYorum(e.target.value)} rows={3} />
                 {yorumHata && <div className="hata">{yorumHata}</div>}
                 {yorumBasari && <div className="basari">✅ {yorumBasari}</div>}
-                <button className="btn-primary" onClick={yorumGonder}>
-                  Yorumu Gönder
-                </button>
+                <button className="btn-primary" onClick={yorumGonder}>Yorumu Gönder</button>
               </div>
             ) : (
               <div style={{ background: '#FFF8E1', border: '1px solid #FFE082', borderRadius: '8px', padding: '14px', marginBottom: '16px', fontSize: '13px', color: '#F57F17' }}>
                 ⚠️ Yorum yapabilmek için bu işletmede tamamlanmış bir randevunuz olmalı.
               </div>
             )}
-
             <div style={{ marginTop: '24px' }}>
               <p className="modal-label">Müşteri Yorumları ({yorumlar.length})</p>
               {yorumYukleniyor ? (
@@ -467,9 +533,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
                 yorumlar.map((y, i) => (
                   <div key={i} className="yorum-kart">
                     <div className="yorum-ust">
-                      <div className="yorum-avatar">
-                        {y.musteri?.ad?.[0]}{y.musteri?.soyad?.[0]}
-                      </div>
+                      <div className="yorum-avatar">{y.musteri?.ad?.[0]}{y.musteri?.soyad?.[0]}</div>
                       <div>
                         <div className="yorum-isim">{y.musteri?.ad} {y.musteri?.soyad}</div>
                         <div className="yorum-tarih">{new Date(y.tarih).toLocaleDateString('tr-TR')}</div>
