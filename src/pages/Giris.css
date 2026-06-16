@@ -1,0 +1,48 @@
+.giris-sayfa {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #E53935 0%, #B71C1C 100%);
+}
+
+.giris-kutu {
+  width: 100%;
+  max-width: 420px;
+  padding: 44px 40px;
+}
+
+.giris-logo {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.logo-icon { font-size: 44px; }
+
+.giris-logo h1 {
+  font-size: 30px;
+  font-weight: 800;
+  color: #E53935;
+  margin-top: 10px;
+}
+
+.giris-logo p {
+  font-size: 13px;
+  color: #999;
+  margin-top: 6px;
+}
+
+.kayit-link {
+  text-align: center;
+  margin-top: 22px;
+  font-size: 14px;
+  color: #999;
+}
+
+.kayit-link span {
+  color: #E53935;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.kayit-link span:hover { text-decoration: underline; }

@@ -1,38 +1,101 @@
-.App {
-  text-align: center;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+body {
+  background: #FFFFFF;
+  color: #1A1A1A;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.app { min-height: 100vh; }
+
+.btn-primary {
+  background: #E53935;
+  color: white;
+  border: none;
+  padding: 13px 24px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.btn-primary:hover { background: #C62828; }
+
+.btn-secondary {
+  background: white;
+  color: #E53935;
+  border: 1.5px solid #E53935;
+  padding: 13px 24px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s;
+}
+
+.input-group {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  gap: 6px;
+  margin-bottom: 16px;
 }
 
-.App-link {
-  color: #61dafb;
+.input-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.input-group input,
+.input-group select {
+  padding: 12px 14px;
+  border: 1.5px solid #E0E0E0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  background: #FAFAFA;
+  color: #1A1A1A;
+  transition: border 0.2s;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+  border-color: #E53935;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #F0F0F0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.hata {
+  background: #FFF5F5;
+  color: #C62828;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  border: 1px solid #FFCDD2;
+}
+
+.basari {
+  background: #F1F8E9;
+  color: #2E7D32;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  border: 1px solid #C8E6C9;
 }
