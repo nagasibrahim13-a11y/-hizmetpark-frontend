@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './MusteriAnaSayfa.css';
 
-function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc }) {
+function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSadakat }) {
   const [isletmeler, setIsletmeler] = useState([]);
   const [kategori, setKategori] = useState('');
   const [yukleniyor, setYukleniyor] = useState(true);
@@ -225,7 +225,13 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc }) {
         <div className="header-logo">✂️ HizmetPark</div>
         <div className="header-sag">
           <span>Merhaba, {kullanici.ad}</span>
-          <button onClick={onCikis} className="cikis-btn">Çıkış</button>
+          <button onClick={onRandevularim} className="cikis-btn" style={{ marginRight: '8px' }}>
+  📅 Randevularım
+</button>
+<button onClick={onSadakat} className="cikis-btn" style={{ marginRight: '8px' }}>
+  🎁 Sadakat
+</button>
+<button onClick={onCikis} className="cikis-btn">Çıkış</button>
         </div>
       </header>
 
