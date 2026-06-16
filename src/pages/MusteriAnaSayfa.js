@@ -28,6 +28,9 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
   const [tamamlananRandevular, setTamamlananRandevular] = useState([]);
   const [secilenRandevu, setSecilenRandevu] = useState('');
   const [sehirler, setSehirler] = useState([]);
+  const [sliderReklamlar, setSliderReklamlar] = useState([]);
+  const [sponsorluReklamlar, setSponsorluReklamlar] = useState([]);
+  const [sliderIndex, setSliderIndex] = useState(0);
 
   const kategoriler = [
     { deger: '', label: 'Tümü', emoji: '🏪' },
@@ -47,6 +50,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
   useEffect(() => {
     isletmeleriGetir();
     tamamlananRandevulariGetir();
+    reklamlariGetir();
   }, []);
 
   useEffect(() => {
@@ -59,25 +63,24 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
       const cevap = await fetch('http://localhost:5000/api/isletmeler');
       const veri = await cevap.json();
       setIsletmeler(veri);
-
-      // Benzersiz şehirleri çıkar
       const benzersizSehirler = [...new Set(veri.map(i => i.adres?.il).filter(Boolean))];
       setSehirler(benzersizSehirler);
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
     setYukleniyor(false);
+  };
+
+  const reklamlariGetir = async () => {
+    try {
+      const cevap = await fetch('http://localhost:5000/api/reklamlar/aktif');
+      const veri = await cevap.json();
+      setSliderReklamlar(veri.filter(r => r.tip === 'slider'));
+      setSponsorluReklamlar(veri.filter(r => r.tip === 'sponsorlu'));
+    } catch (err) { console.error(err); }
   };
 
   const filtreUygula = () => {
     let sonuc = [...isletmeler];
-
-    // Kategori filtresi
-    if (kategori) {
-      sonuc = sonuc.filter(i => i.kategori === kategori);
-    }
-
-    // Arama filtresi
+    if (kategori) sonuc = sonuc.filter(i => i.kategori === kategori);
     if (aramaMetni.trim()) {
       const ara = aramaMetni.toLowerCase();
       sonuc = sonuc.filter(i =>
@@ -86,21 +89,10 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
         i.adres?.ilce?.toLowerCase().includes(ara)
       );
     }
-
-    // Şehir filtresi
-    if (sehir) {
-      sonuc = sonuc.filter(i => i.adres?.il === sehir);
-    }
-
-    // Sıralama
-    if (siralama === 'puan') {
-      sonuc.sort((a, b) => (b.ortalamaPuan || 0) - (a.ortalamaPuan || 0));
-    } else if (siralama === 'yorum') {
-      sonuc.sort((a, b) => (b.yorumSayisi || 0) - (a.yorumSayisi || 0));
-    } else if (siralama === 'isim') {
-      sonuc.sort((a, b) => a.isletmeAdi?.localeCompare(b.isletmeAdi));
-    }
-
+    if (sehir) sonuc = sonuc.filter(i => i.adres?.il === sehir);
+    if (siralama === 'puan') sonuc.sort((a, b) => (b.ortalamaPuan || 0) - (a.ortalamaPuan || 0));
+    else if (siralama === 'yorum') sonuc.sort((a, b) => (b.yorumSayisi || 0) - (a.yorumSayisi || 0));
+    else if (siralama === 'isim') sonuc.sort((a, b) => a.isletmeAdi?.localeCompare(b.isletmeAdi));
     setFiltreliIsletmeler(sonuc);
   };
 
@@ -109,9 +101,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
       const cevap = await fetch(`http://localhost:5000/api/yorumlar/tamamlanan/${kullanici.id}`);
       const veri = await cevap.json();
       setTamamlananRandevular(veri);
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
   };
 
   const hizmetToggle = (h) => {
@@ -175,9 +165,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
           setSecilenTarih('');
         }, 3000);
       }
-    } catch (err) {
-      setRandevuHata('Sunucuya bağlanılamadı');
-    }
+    } catch (err) { setRandevuHata('Sunucuya bağlanılamadı'); }
     setGonderiyor(false);
   };
 
@@ -206,9 +194,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
       const cevap = await fetch(`http://localhost:5000/api/yorumlar/isletme/${isletme._id}`);
       const veri = await cevap.json();
       setYorumlar(veri);
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
     setYorumYukleniyor(false);
   };
 
@@ -241,31 +227,46 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
         setYorumlar(yVeri);
         setTimeout(() => setYorumBasari(''), 2000);
       }
-    } catch (err) {
-      setYorumHata('Sunucuya bağlanılamadı');
-    }
+    } catch (err) { setYorumHata('Sunucuya bağlanılamadı'); }
   };
 
-  const yildizGoster = (puan) => {
-    return [1, 2, 3, 4, 5].map(i => (
-      <span key={i} style={{ color: i <= puan ? '#FFA726' : '#E0E0E0', fontSize: '16px' }}>★</span>
-    ));
-  };
+  const yildizGoster = (puan) => [1, 2, 3, 4, 5].map(i => (
+    <span key={i} style={{ color: i <= puan ? '#FFA726' : '#E0E0E0', fontSize: '16px' }}>★</span>
+  ));
 
-  const isletmeRandevulari = tamamlananRandevular.filter(
-    r => r.isletme?._id === yorumIsletme?._id
-  );
-
+  const isletmeRandevulari = tamamlananRandevular.filter(r => r.isletme?._id === yorumIsletme?._id);
   const bugunTarih = new Date().toISOString().split('T')[0];
+  const filtreleriSifirla = () => { setKategori(''); setAramaMetni(''); setSehir(''); setSiralama('varsayilan'); };
+  const aktifFiltreVar = kategori || aramaMetni || sehir || siralama !== 'varsayilan';
 
-  const filtreleriSifirla = () => {
-    setKategori('');
-    setAramaMetni('');
-    setSehir('');
-    setSiralama('varsayilan');
+  const sliderTikla = async (reklam) => {
+    try { await fetch(`http://localhost:5000/api/reklamlar/${reklam._id}/tikla`, { method: 'PUT' }); } catch (err) {}
+    onProfilAc(reklam.isletme._id);
   };
 
-  const aktifFiltreVar = kategori || aramaMetni || sehir || siralama !== 'varsayilan';
+  // Sponsorlu işletmeleri normal liste içinde göster
+  const isletmelerikListele = () => {
+    const liste = [...filtreliIsletmeler];
+    const sponsorlu = sponsorluReklamlar.map(r => ({
+      ...r.isletme,
+      _sponsorlu: true,
+      _reklamId: r._id,
+      _reklamBaslik: r.baslik,
+      _reklamAciklama: r.aciklama
+    }));
+
+    // Her 3 karttan sonra sponsorlu kart ekle
+    const sonuc = [];
+    let sponsorIndex = 0;
+    liste.forEach((item, i) => {
+      sonuc.push(item);
+      if ((i + 1) % 3 === 0 && sponsorIndex < sponsorlu.length) {
+        sonuc.push(sponsorlu[sponsorIndex]);
+        sponsorIndex++;
+      }
+    });
+    return sonuc;
+  };
 
   return (
     <div className="musteri-sayfa">
@@ -285,69 +286,62 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
           <p>Berber, kuaför, güzellik salonu ve daha fazlası</p>
         </div>
 
-        {/* ARAMA KUTUSU */}
+        {/* SLIDER REKLAMLAR */}
+        {sliderReklamlar.length > 0 && (
+          <div className="reklam-slider" onClick={() => sliderTikla(sliderReklamlar[sliderIndex])}>
+            {sliderReklamlar[sliderIndex].gorsel && (
+              <img src={sliderReklamlar[sliderIndex].gorsel} alt="reklam" className="reklam-slider-gorsel" />
+            )}
+            <div className="reklam-slider-icerik">
+              <span className="reklam-badge">SPONSORLU</span>
+              <div className="reklam-slider-baslik">{sliderReklamlar[sliderIndex].baslik}</div>
+              <div className="reklam-slider-isletme">{sliderReklamlar[sliderIndex].isletme?.isletmeAdi}</div>
+              {sliderReklamlar[sliderIndex].aciklama && (
+                <div className="reklam-slider-aciklama">{sliderReklamlar[sliderIndex].aciklama}</div>
+              )}
+            </div>
+            {sliderReklamlar.length > 1 && (
+              <div className="slider-noktalar">
+                {sliderReklamlar.map((_, i) => (
+                  <div key={i} className={`slider-nokta ${i === sliderIndex ? 'aktif' : ''}`}
+                    onClick={e => { e.stopPropagation(); setSliderIndex(i); }} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ARAMA */}
         <div className="arama-kutusu">
           <span className="arama-icon">🔍</span>
-          <input
-            type="text"
-            placeholder="İşletme adı veya şehir ara..."
-            value={aramaMetni}
-            onChange={e => setAramaMetni(e.target.value)}
-            className="arama-input"
-          />
-          {aramaMetni && (
-            <button onClick={() => setAramaMetni('')} className="temizle-btn">✕</button>
-          )}
+          <input type="text" placeholder="İşletme adı veya şehir ara..." value={aramaMetni} onChange={e => setAramaMetni(e.target.value)} className="arama-input" />
+          {aramaMetni && <button onClick={() => setAramaMetni('')} className="temizle-btn">✕</button>}
         </div>
 
         {/* FİLTRELER */}
         <div className="filtre-bolum">
-          {/* Kategoriler */}
           <div className="kategori-row">
             {kategoriler.map(k => (
-              <button
-                key={k.deger}
-                className={`kategori-btn ${kategori === k.deger ? 'aktif' : ''}`}
-                onClick={() => setKategori(k.deger)}
-              >
+              <button key={k.deger} className={`kategori-btn ${kategori === k.deger ? 'aktif' : ''}`} onClick={() => setKategori(k.deger)}>
                 {k.emoji} {k.label}
               </button>
             ))}
           </div>
-
-          {/* Şehir ve Sıralama */}
           <div className="alt-filtre-row">
-            <select
-              value={sehir}
-              onChange={e => setSehir(e.target.value)}
-              className="filtre-select"
-            >
+            <select value={sehir} onChange={e => setSehir(e.target.value)} className="filtre-select">
               <option value="">📍 Tüm Şehirler</option>
-              {sehirler.map(s => (
-                <option key={s} value={s}>{s}</option>
-              ))}
+              {sehirler.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
-
-            <select
-              value={siralama}
-              onChange={e => setSiralama(e.target.value)}
-              className="filtre-select"
-            >
-              <option value="varsayilan">🔀 Varsayılan Sıralama</option>
+            <select value={siralama} onChange={e => setSiralama(e.target.value)} className="filtre-select">
+              <option value="varsayilan">🔀 Varsayılan</option>
               <option value="puan">⭐ En Yüksek Puan</option>
               <option value="yorum">💬 En Çok Yorum</option>
               <option value="isim">🔤 İsme Göre (A-Z)</option>
             </select>
-
-            {aktifFiltreVar && (
-              <button onClick={filtreleriSifirla} className="sifirla-btn">
-                🔄 Filtreleri Sıfırla
-              </button>
-            )}
+            {aktifFiltreVar && <button onClick={filtreleriSifirla} className="sifirla-btn">🔄 Sıfırla</button>}
           </div>
         </div>
 
-        {/* SONUÇ SAYISI */}
         <div className="sonuc-satiri">
           <span className="sonuc-sayi">
             {filtreliIsletmeler.length} işletme bulundu
@@ -362,53 +356,70 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
           <div className="bos">
             <div style={{ fontSize: '48px', marginBottom: '12px' }}>🔍</div>
             <p>Sonuç bulunamadı</p>
-            <button onClick={filtreleriSifirla} style={{ marginTop: '12px', padding: '8px 16px', background: '#E53935', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}>
-              Filtreleri Temizle
-            </button>
+            <button onClick={filtreleriSifirla} style={{ marginTop: '12px', padding: '8px 16px', background: '#E53935', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}>Filtreleri Temizle</button>
           </div>
         ) : (
           <div className="isletme-grid">
-            {filtreliIsletmeler.map(isletme => (
-              <div
-                key={isletme._id}
-                className="isletme-kart card"
-                onClick={() => onProfilAc(isletme._id)}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className="isletme-kart-ust">
-                  <span className="isletme-emoji">
-                    {isletme.kategori === 'berber' ? '✂️' :
-                     isletme.kategori === 'kuafor' ? '💅' :
-                     isletme.kategori === 'guzellik' ? '💆' : '⚽'}
-                  </span>
-                  <div>
-                    <h3>{isletme.isletmeAdi}</h3>
-                    <p>{isletme.adres?.il} / {isletme.adres?.ilce}</p>
-                  </div>
-                  <div className="puan">
-                    <div>{yildizGoster(Math.round(isletme.ortalamaPuan || 0))}</div>
-                    <span style={{ fontSize: '12px', color: '#999' }}>
-                      {isletme.ortalamaPuan || 0} ({isletme.yorumSayisi || 0})
-                    </span>
-                  </div>
-                </div>
-                <div className="hizmet-listesi">
-                  {isletme.hizmetler?.slice(0, 3).map((h, i) => (
-                    <div key={i} className="hizmet-satir">
-                      <span>{h.ad}</span>
-                      <span className="fiyat">{h.fiyat} ₺</span>
+            {isletmelerikListele().map((isletme, idx) => {
+              // Sponsorlu kart
+              if (isletme._sponsorlu) {
+                return (
+                  <div
+                    key={`sponsorlu-${idx}`}
+                    className="isletme-kart card sponsorlu-kart"
+                    onClick={async () => {
+                      try { await fetch(`http://localhost:5000/api/reklamlar/${isletme._reklamId}/tikla`, { method: 'PUT' }); } catch (e) {}
+                      onProfilAc(isletme._id);
+                    }}
+                    style={{ cursor: 'pointer', border: '2px solid #F59E0B' }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <span style={{ background: '#FEF3C7', color: '#92400E', fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '4px', letterSpacing: '0.05em' }}>SPONSORLU</span>
+                      <span style={{ fontSize: '20px' }}>
+                        {isletme.kategori === 'berber' ? '✂️' : isletme.kategori === 'kuafor' ? '💅' : isletme.kategori === 'guzellik' ? '💆' : '⚽'}
+                      </span>
                     </div>
-                  ))}
+                    <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', marginBottom: '4px' }}>{isletme.isletmeAdi}</h3>
+                    {isletme._reklamBaslik && <p style={{ fontSize: '13px', color: '#F59E0B', fontWeight: '600', marginBottom: '4px' }}>{isletme._reklamBaslik}</p>}
+                    {isletme._reklamAciklama && <p style={{ fontSize: '12px', color: '#999', marginBottom: '8px' }}>{isletme._reklamAciklama}</p>}
+                    <p style={{ fontSize: '12px', color: '#999' }}>📍 {isletme.adres?.il} / {isletme.adres?.ilce}</p>
+                    <button className="btn-primary" style={{ marginTop: '12px' }} onClick={e => { e.stopPropagation(); onProfilAc(isletme._id); }}>
+                      Profili Gör →
+                    </button>
+                  </div>
+                );
+              }
+
+              // Normal kart
+              return (
+                <div key={isletme._id} className="isletme-kart card" onClick={() => onProfilAc(isletme._id)} style={{ cursor: 'pointer' }}>
+                  <div className="isletme-kart-ust">
+                    <span className="isletme-emoji">
+                      {isletme.kategori === 'berber' ? '✂️' : isletme.kategori === 'kuafor' ? '💅' : isletme.kategori === 'guzellik' ? '💆' : '⚽'}
+                    </span>
+                    <div>
+                      <h3>{isletme.isletmeAdi}</h3>
+                      <p>{isletme.adres?.il} / {isletme.adres?.ilce}</p>
+                    </div>
+                    <div className="puan">
+                      <div>{yildizGoster(Math.round(isletme.ortalamaPuan || 0))}</div>
+                      <span style={{ fontSize: '12px', color: '#999' }}>{isletme.ortalamaPuan || 0} ({isletme.yorumSayisi || 0})</span>
+                    </div>
+                  </div>
+                  <div className="hizmet-listesi">
+                    {isletme.hizmetler?.slice(0, 3).map((h, i) => (
+                      <div key={i} className="hizmet-satir">
+                        <span>{h.ad}</span>
+                        <span className="fiyat">{h.fiyat} ₺</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="calisma-saati">🕐 {isletme.calismaBaslangic} - {isletme.calismaBitis}</div>
+                  <button className="btn-primary" style={{ marginTop: '14px' }} onClick={e => modalAc(isletme, e)}>Randevu Al</button>
+                  <button className="btn-secondary" style={{ marginTop: '8px' }} onClick={e => yorumModalAc(isletme, e)}>⭐ Yorumlar ({isletme.yorumSayisi || 0})</button>
                 </div>
-                <div className="calisma-saati">🕐 {isletme.calismaBaslangic} - {isletme.calismaBitis}</div>
-                <button className="btn-primary" style={{ marginTop: '14px' }} onClick={(e) => modalAc(isletme, e)}>
-                  Randevu Al
-                </button>
-                <button className="btn-secondary" style={{ marginTop: '8px' }} onClick={(e) => yorumModalAc(isletme, e)}>
-                  ⭐ Yorumlar ({isletme.yorumSayisi || 0})
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -421,19 +432,13 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
               <h2>{secilenIsletme.isletmeAdi}</h2>
               <button className="modal-kapat" onClick={() => setRandevuModal(false)}>✕</button>
             </div>
-            {randevuBasari ? (
-              <div className="basari">✅ {randevuBasari}</div>
-            ) : (
+            {randevuBasari ? <div className="basari">✅ {randevuBasari}</div> : (
               <>
                 {randevuHata && <div className="hata">{randevuHata}</div>}
                 <p className="modal-label">Hizmet Seç (birden fazla seçebilirsin)</p>
                 <div className="hizmet-secim">
                   {secilenIsletme.hizmetler.map((h, i) => (
-                    <div
-                      key={i}
-                      className={`hizmet-secim-item ${secilenHizmetler.find(x => x.ad === h.ad) ? 'secili' : ''}`}
-                      onClick={() => hizmetToggle(h)}
-                    >
+                    <div key={i} className={`hizmet-secim-item ${secilenHizmetler.find(x => x.ad === h.ad) ? 'secili' : ''}`} onClick={() => hizmetToggle(h)}>
                       <span>{secilenHizmetler.find(x => x.ad === h.ad) ? '✅ ' : ''}{h.ad}</span>
                       <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                         <span style={{ fontSize: '12px', color: '#999' }}>{h.sure} dk</span>
@@ -444,7 +449,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
                 </div>
                 {secilenHizmetler.length > 0 && (
                   <div className="toplam-fiyat">
-                    <span>⏱ Toplam süre: <strong>{toplamSure} dk</strong></span>
+                    <span>⏱ Toplam: <strong>{toplamSure} dk</strong></span>
                     <span>Toplam: <strong style={{ color: '#E53935' }}>{toplamFiyat} ₺</strong></span>
                   </div>
                 )}
@@ -466,12 +471,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
                   {saatler.map(s => {
                     const isDolu = doluSaatler.has(s);
                     return (
-                      <button
-                        key={s}
-                        className={`saat-btn ${secilenSaat === s ? 'secili' : ''} ${isDolu ? 'dolu' : ''}`}
-                        onClick={() => !isDolu && setSecilenSaat(s)}
-                        disabled={isDolu}
-                      >
+                      <button key={s} className={`saat-btn ${secilenSaat === s ? 'secili' : ''} ${isDolu ? 'dolu' : ''}`} onClick={() => !isDolu && setSecilenSaat(s)} disabled={isDolu}>
                         {isDolu ? '🚫' : s}
                       </button>
                     );
@@ -500,9 +500,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
                 <select className="tarih-input" value={secilenRandevu} onChange={e => setSecilenRandevu(e.target.value)}>
                   <option value="">Seç...</option>
                   {isletmeRandevulari.map(r => (
-                    <option key={r._id} value={r._id}>
-                      {new Date(r.tarih).toLocaleDateString('tr-TR')} - {r.saat}
-                    </option>
+                    <option key={r._id} value={r._id}>{new Date(r.tarih).toLocaleDateString('tr-TR')} - {r.saat}</option>
                   ))}
                 </select>
                 <p className="modal-label">Puanın</p>
@@ -525,12 +523,9 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
             )}
             <div style={{ marginTop: '24px' }}>
               <p className="modal-label">Müşteri Yorumları ({yorumlar.length})</p>
-              {yorumYukleniyor ? (
-                <div style={{ textAlign: 'center', color: '#999', padding: '20px' }}>Yükleniyor...</div>
-              ) : yorumlar.length === 0 ? (
-                <div style={{ textAlign: 'center', color: '#999', padding: '20px' }}>Henüz yorum yok.</div>
-              ) : (
-                yorumlar.map((y, i) => (
+              {yorumYukleniyor ? <div style={{ textAlign: 'center', color: '#999', padding: '20px' }}>Yükleniyor...</div>
+                : yorumlar.length === 0 ? <div style={{ textAlign: 'center', color: '#999', padding: '20px' }}>Henüz yorum yok.</div>
+                : yorumlar.map((y, i) => (
                   <div key={i} className="yorum-kart">
                     <div className="yorum-ust">
                       <div className="yorum-avatar">{y.musteri?.ad?.[0]}{y.musteri?.soyad?.[0]}</div>
@@ -545,8 +540,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
                     </div>
                     <p className="yorum-metin">{y.yorum}</p>
                   </div>
-                ))
-              )}
+                ))}
             </div>
           </div>
         </div>

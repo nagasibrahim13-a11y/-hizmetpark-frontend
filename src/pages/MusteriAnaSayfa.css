@@ -261,3 +261,85 @@
 .yorum-tarih { font-size: 12px; color: #999; margin-top: 2px; }
 .yorum-puan { margin-left: auto; font-size: 16px; display: flex; align-items: center; }
 .yorum-metin { font-size: 13px; color: #555; line-height: 1.5; }
+
+
+
+/* REKLAM SLİDER */
+.reklam-slider {
+  position: relative;
+  background: linear-gradient(135deg, #1A1A2E, #16213E);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  cursor: pointer;
+  min-height: 120px;
+  display: flex;
+  align-items: flex-end;
+  transition: transform 0.2s;
+}
+
+.reklam-slider:hover { transform: translateY(-2px); }
+
+.reklam-slider-gorsel {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0.4;
+}
+
+.reklam-slider-icerik {
+  position: relative;
+  z-index: 1;
+  padding: 20px 24px;
+  flex: 1;
+}
+
+.reklam-badge {
+  background: #E53935;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.reklam-slider-baslik {
+  font-size: 20px;
+  font-weight: 800;
+  color: white;
+  margin-top: 6px;
+}
+
+.reklam-slider-isletme {
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  margin-top: 4px;
+}
+
+.reklam-slider-aciklama {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  margin-top: 2px;
+}
+
+.slider-noktalar {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  display: flex;
+  gap: 6px;
+  z-index: 2;
+}
+
+.slider-nokta {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.slider-nokta.aktif { background: white; }
