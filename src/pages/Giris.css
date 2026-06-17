@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #F5F5F5;
+  background: #F8FAFC;
 }
 
 .giris-kutu {
@@ -22,13 +22,14 @@
 .giris-logo h1 {
   font-size: 30px;
   font-weight: 800;
-  color: #E53935;
+  color: #1E1B4B;
   margin-top: 10px;
+  letter-spacing: -0.02em;
 }
 
 .giris-logo p {
   font-size: 13px;
-  color: #999;
+  color: #64748B;
   margin-top: 6px;
 }
 
@@ -36,11 +37,11 @@
   text-align: center;
   margin-top: 22px;
   font-size: 14px;
-  color: #999;
+  color: #64748B;
 }
 
 .kayit-link span {
-  color: #E53935;
+  color: #4F46E5;
   font-weight: 600;
   cursor: pointer;
 }

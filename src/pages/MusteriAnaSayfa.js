@@ -1,7 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useAuth } from '../context/AuthContext';
 import './MusteriAnaSayfa.css';
 
-function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSadakat }) {
+function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilAc, onRandevularim, onSadakat }) {
+  const { girisGerektir } = useAuth();
+  const [dropdownAcik, setDropdownAcik] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const kapat = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownAcik(false);
+      }
+    };
+    document.addEventListener('mousedown', kapat);
+    return () => document.removeEventListener('mousedown', kapat);
+  }, []);
   const [isletmeler, setIsletmeler] = useState([]);
   const [filtreliIsletmeler, setFiltreliIsletmeler] = useState([]);
   const [kategori, setKategori] = useState('');
@@ -49,9 +63,16 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
 
   useEffect(() => {
     isletmeleriGetir();
-    tamamlananRandevulariGetir();
     reklamlariGetir();
   }, []);
+
+  useEffect(() => {
+    if (kullanici) {
+      tamamlananRandevulariGetir();
+    } else {
+      setTamamlananRandevular([]);
+    }
+  }, [kullanici]);
 
   useEffect(() => {
     filtreUygula();
@@ -97,6 +118,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
   };
 
   const tamamlananRandevulariGetir = async () => {
+    if (!kullanici) return;
     try {
       const cevap = await fetch(`http://localhost:5000/api/yorumlar/tamamlanan/${kullanici.id}`);
       const veri = await cevap.json();
@@ -156,7 +178,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
       if (!cevap.ok) {
         setRandevuHata(veri.hata);
       } else {
-        setRandevuBasari(`Randevunuz oluşturuldu! ${secilenSaat} - ${toplamSure} dk.`);
+        setRandevuBasari(`Randevu talebiniz alındı! ${secilenSaat} - ${toplamSure} dk. İşletmenin onayını bekliyor.`);
         setTimeout(() => {
           setRandevuModal(false);
           setRandevuBasari('');
@@ -171,6 +193,18 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
 
   const modalAc = (isletme, e) => {
     e.stopPropagation();
+    if (!kullanici) {
+      girisGerektir(() => {
+        setSecilenIsletme(isletme);
+        setRandevuModal(true);
+        setRandevuBasari('');
+        setRandevuHata('');
+        setSecilenHizmetler([]);
+        setSecilenSaat('');
+        setSecilenTarih('');
+      });
+      return;
+    }
     setSecilenIsletme(isletme);
     setRandevuModal(true);
     setRandevuBasari('');
@@ -280,24 +314,81 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
 
   const kategoriEmoji = (kat) => kat === 'berber' ? '✂️' : kat === 'kuafor' ? '💅' : kat === 'guzellik' ? '💆' : '⚽';
 
+  const kapaliBilgi = secilenTarih && secilenIsletme?.kapaliTarihler?.length > 0
+    ? secilenIsletme.kapaliTarihler.find(kt => {
+        const ktTarih = new Date(kt.tarih).toISOString().split('T')[0];
+        return ktTarih === secilenTarih;
+      }) || null
+    : null;
+
   return (
     <div className="musteri-sayfa">
       <header className="header">
-        <div className="header-logo">✂️ HizmetPark</div>
+        {/* SOL: Logo */}
+        <div className="header-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="4" width="18" height="18" rx="3" stroke="#DC2626" strokeWidth="2"/>
+            <path d="M3 9h18" stroke="#DC2626" strokeWidth="2"/>
+            <path d="M8 2.5v3M16 2.5v3" stroke="#DC2626" strokeWidth="2" strokeLinecap="round"/>
+            <circle cx="8" cy="14" r="1.5" fill="#DC2626"/>
+            <circle cx="12" cy="14" r="1.5" fill="#DC2626"/>
+            <circle cx="16" cy="14" r="1.5" fill="#DC2626"/>
+          </svg>
+          HizmetPark
+        </div>
+
+        {/* ORTA: Arama kutusu */}
+        <div className="header-arama">
+          <span className="header-arama-icon">🔍</span>
+          <input
+            type="text"
+            placeholder="Berber, hizmet veya ürün ara..."
+            value={aramaMetni}
+            onChange={e => setAramaMetni(e.target.value)}
+            className="header-arama-input"
+          />
+          {aramaMetni && (
+            <button className="header-arama-temizle" onClick={() => setAramaMetni('')}>✕</button>
+          )}
+        </div>
+
+        {/* SAĞ: Butonlar */}
         <div className="header-sag">
-          <span>Merhaba, {kullanici.ad}</span>
-          <button onClick={onRandevularim} className="cikis-btn" style={{ marginRight: '8px' }}>📅 Randevularım</button>
-          <button onClick={onSadakat} className="cikis-btn" style={{ marginRight: '8px' }}>🎁 Sadakat</button>
-          <button onClick={onCikis} className="cikis-btn">Çıkış</button>
+          {kullanici ? (
+            <div className="hesabim-wrapper" ref={dropdownRef}>
+              <button className="hesabim-btn" onClick={() => setDropdownAcik(v => !v)}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="8" r="4" stroke="white" strokeWidth="2"/>
+                  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+                Hesabım
+              </button>
+              {dropdownAcik && (
+                <div className="hesabim-dropdown">
+                  <div className="hesabim-dropdown-merhaba">Merhaba, {kullanici.ad} 👋</div>
+                  <button onClick={() => { onRandevularim(); setDropdownAcik(false); }}>
+                    📅 Randevularım
+                  </button>
+                  <button onClick={() => { onSadakat(); setDropdownAcik(false); }}>
+                    🎁 Sadakat Programı
+                  </button>
+                  <div className="hesabim-dropdown-ayirici" />
+                  <button className="hesabim-dropdown-cikis" onClick={() => { onCikis(); setDropdownAcik(false); }}>
+                    🚪 Çıkış Yap
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <button className="kayit-ol-btn" onClick={onKayitGit}>Kayıt Ol</button>
+              <button className="giris-yap-btn" onClick={onGirisYap}>Giriş Yap</button>
+            </>
+          )}
         </div>
       </header>
 
       <div className="icerik">
-        <div className="arama-bolum">
-          <h2>Yakınındaki hizmetleri keşfet</h2>
-          <p>Berber, kuaför, güzellik salonu ve daha fazlası</p>
-        </div>
-
         {/* SLIDER REKLAMLAR */}
         {sliderReklamlar.length > 0 && (
           <div className="reklam-slider" onClick={() => sliderTikla(sliderReklamlar[sliderIndex])}>
@@ -322,13 +413,6 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
             )}
           </div>
         )}
-
-        {/* ARAMA */}
-        <div className="arama-kutusu">
-          <span className="arama-icon">🔍</span>
-          <input type="text" placeholder="İşletme, hizmet ara..." value={aramaMetni} onChange={e => setAramaMetni(e.target.value)} className="arama-input" />
-          {aramaMetni && <button onClick={() => setAramaMetni('')} className="temizle-btn">✕</button>}
-        </div>
 
         {/* ŞEHİR ÇİPLERİ */}
         {sehirler.length > 0 && (
@@ -454,18 +538,28 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
               }
 
               return (
-                <div key={isletme._id} className="isletme-kart card" onClick={() => onProfilAc(isletme._id)} style={{ cursor: 'pointer' }}>
-                  <div className="isletme-kart-ust">
-                    <span className="isletme-emoji">{kategoriEmoji(isletme.kategori)}</span>
-                    <div>
-                      <h3>{isletme.isletmeAdi}</h3>
-                      <p>{isletme.adres?.il} / {isletme.adres?.ilce}</p>
-                    </div>
-                    <div className="puan">
-                      <div>{yildizGoster(Math.round(isletme.ortalamaPuan || 0))}</div>
-                      <span style={{ fontSize: '12px', color: '#999' }}>{isletme.ortalamaPuan || 0} ({isletme.yorumSayisi || 0})</span>
+                <div key={isletme._id} className="isletme-kart" onClick={() => onProfilAc(isletme._id)}>
+                  {/* Üst: İsim + Puan (mockup gibi) */}
+                  <div className="isletme-kart-baslik">
+                    <h3>{isletme.isletmeAdi}</h3>
+                    <div className="isletme-kart-puan-inline">
+                      <span style={{ color: '#F59E0B' }}>★</span>
+                      <span>{isletme.ortalamaPuan > 0 ? isletme.ortalamaPuan : '—'}</span>
                     </div>
                   </div>
+
+                  {/* Slogan veya ilk hizmet adı */}
+                  <div className="isletme-kart-slogan">
+                    {isletme.slogan || isletme.hizmetler?.[0]?.ad || ''}
+                  </div>
+
+                  {/* Konum */}
+                  <div className="isletme-kart-konum">
+                    <span>📍</span>
+                    <span>{isletme.adres?.il} / {isletme.adres?.ilce}</span>
+                  </div>
+
+                  {/* Hizmetler (compact list) */}
                   <div className="hizmet-listesi">
                     {isletme.hizmetler?.slice(0, 3).map((h, i) => (
                       <div key={i} className="hizmet-satir">
@@ -474,9 +568,15 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
                       </div>
                     ))}
                   </div>
+
                   <div className="calisma-saati">🕐 {isletme.calismaBaslangic} - {isletme.calismaBitis}</div>
-                  <button className="btn-primary" style={{ marginTop: '14px' }} onClick={e => modalAc(isletme, e)}>Randevu Al</button>
-                  <button className="btn-secondary" style={{ marginTop: '8px' }} onClick={e => yorumModalAc(isletme, e)}>⭐ Yorumlar ({isletme.yorumSayisi || 0})</button>
+
+                  <button className="btn-primary" style={{ marginTop: '14px' }} onClick={e => modalAc(isletme, e)}>
+                    Randevu Al
+                  </button>
+                  <button className="btn-secondary" style={{ marginTop: '8px' }} onClick={e => yorumModalAc(isletme, e)}>
+                    ⭐ Yorumlar ({isletme.yorumSayisi || 0})
+                  </button>
                 </div>
               );
             })}
@@ -492,7 +592,11 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
               <h2>{secilenIsletme.isletmeAdi}</h2>
               <button className="modal-kapat" onClick={() => setRandevuModal(false)}>✕</button>
             </div>
-            {randevuBasari ? <div className="basari">✅ {randevuBasari}</div> : (
+            {randevuBasari ? (
+              <div className="basari" style={{ background: '#FFF8E1', color: '#E65100', border: '1px solid #FFE082' }}>
+                ⏳ {randevuBasari}
+              </div>
+            ) : (
               <>
                 {randevuHata && <div className="hata">{randevuHata}</div>}
                 <p className="modal-label">Hizmet Seç (birden fazla seçebilirsin)</p>
@@ -514,7 +618,23 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
                   </div>
                 )}
                 <p className="modal-label">Tarih Seç</p>
-                <input type="date" min={bugunTarih} value={secilenTarih} onChange={e => setSecilenTarih(e.target.value)} className="tarih-input" />
+                <input
+                  type="date"
+                  min={bugunTarih}
+                  value={secilenTarih}
+                  onChange={e => { setSecilenTarih(e.target.value); setSecilenSaat(''); }}
+                  className="tarih-input"
+                />
+                {kapaliBilgi?.tumGun && (
+                  <div style={{ marginTop: '8px', background: '#FFF5F5', color: '#C62828', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', border: '1px solid #FFCDD2' }}>
+                    ⛔ Bu tarih işletme tarafından kapalı.{kapaliBilgi.aciklama ? ` (${kapaliBilgi.aciklama})` : ''}
+                  </div>
+                )}
+                {kapaliBilgi && !kapaliBilgi.tumGun && kapaliBilgi.saatler?.length > 0 && (
+                  <div style={{ marginTop: '8px', background: '#FFF8E1', color: '#E65100', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', border: '1px solid #FFE082' }}>
+                    ⚠️ Bu günde bazı saatler kapalı: {kapaliBilgi.saatler.join(', ')}
+                  </div>
+                )}
                 <p className="modal-label">
                   Saat Seç
                   {toplamSure > 0 && secilenSaat && (
@@ -530,14 +650,20 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
                 <div className="saat-grid">
                   {saatler.map(s => {
                     const isDolu = doluSaatler.has(s);
+                    const isKapali = kapaliBilgi?.tumGun || (!kapaliBilgi?.tumGun && kapaliBilgi?.saatler?.includes(s));
                     return (
-                      <button key={s} className={`saat-btn ${secilenSaat === s ? 'secili' : ''} ${isDolu ? 'dolu' : ''}`} onClick={() => !isDolu && setSecilenSaat(s)} disabled={isDolu}>
-                        {isDolu ? '🚫' : s}
+                      <button
+                        key={s}
+                        className={`saat-btn ${secilenSaat === s ? 'secili' : ''} ${isDolu || isKapali ? 'dolu' : ''}`}
+                        onClick={() => !isDolu && !isKapali && setSecilenSaat(s)}
+                        disabled={isDolu || isKapali}
+                      >
+                        {isKapali ? '🚫' : isDolu ? '🔒' : s}
                       </button>
                     );
                   })}
                 </div>
-                <button className="btn-primary" style={{ marginTop: '20px' }} onClick={randevuAl} disabled={gonderiyor}>
+                <button className="btn-primary" style={{ marginTop: '20px' }} onClick={randevuAl} disabled={gonderiyor || !!kapaliBilgi?.tumGun}>
                   {gonderiyor ? 'Gönderiliyor...' : `Randevuyu Onayla${toplamFiyat > 0 ? ` — ${toplamFiyat} ₺` : ''}`}
                 </button>
               </>
@@ -554,7 +680,14 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
               <h2>⭐ {yorumIsletme.isletmeAdi}</h2>
               <button className="modal-kapat" onClick={() => setYorumModal(false)}>✕</button>
             </div>
-            {isletmeRandevulari.length > 0 ? (
+            {!kullanici ? (
+              <div style={{ background: '#EEF2FF', border: '1px solid #C7D2FE', borderRadius: '8px', padding: '14px', marginBottom: '16px', fontSize: '13px', color: '#4338CA' }}>
+                ℹ️ Yorum yazmak için{' '}
+                <span style={{ fontWeight: '700', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => { setYorumModal(false); onGirisYap(); }}>
+                  giriş yapın
+                </span>
+              </div>
+            ) : isletmeRandevulari.length > 0 ? (
               <div className="yorum-yaz">
                 <p className="modal-label">Hangi randevu için yorum yapıyorsun?</p>
                 <select className="tarih-input" value={secilenRandevu} onChange={e => setSecilenRandevu(e.target.value)}>

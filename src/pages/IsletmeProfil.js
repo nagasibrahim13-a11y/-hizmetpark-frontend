@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import './IsletmeProfil.css';
 
 function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData }) {
+  const { girisGerektir } = useAuth();
   const [isletme, setIsletme] = useState(null);
   const [yorumlar, setYorumlar] = useState([]);
   const [yukleniyor, setYukleniyor] = useState(true);
@@ -82,6 +84,13 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData }) {
 
   const doluSaatler = doluSaatleriHesapla(secilenSaat, toplamSure);
 
+  const kapaliBilgi = secilenTarih && isletme?.kapaliTarihler?.length > 0
+    ? isletme.kapaliTarihler.find(kt => {
+        const ktTarih = new Date(kt.tarih).toISOString().split('T')[0];
+        return ktTarih === secilenTarih;
+      }) || null
+    : null;
+
   const randevuAl = async () => {
     if (secilenHizmetler.length === 0 || !secilenSaat || !secilenTarih) {
       setRandevuHata('Lütfen en az bir hizmet, tarih ve saat seçin');
@@ -109,7 +118,7 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData }) {
       } else {
         setRandevuBasari(hediyeliRandevuData
           ? `🎁 Hediye randevunuz oluşturuldu! ${secilenSaat} — Ücretsiz!`
-          : `Randevunuz oluşturuldu! ${secilenSaat} - ${toplamSure} dk.`
+          : `Randevu talebiniz alındı! ${secilenSaat} - ${toplamSure} dk. İşletmenin onayını bekliyor.`
         );
         setTimeout(() => {
           setRandevuModal(false);
@@ -148,52 +157,42 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData }) {
 
   return (
     <div className="profil-sayfa">
+      {/* HEADER */}
       <header className="profil-header">
         <button className="geri-btn" onClick={onGeri}>← Geri</button>
-        <div className="header-logo">✂️ HizmetPark</div>
+        <div className="header-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="4" width="18" height="18" rx="3" stroke="#DC2626" strokeWidth="2"/>
+            <path d="M3 9h18" stroke="#DC2626" strokeWidth="2"/>
+            <path d="M8 2.5v3M16 2.5v3" stroke="#DC2626" strokeWidth="2" strokeLinecap="round"/>
+            <circle cx="8" cy="14" r="1.5" fill="#DC2626"/>
+            <circle cx="12" cy="14" r="1.5" fill="#DC2626"/>
+            <circle cx="16" cy="14" r="1.5" fill="#DC2626"/>
+          </svg>
+          HizmetPark
+        </div>
         <div style={{ width: '80px' }} />
       </header>
 
-      {/* KAPAK */}
-      <div
-        className="profil-kapak"
-        style={isletme.fotograf ? {
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.65)), url(${isletme.fotograf})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        } : {}}
-      >
-        <div className="kapak-icerik">
-          <div className="profil-avatar">{kategoriEmoji(isletme.kategori)}</div>
-          <div className="profil-bilgi">
-            <h1>{isletme.isletmeAdi}</h1>
-            {isletme.slogan && (
-              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.9)', fontStyle: 'italic', margin: '4px 0 8px' }}>
-                "{isletme.slogan}"
-              </p>
-            )}
-            <p className="profil-kategori">{kategoriLabel(isletme.kategori)}</p>
-            <div className="profil-meta">
-              <span>📍 {isletme.adres?.il} / {isletme.adres?.ilce}</span>
-              <span>📞 {isletme.telefon}</span>
-              <span>🕐 {isletme.calismaBaslangic} - {isletme.calismaBitis}</span>
-            </div>
-            <div className="profil-puan-row">
-              <div className="profil-yildizlar">{yildizGoster(Math.round(isletme.ortalamaPuan || 0))}</div>
-              <span className="profil-puan-sayi">{isletme.ortalamaPuan || 0}</span>
-              <span className="profil-yorum-sayi">({isletme.yorumSayisi || 0} yorum)</span>
-            </div>
-            {sadakatAyar && (
-              <div className="profil-sadakat-bilgi">
-                <span>🎁</span>
-                <span>Her <strong>{sadakatAyar.hedefZiyaret}</strong> ziyarette <strong>{sadakatAyar.hediye}</strong></span>
-              </div>
-            )}
-          </div>
-          <button className="randevu-al-btn" onClick={() => setRandevuModal(true)}>
-            📅 Randevu Al
-          </button>
+      {/* KOYU BANNER (mockup 2 stili) */}
+      <div className="profil-kapak">
+        <div className="profil-avatar-daire">
+          <span style={{ fontSize: '44px' }}>{kategoriEmoji(isletme.kategori)}</span>
         </div>
+        <h1 className="profil-banner-isim">{isletme.isletmeAdi}</h1>
+        {isletme.slogan && (
+          <p className="profil-banner-slogan">"{isletme.slogan}"</p>
+        )}
+        <div className="profil-banner-meta">
+          <span>📍 {isletme.adres?.il} / {isletme.adres?.ilce}</span>
+          <span>📞 {isletme.telefon}</span>
+          <span>🕐 {isletme.calismaBaslangic} - {isletme.calismaBitis}</span>
+        </div>
+        {sadakatAyar && (
+          <div className="profil-sadakat-bilgi">
+            🎁 Her <strong>{sadakatAyar.hedefZiyaret}</strong> ziyarette <strong>{sadakatAyar.hediye}</strong>
+          </div>
+        )}
       </div>
 
       {/* ÇALIŞMA GÜNLERİ */}
@@ -212,107 +211,98 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData }) {
         </div>
       </div>
 
-      {/* SEKMELER */}
+      {/* İKİ SÜTUN İÇERİK (mockup 2 gibi) */}
       <div className="profil-icerik">
-        <div className="profil-sekmeler">
-          <button className={`profil-sekme ${aktifSekme === 'hizmetler' ? 'aktif' : ''}`} onClick={() => setAktifSekme('hizmetler')}>
-            ✂️ Hizmetler ({isletme.hizmetler?.length || 0})
-          </button>
-          <button className={`profil-sekme ${aktifSekme === 'yorumlar' ? 'aktif' : ''}`} onClick={() => setAktifSekme('yorumlar')}>
-            ⭐ Yorumlar ({yorumlar.length})
-          </button>
-          <button className={`profil-sekme ${aktifSekme === 'hakkinda' ? 'aktif' : ''}`} onClick={() => setAktifSekme('hakkinda')}>
-            ℹ️ Hakkında
-          </button>
-        </div>
+        <div className="profil-iki-kolon">
 
-        {/* HİZMETLER */}
-        {aktifSekme === 'hizmetler' && (
-          <div className="hizmetler-liste">
-            {isletme.hizmetler?.map((h, i) => (
-              <div key={i} className="hizmet-kart">
-                <div className="hizmet-kart-sol">
-                  <div className="hizmet-kart-adi">{h.ad}</div>
-                  <div className="hizmet-kart-sure">⏱ {h.sure} dakika</div>
+          {/* SOL: Hizmet Fiyatları */}
+          <div className="profil-sol">
+            <h3 className="profil-kolon-baslik">✂️ Hizmet Fiyatları</h3>
+            <div className="hizmet-fiyat-liste">
+              {isletme.hizmetler?.map((h, i) => (
+                <div key={i} className="hizmet-fiyat-satir">
+                  <div>
+                    <div className="hizmet-fiyat-ad">{h.ad}</div>
+                    <div className="hizmet-fiyat-sure">⏱ {h.sure} dk</div>
+                  </div>
+                  <div className="hizmet-fiyat-sag">
+                    <span className="hizmet-fiyat-tl">{h.fiyat} TL</span>
+                    <button className="hizmet-hizli-btn" onClick={() => {
+                      if (!kullanici) {
+                        girisGerektir(() => { setSecilenHizmetler([h]); setRandevuModal(true); });
+                      } else {
+                        setSecilenHizmetler([h]);
+                        setRandevuModal(true);
+                      }
+                    }}>Al</button>
+                  </div>
                 </div>
-                <div className="hizmet-kart-sag">
-                  <div className="hizmet-kart-fiyat">{h.fiyat} ₺</div>
-                  <button className="hizmet-randevu-btn" onClick={() => { setSecilenHizmetler([h]); setRandevuModal(true); }}>
-                    Randevu Al
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
 
-        {/* YORUMLAR */}
-        {aktifSekme === 'yorumlar' && (
-          <div className="yorumlar-liste">
-            <div className="puan-ozet">
-              <div className="puan-buyuk">{isletme.ortalamaPuan || 0}</div>
+            {/* Ortalama Puan */}
+            <h3 className="profil-kolon-baslik" style={{ marginTop: '24px' }}>⭐ Ortalama Puan</h3>
+            <div className="profil-puan-blok">
+              <div className="profil-puan-buyuk">{isletme.ortalamaPuan || '—'}</div>
               <div>
-                <div className="puan-yildizlar">{yildizGoster(Math.round(isletme.ortalamaPuan || 0))}</div>
-                <div className="puan-toplam">{isletme.yorumSayisi || 0} değerlendirme</div>
+                <div style={{ fontSize: '22px', letterSpacing: '2px' }}>{yildizGoster(Math.round(isletme.ortalamaPuan || 0))}</div>
+                <div className="profil-puan-alt">{isletme.yorumSayisi || 0} değerlendirme</div>
               </div>
             </div>
+
+            {/* Hakkında (sol altı) */}
+            {(isletme.hakkinda || isletme.adres?.acikAdres) && (
+              <>
+                <h3 className="profil-kolon-baslik" style={{ marginTop: '24px' }}>ℹ️ Hakkında</h3>
+                {isletme.hakkinda && <p style={{ fontSize: '13px', color: '#6B7280', lineHeight: '1.6' }}>{isletme.hakkinda}</p>}
+                {isletme.adres?.acikAdres && (
+                  <p style={{ fontSize: '13px', color: '#6B7280', marginTop: '8px' }}>
+                    📍 {isletme.adres.acikAdres}, {isletme.adres.ilce} / {isletme.adres.il}
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* SAĞ: Kullanıcı Yorumları */}
+          <div className="profil-sag">
+            <h3 className="profil-kolon-baslik">💬 Kullanıcı Yorumları</h3>
             {yorumlar.length === 0 ? (
               <div className="bos-yorum">Henüz yorum yok</div>
             ) : (
-              yorumlar.map((y, i) => (
-                <div key={i} className="yorum-kart-profil">
-                  <div className="yorum-ust-profil">
-                    <div className="yorum-avatar-profil">{y.musteri?.ad?.[0]}{y.musteri?.soyad?.[0]}</div>
-                    <div>
-                      <div className="yorum-isim-profil">{y.musteri?.ad} {y.musteri?.soyad}</div>
-                      <div className="yorum-tarih-profil">{new Date(y.tarih).toLocaleDateString('tr-TR')}</div>
+              <div className="yorumlar-liste">
+                {yorumlar.map((y, i) => (
+                  <div key={i} className="yorum-kart-profil">
+                    <div className="yorum-ust-profil">
+                      <div className="yorum-avatar-profil">{y.musteri?.ad?.[0]}{y.musteri?.soyad?.[0]}</div>
+                      <div>
+                        <div className="yorum-isim-profil">{y.musteri?.ad} {y.musteri?.soyad}</div>
+                        <div className="yorum-tarih-profil">{new Date(y.tarih).toLocaleDateString('tr-TR')}</div>
+                      </div>
+                      <div className="yorum-puan-profil">
+                        {yildizGoster(y.puan)}
+                      </div>
                     </div>
-                    <div className="yorum-puan-profil">
-                      {yildizGoster(y.puan)}
-                      <span style={{ marginLeft: '4px', fontSize: '13px', color: '#999' }}>{y.puan}/5</span>
-                    </div>
+                    <p className="yorum-metin-profil">{y.yorum}</p>
                   </div>
-                  <p className="yorum-metin-profil">{y.yorum}</p>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </div>
-        )}
+        </div>
 
-        {/* HAKKINDA */}
-        {aktifSekme === 'hakkinda' && (
-          <div className="hakkinda-bolum">
-            {isletme.hakkinda && (
-              <div className="hakkinda-kart" style={{ gridColumn: '1 / -1' }}>
-                <h3>📖 Hakkımızda</h3>
-                <p>{isletme.hakkinda}</p>
-              </div>
-            )}
-            <div className="hakkinda-kart">
-              <h3>📍 Adres</h3>
-              <p>{isletme.adres?.acikAdres}</p>
-              <p>{isletme.adres?.ilce} / {isletme.adres?.il}</p>
-            </div>
-            <div className="hakkinda-kart">
-              <h3>📞 İletişim</h3>
-              <p>{isletme.telefon}</p>
-            </div>
-            <div className="hakkinda-kart">
-              <h3>🕐 Çalışma Saatleri</h3>
-              <p>{isletme.calismaBaslangic} - {isletme.calismaBitis}</p>
-            </div>
-            <div className="hakkinda-kart">
-              <h3>📅 Çalışma Günleri</h3>
-              <p>{isletme.calismaGunleri?.join(', ')}</p>
-            </div>
-            {sadakatAyar && (
-              <div className="hakkinda-kart" style={{ borderColor: '#FFE082', background: '#FFFDE7' }}>
-                <h3>🎁 Sadakat Programı</h3>
-                <p>Her <strong>{sadakatAyar.hedefZiyaret}</strong> ziyarette <strong>{sadakatAyar.hediye}</strong> hediye edilir.</p>
-              </div>
-            )}
-          </div>
-        )}
+        {/* BÜYÜK RANDEVU AL BUTONU (pill, ortalanmış) */}
+        <div className="randevu-al-alan">
+          <button className="randevu-al-pill" onClick={() => {
+            if (!kullanici) {
+              girisGerektir(() => setRandevuModal(true));
+            } else {
+              setRandevuModal(true);
+            }
+          }}>
+            📅 Randevu Al
+          </button>
+        </div>
       </div>
 
       {/* RANDEVU MODAL */}
@@ -331,7 +321,16 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData }) {
             )}
 
             {randevuBasari ? (
-              <div className="basari">✅ {randevuBasari}</div>
+              <div
+                className="basari"
+                style={!hediyeliRandevuData ? {
+                  background: '#FFF8E1',
+                  color: '#E65100',
+                  border: '1px solid #FFE082'
+                } : {}}
+              >
+                {hediyeliRandevuData ? '✅' : '⏳'} {randevuBasari}
+              </div>
             ) : (
               <>
                 {randevuHata && <div className="hata">{randevuHata}</div>}
@@ -365,21 +364,43 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData }) {
                 )}
 
                 <p className="modal-label">Tarih Seç</p>
-                <input type="date" min={bugunTarih} value={secilenTarih} onChange={e => setSecilenTarih(e.target.value)} className="tarih-input" />
+                <input
+                  type="date"
+                  min={bugunTarih}
+                  value={secilenTarih}
+                  onChange={e => { setSecilenTarih(e.target.value); setSecilenSaat(''); }}
+                  className="tarih-input"
+                />
+                {kapaliBilgi?.tumGun && (
+                  <div style={{ marginTop: '8px', background: '#FFF5F5', color: '#C62828', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', border: '1px solid #FFCDD2' }}>
+                    ⛔ Bu tarih işletme tarafından kapalı.{kapaliBilgi.aciklama ? ` (${kapaliBilgi.aciklama})` : ''}
+                  </div>
+                )}
+                {kapaliBilgi && !kapaliBilgi.tumGun && kapaliBilgi.saatler?.length > 0 && (
+                  <div style={{ marginTop: '8px', background: '#FFF8E1', color: '#E65100', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', border: '1px solid #FFE082' }}>
+                    ⚠️ Bu günde bazı saatler kapalı: {kapaliBilgi.saatler.join(', ')}
+                  </div>
+                )}
 
                 <p className="modal-label">Saat Seç</p>
                 <div className="saat-grid">
                   {saatler.map(s => {
                     const isDolu = doluSaatler.has(s);
+                    const isKapali = kapaliBilgi?.tumGun || (!kapaliBilgi?.tumGun && kapaliBilgi?.saatler?.includes(s));
                     return (
-                      <button key={s} className={`saat-btn ${secilenSaat === s ? 'secili' : ''} ${isDolu ? 'dolu' : ''}`} onClick={() => !isDolu && setSecilenSaat(s)} disabled={isDolu}>
-                        {isDolu ? '🚫' : s}
+                      <button
+                        key={s}
+                        className={`saat-btn ${secilenSaat === s ? 'secili' : ''} ${isDolu || isKapali ? 'dolu' : ''}`}
+                        onClick={() => !isDolu && !isKapali && setSecilenSaat(s)}
+                        disabled={isDolu || isKapali}
+                      >
+                        {isKapali ? '🚫' : isDolu ? '🔒' : s}
                       </button>
                     );
                   })}
                 </div>
 
-                <button className="btn-primary" style={{ marginTop: '20px' }} onClick={randevuAl} disabled={gonderiyor}>
+                <button className="btn-primary" style={{ marginTop: '20px' }} onClick={randevuAl} disabled={gonderiyor || !!kapaliBilgi?.tumGun}>
                   {gonderiyor ? 'Gönderiliyor...' : hediyeliRandevuData ? '🎁 Hediye Randevuyu Onayla' : `Randevuyu Onayla${toplamFiyat > 0 ? ` — ${toplamFiyat} ₺` : ''}`}
                 </button>
               </>

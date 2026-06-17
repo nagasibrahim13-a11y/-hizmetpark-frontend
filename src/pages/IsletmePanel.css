@@ -2,15 +2,25 @@
 
 .header {
   background: white;
-  padding: 16px 28px;
+  padding: 18px 28px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid #E53935;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 2px solid #DC2626;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
-.header-logo { color: #E53935; font-size: 20px; font-weight: 800; }
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1E1B4B;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
 
 .header-orta { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 
@@ -18,7 +28,7 @@
 
 .panel-badge {
   background: #FFF5F5;
-  color: #E53935;
+  color: #DC2626;
   border: 1px solid #FFCDD2;
   padding: 2px 10px;
   border-radius: 20px;
@@ -28,8 +38,8 @@
 
 .cikis-btn {
   background: white;
-  border: 1.5px solid #E53935;
-  color: #E53935;
+  border: 1.5px solid #DC2626;
+  color: #DC2626;
   padding: 7px 16px;
   border-radius: 6px;
   cursor: pointer;
@@ -37,7 +47,7 @@
   font-weight: 600;
 }
 
-.cikis-btn:hover { background: #E53935; color: white; }
+.cikis-btn:hover { background: #DC2626; color: white; }
 
 .metrik-row {
   display: grid;
@@ -57,28 +67,41 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
-.metrik-sayi { font-size: 28px; font-weight: 800; color: #E53935; }
+.metrik-sayi { font-size: 28px; font-weight: 800; color: #DC2626; }
 .metrik-label { font-size: 12px; color: #999; margin-top: 4px; font-weight: 500; }
 
 .panel-icerik { max-width: 960px; margin: 0 auto; padding: 0 28px 40px; }
 
-.sekme-row { display: flex; gap: 8px; margin-bottom: 20px; }
+.sekme-row {
+  display: flex;
+  gap: 0;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  border-bottom: 2px solid #F0F0F0;
+}
 
 .sekme-btn {
-  padding: 10px 20px;
-  border-radius: 8px;
-  border: 1.5px solid #E0E0E0;
-  background: white;
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  color: #777;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  margin-bottom: -2px;
+  white-space: nowrap;
 }
 
+.sekme-btn:hover { color: #DC2626; }
+
 .sekme-btn.aktif {
-  background: #E53935;
-  color: white;
-  border-color: #E53935;
+  color: #DC2626;
+  border-bottom-color: #DC2626;
+  font-weight: 700;
+  background: transparent;
 }
 
 .randevu-kart {
@@ -94,13 +117,13 @@
 }
 
 .randevu-sol { text-align: center; min-width: 60px; }
-.randevu-saat { font-size: 18px; font-weight: 800; color: #E53935; }
+.randevu-saat { font-size: 18px; font-weight: 800; color: #DC2626; }
 .randevu-tarih { font-size: 11px; color: #999; margin-top: 2px; }
 
 .randevu-orta { flex: 1; }
 .randevu-musteri { font-size: 15px; font-weight: 700; color: #1A1A1A; }
 .randevu-hizmet { font-size: 13px; color: #777; margin-top: 3px; }
-.randevu-fiyat { font-size: 13px; font-weight: 700; color: #E53935; margin-top: 3px; }
+.randevu-fiyat { font-size: 13px; font-weight: 700; color: #DC2626; margin-top: 3px; }
 
 .randevu-sag { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 
@@ -129,7 +152,7 @@
 
 .reddet-btn {
   background: #FFF5F5;
-  color: #C62828;
+  color: #B91C1C;
   border: 1px solid #FFCDD2;
   padding: 6px 14px;
   border-radius: 6px;
@@ -139,7 +162,7 @@
   transition: all 0.2s;
 }
 
-.reddet-btn:hover { background: #C62828; color: white; }
+.reddet-btn:hover { background: #B91C1C; color: white; }
 
 .tamamla-btn {
   background: #E3F2FD;
@@ -165,6 +188,6 @@
 
 .hizmet-adi-panel { flex: 1; font-size: 15px; font-weight: 600; }
 .hizmet-sure { color: #999; font-size: 13px; }
-.hizmet-fiyat-panel { font-size: 16px; font-weight: 800; color: #E53935; }
+.hizmet-fiyat-panel { font-size: 16px; font-weight: 800; color: #DC2626; }
 
 .bos-mesaj { text-align: center; padding: 60px; color: #999; font-size: 16px; }

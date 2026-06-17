@@ -26,6 +26,11 @@ function IsletmePanel({ kullanici, onCikis }) {
     gun: 7
   });
   const [reklamBasari, setReklamBasari] = useState('');
+  const [musaitlikTarih, setMusaitlikTarih] = useState('');
+  const [musaitlikTumGun, setMusaitlikTumGun] = useState(true);
+  const [musaitlikSaatler, setMusaitlikSaatler] = useState([]);
+  const [musaitlikAciklama, setMusaitlikAciklama] = useState('');
+  const [musaitlikBasari, setMusaitlikBasari] = useState('');
 
   const fiyatlar = {
     slider: { haftalik: 400, aylik: 1200 },
@@ -38,6 +43,15 @@ function IsletmePanel({ kullanici, onCikis }) {
     one_cikma: '📍 Öne Çıkarma',
     sponsorlu: '🃏 Sponsorlu Kart'
   };
+
+  const saatler = [
+    '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+    '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
+    '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
+    '18:00', '18:30'
+  ];
+
+  const bugunTarih = new Date().toISOString().split('T')[0];
 
   useEffect(() => { isletmeyiGetir(); }, []);
 
@@ -217,6 +231,44 @@ function IsletmePanel({ kullanici, onCikis }) {
     } catch (err) { console.error(err); }
   };
 
+  const kapaliTarihEkle = async () => {
+    if (!musaitlikTarih) { alert('Lütfen tarih seçin'); return; }
+    if (!musaitlikTumGun && musaitlikSaatler.length === 0) { alert('Lütfen kapalı saatleri seçin'); return; }
+    try {
+      const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/kapali-tarih`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tarih: musaitlikTarih,
+          tumGun: musaitlikTumGun,
+          saatler: musaitlikTumGun ? [] : musaitlikSaatler,
+          aciklama: musaitlikAciklama
+        })
+      });
+      const veri = await cevap.json();
+      if (!cevap.ok) { alert(veri.hata || 'Bir hata oluştu'); return; }
+      setIsletme(veri.isletme);
+      setMusaitlikBasari('Kapalı tarih eklendi!');
+      setMusaitlikTarih('');
+      setMusaitlikSaatler([]);
+      setMusaitlikAciklama('');
+      setMusaitlikTumGun(true);
+      setTimeout(() => setMusaitlikBasari(''), 2000);
+    } catch (err) { console.error(err); alert('Sunucuya bağlanılamadı'); }
+  };
+
+  const kapaliTarihKaldir = async (tarihId) => {
+    try {
+      const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/kapali-tarih/${tarihId}`, { method: 'DELETE' });
+      if (cevap.ok) {
+        setIsletme(prev => ({
+          ...prev,
+          kapaliTarihler: prev.kapaliTarihler.filter(kt => kt._id !== tarihId)
+        }));
+      }
+    } catch (err) { console.error(err); }
+  };
+
   const durumRenk = (durum) => {
     if (durum === 'onaylandi') return { bg: '#F1F8E9', color: '#2E7D32', border: '#C8E6C9' };
     if (durum === 'reddedildi') return { bg: '#FFF5F5', color: '#C62828', border: '#FFCDD2' };
@@ -258,7 +310,17 @@ function IsletmePanel({ kullanici, onCikis }) {
   return (
     <div className="panel-sayfa">
       <header className="header">
-        <div className="header-logo">✂️ HizmetPark</div>
+        <div className="header-logo">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="4" width="18" height="18" rx="3" stroke="#4F46E5" strokeWidth="2"/>
+            <path d="M3 9h18" stroke="#4F46E5" strokeWidth="2"/>
+            <path d="M8 2.5v3M16 2.5v3" stroke="#4F46E5" strokeWidth="2" strokeLinecap="round"/>
+            <circle cx="8" cy="14" r="1.5" fill="#4F46E5"/>
+            <circle cx="12" cy="14" r="1.5" fill="#4F46E5"/>
+            <circle cx="16" cy="14" r="1.5" fill="#4F46E5"/>
+          </svg>
+          HizmetPark
+        </div>
         <div className="header-orta">
           <span className="isletme-adi">{isletme.isletmeAdi}</span>
           <span className="panel-badge">Yönetim Paneli</span>
@@ -280,6 +342,7 @@ function IsletmePanel({ kullanici, onCikis }) {
           <button className={`sekme-btn ${aktifSekme === 'hizmetler' ? 'aktif' : ''}`} onClick={() => setAktifSekme('hizmetler')}>✂️ Hizmetler</button>
           <button className={`sekme-btn ${aktifSekme === 'reklamlar' ? 'aktif' : ''}`} onClick={() => setAktifSekme('reklamlar')}>📢 Reklamlar</button>
           <button className={`sekme-btn ${aktifSekme === 'profil' ? 'aktif' : ''}`} onClick={() => setAktifSekme('profil')}>🏪 Profilim</button>
+          <button className={`sekme-btn ${aktifSekme === 'musaitlik' ? 'aktif' : ''}`} onClick={() => setAktifSekme('musaitlik')}>📆 Müsaitlik</button>
         </div>
 
         {/* RANDEVULAR */}
@@ -642,6 +705,66 @@ function IsletmePanel({ kullanici, onCikis }) {
               Reklamı Yayınla
             </button>
           </div>
+        </div>
+      )}
+
+      {/* MÜSAİTLİK */}
+      {aktifSekme === 'musaitlik' && (
+        <div>
+          <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #F0F0F0', marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>📆 Kapalı Tarih Ekle</h3>
+            <label style={labelStyle}>Tarih</label>
+            <input type="date" min={bugunTarih} value={musaitlikTarih} onChange={e => setMusaitlikTarih(e.target.value)} style={inputStyle} />
+            <label style={labelStyle}>Açıklama (opsiyonel)</label>
+            <input type="text" placeholder="Örn: Tatil, Öğle arası" value={musaitlikAciklama} onChange={e => setMusaitlikAciklama(e.target.value)} style={inputStyle} />
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}>
+                <input type="checkbox" checked={musaitlikTumGun} onChange={e => { setMusaitlikTumGun(e.target.checked); if (e.target.checked) setMusaitlikSaatler([]); }} />
+                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A' }}>Tüm gün kapalı</span>
+              </label>
+            </div>
+            {!musaitlikTumGun && (
+              <div>
+                <label style={labelStyle}>Kapalı Saatler</label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '16px' }}>
+                  {saatler.map(s => (
+                    <label key={s} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '9px', border: `1.5px solid ${musaitlikSaatler.includes(s) ? '#E53935' : '#E0E0E0'}`, borderRadius: '8px', cursor: 'pointer', background: musaitlikSaatler.includes(s) ? '#FFF5F5' : 'white', fontSize: '13px', fontWeight: '500', color: musaitlikSaatler.includes(s) ? '#E53935' : '#555', transition: 'all 0.15s' }}>
+                      <input type="checkbox" checked={musaitlikSaatler.includes(s)} onChange={e => setMusaitlikSaatler(e.target.checked ? [...musaitlikSaatler, s] : musaitlikSaatler.filter(x => x !== s))} style={{ display: 'none' }} />
+                      {s}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+            {musaitlikBasari && <div style={{ background: '#F1F8E9', color: '#2E7D32', padding: '10px', borderRadius: '8px', fontSize: '13px', border: '1px solid #C8E6C9', marginBottom: '12px' }}>✅ {musaitlikBasari}</div>}
+            <button onClick={kapaliTarihEkle} style={{ background: '#E53935', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+              + Ekle
+            </button>
+          </div>
+
+          <h3 style={{ fontSize: '14px', fontWeight: '700', margin: '0 0 12px' }}>Kapalı Tarihler ({(isletme.kapaliTarihler || []).length})</h3>
+          {(isletme.kapaliTarihler || []).length === 0 ? (
+            <div className="bos-mesaj">Kapalı tarih yok</div>
+          ) : (
+            (isletme.kapaliTarihler || []).map((kt, i) => (
+              <div key={kt._id || i} className="randevu-kart">
+                <div className="randevu-sol">
+                  <div className="randevu-saat" style={{ fontSize: '20px' }}>🚫</div>
+                  <div className="randevu-tarih">{new Date(kt.tarih).toLocaleDateString('tr-TR')}</div>
+                </div>
+                <div className="randevu-orta">
+                  <div className="randevu-musteri">{kt.tumGun ? 'Tüm Gün Kapalı' : `${kt.saatler?.length || 0} saat kapalı`}</div>
+                  {!kt.tumGun && kt.saatler?.length > 0 && <div className="randevu-hizmet">{kt.saatler.join(', ')}</div>}
+                  {kt.aciklama && <div className="randevu-hizmet">{kt.aciklama}</div>}
+                </div>
+                <div className="randevu-sag">
+                  <button onClick={() => kapaliTarihKaldir(kt._id)} style={{ background: '#FFF5F5', color: '#C62828', border: '1px solid #FFCDD2', padding: '7px 14px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                    🗑 Kaldır
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       )}
 

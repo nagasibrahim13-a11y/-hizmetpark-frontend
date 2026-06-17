@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import Giris from './pages/Giris';
+import React, { useEffect, useState } from 'react';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import GirisModal from './components/GirisModal';
 import Kayit from './pages/Kayit';
 import MusteriAnaSayfa from './pages/MusteriAnaSayfa';
 import IsletmePanel from './pages/IsletmePanel';
@@ -8,24 +9,50 @@ import Randevularim from './pages/Randevularim';
 import SadakatKartlarim from './pages/SadakatKartlarim';
 import './App.css';
 
-function App() {
-  const [sayfa, setSayfa] = useState('giris');
-  const [kullanici, setKullanici] = useState(null);
+function AppRouter() {
+  const { kullanici, girisModalAcik, girisGerektir, cikisYap, modalKapat } = useAuth();
+  const [sayfa, setSayfa] = useState('anaSayfa');
   const [profilIsletmeId, setProfilIsletmeId] = useState(null);
   const [hediyeliRandevuData, setHediyeliRandevuData] = useState(null);
 
-  const girisYap = (kullaniciData) => {
-    setKullanici(kullaniciData);
-    if (kullaniciData.rol === 'musteri') {
-      setSayfa('musteriAnaSayfa');
+  // Guard: if user logs out while on a protected page, return to anaSayfa
+  useEffect(() => {
+    if (!kullanici && ['isletmePanel', 'randevularim', 'sadakat'].includes(sayfa)) {
+      setSayfa('anaSayfa');
+    }
+  }, [kullanici, sayfa]);
+
+  const handleCikis = () => {
+    cikisYap();
+    setSayfa('anaSayfa');
+    setProfilIsletmeId(null);
+    setHediyeliRandevuData(null);
+  };
+
+  // Called by "Giriş Yap" header button — after login, route based on role
+  const handleGirisYapTikla = () => {
+    girisGerektir((loggedUser) => {
+      if (loggedUser?.rol !== 'musteri') {
+        setSayfa('isletmePanel');
+      }
+      // müşteri stays on anaSayfa
+    });
+  };
+
+  const handleRandevularimTikla = () => {
+    if (kullanici) {
+      setSayfa('randevularim');
     } else {
-      setSayfa('isletmePanel');
+      girisGerektir(() => setSayfa('randevularim'));
     }
   };
 
-  const cikisYap = () => {
-    setKullanici(null);
-    setSayfa('giris');
+  const handleSadakatTikla = () => {
+    if (kullanici) {
+      setSayfa('sadakat');
+    } else {
+      girisGerektir(() => setSayfa('sadakat'));
+    }
   };
 
   const profilAc = (isletmeId) => {
@@ -41,49 +68,70 @@ function App() {
 
   return (
     <div className="app">
-      {sayfa === 'giris' && (
-        <Giris onGiris={girisYap} onKayitGit={() => setSayfa('kayit')} />
-      )}
-      {sayfa === 'kayit' && (
-        <Kayit onGirisGit={() => setSayfa('giris')} />
-      )}
-      {sayfa === 'musteriAnaSayfa' && (
-        <MusteriAnaSayfa
-          kullanici={kullanici}
-          onCikis={cikisYap}
-          onProfilAc={profilAc}
-          onRandevularim={() => setSayfa('randevularim')}
-          onSadakat={() => setSayfa('sadakat')}
+      {girisModalAcik && (
+        <GirisModal
+          onKayitGit={() => {
+            modalKapat();
+            setSayfa('kayit');
+          }}
         />
       )}
-      {sayfa === 'isletmePanel' && (
-        <IsletmePanel kullanici={kullanici} onCikis={cikisYap} />
+
+      {sayfa === 'kayit' && (
+        <Kayit onGirisGit={() => setSayfa('anaSayfa')} />
       )}
+
+      {sayfa === 'anaSayfa' && (
+        <MusteriAnaSayfa
+          kullanici={kullanici}
+          onCikis={handleCikis}
+          onGirisYap={handleGirisYapTikla}
+          onKayitGit={() => setSayfa('kayit')}
+          onProfilAc={profilAc}
+          onRandevularim={handleRandevularimTikla}
+          onSadakat={handleSadakatTikla}
+        />
+      )}
+
+      {sayfa === 'isletmePanel' && kullanici && (
+        <IsletmePanel kullanici={kullanici} onCikis={handleCikis} />
+      )}
+
       {sayfa === 'isletmeProfil' && (
         <IsletmeProfil
           isletmeId={profilIsletmeId}
           kullanici={kullanici}
           onGeri={() => {
             setHediyeliRandevuData(null);
-            setSayfa(hediyeliRandevuData ? 'sadakat' : 'musteriAnaSayfa');
+            setSayfa(hediyeliRandevuData ? 'sadakat' : 'anaSayfa');
           }}
           hediyeliRandevuData={hediyeliRandevuData}
         />
       )}
-      {sayfa === 'randevularim' && (
+
+      {sayfa === 'randevularim' && kullanici && (
         <Randevularim
           kullanici={kullanici}
-          onGeri={() => setSayfa('musteriAnaSayfa')}
+          onGeri={() => setSayfa('anaSayfa')}
         />
       )}
-      {sayfa === 'sadakat' && (
+
+      {sayfa === 'sadakat' && kullanici && (
         <SadakatKartlarim
           kullanici={kullanici}
-          onGeri={() => setSayfa('musteriAnaSayfa')}
+          onGeri={() => setSayfa('anaSayfa')}
           onHediyeliRandevu={hediyeliRandevuAc}
         />
       )}
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppRouter />
+    </AuthProvider>
   );
 }
 

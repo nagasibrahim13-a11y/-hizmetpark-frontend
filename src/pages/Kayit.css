@@ -9,7 +9,7 @@
   display: block;
   font-size: 12px;
   font-weight: 600;
-  color: #777;
+  color: #64748B;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 4px;
@@ -28,8 +28,8 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #F0F0F0;
-  color: #BDBDBD;
+  background: #E2E8F0;
+  color: #94A3B8;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -39,19 +39,19 @@
 }
 
 .adim-nokta.aktif {
-  background: #E53935;
+  background: #4F46E5;
   color: white;
 }
 
 .adim-cizgi {
   flex: 1;
   height: 3px;
-  background: #F0F0F0;
+  background: #E2E8F0;
   max-width: 80px;
   transition: background 0.3s;
 }
 
-.adim-cizgi.aktif { background: #E53935; }
+.adim-cizgi.aktif { background: #4F46E5; }
 
 /* ROL SEÇİMİ */
 .rol-secim {
@@ -62,20 +62,20 @@
 }
 
 .rol-kart {
-  border: 2px solid #E0E0E0;
-  border-radius: 12px;
+  border: 2px solid #E2E8F0;
+  border-radius: 14px;
   padding: 16px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.rol-kart:hover { border-color: #E53935; }
-.rol-kart.secili { border-color: #E53935; background: #FFF5F5; }
+.rol-kart:hover { border-color: #4F46E5; }
+.rol-kart.secili { border-color: #4F46E5; background: #EEF2FF; }
 
 .rol-emoji { font-size: 28px; margin-bottom: 6px; }
-.rol-adi { font-size: 14px; font-weight: 700; color: #1A1A1A; }
-.rol-aciklama { font-size: 11px; color: #999; margin-top: 2px; }
+.rol-adi { font-size: 14px; font-weight: 700; color: #0F172A; }
+.rol-aciklama { font-size: 11px; color: #64748B; margin-top: 2px; }
 
 /* KATEGORİ SEÇİMİ */
 .kategori-secim {
@@ -86,19 +86,19 @@
 }
 
 .kategori-kart {
-  border: 2px solid #E0E0E0;
-  border-radius: 8px;
+  border: 2px solid #E2E8F0;
+  border-radius: 10px;
   padding: 10px 14px;
   text-align: center;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
   transition: all 0.2s;
-  color: #555;
+  color: #64748B;
 }
 
-.kategori-kart:hover { border-color: #E53935; color: #E53935; }
-.kategori-kart.secili { border-color: #E53935; background: #FFF5F5; color: #E53935; font-weight: 700; }
+.kategori-kart:hover { border-color: #4F46E5; color: #4F46E5; }
+.kategori-kart.secili { border-color: #4F46E5; background: #EEF2FF; color: #4F46E5; font-weight: 700; }
 
 /* HİZMET SATIRI */
 .hizmet-satir-kayit {
@@ -109,12 +109,12 @@
 }
 
 .hizmet-sil-btn {
-  background: #FFF5F5;
-  color: #E53935;
-  border: 1px solid #FFCDD2;
+  background: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
   width: 32px;
   height: 32px;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 13px;
   flex-shrink: 0;
@@ -125,10 +125,10 @@
 
 .hizmet-ekle-btn {
   background: transparent;
-  color: #E53935;
-  border: 1.5px dashed #E53935;
+  color: #4F46E5;
+  border: 1.5px dashed #A5B4FC;
   padding: 9px;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
@@ -137,14 +137,14 @@
   transition: all 0.2s;
 }
 
-.hizmet-ekle-btn:hover { background: #FFF5F5; }
+.hizmet-ekle-btn:hover { background: #EEF2FF; border-color: #4F46E5; }
 
 .btn-primary {
-  background: #E53935;
+  background: #4F46E5;
   color: white;
   border: none;
   padding: 13px 24px;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -152,5 +152,5 @@
   transition: background 0.2s;
 }
 
-.btn-primary:hover { background: #C62828; }
-.btn-primary:disabled { background: #BDBDBD; cursor: not-allowed; }
+.btn-primary:hover { background: #4338CA; }
+.btn-primary:disabled { background: #A5B4FC; cursor: not-allowed; }
