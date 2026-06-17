@@ -23,10 +23,10 @@ function Randevularim({ kullanici, onGeri }) {
   };
 
   const durumRenk = (durum) => {
-    if (durum === 'onaylandi') return { bg: '#F1F8E9', color: '#2E7D32', border: '#C8E6C9' };
-    if (durum === 'reddedildi') return { bg: '#FFF5F5', color: '#C62828', border: '#FFCDD2' };
-    if (durum === 'tamamlandi') return { bg: '#E3F2FD', color: '#1565C0', border: '#BBDEFB' };
-    return { bg: '#FFF8E1', color: '#F57F17', border: '#FFE082' };
+    if (durum === 'onaylandi') return { bg: '#E0E7FF', color: '#3730A3', border: '#C7D2FE' };
+    if (durum === 'reddedildi') return { bg: '#FEE2E2', color: '#991B1B', border: '#FECACA' };
+    if (durum === 'tamamlandi') return { bg: '#D1FAE5', color: '#065F46', border: '#A7F3D0' };
+    return { bg: '#FEF3C7', color: '#92400E', border: '#FDE68A' };
   };
 
   const durumLabel = (durum) => {
@@ -58,7 +58,7 @@ function Randevularim({ kullanici, onGeri }) {
 
   return (
     <div className="randevularim-sayfa">
-      <header className="header">
+      <header className="rnd-header">
         <button className="geri-btn" onClick={onGeri}>← Geri</button>
         <div className="header-logo">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
@@ -83,29 +83,29 @@ function Randevularim({ kullanici, onGeri }) {
         {/* İSTATİSTİKLER */}
         <div className="istat-row">
           <div className="istat-kart">
-            <div className="istat-sayi">{randevular.length}</div>
+            <div className="istat-sayi" style={{ color: '#4F46E5' }}>{randevular.length}</div>
             <div className="istat-label">Toplam</div>
           </div>
           <div className="istat-kart">
-            <div className="istat-sayi" style={{ color: '#F57F17' }}>
+            <div className="istat-sayi" style={{ color: '#F59E0B' }}>
               {randevular.filter(r => r.durum === 'bekliyor').length}
             </div>
             <div className="istat-label">Bekleyen</div>
           </div>
           <div className="istat-kart">
-            <div className="istat-sayi" style={{ color: '#2E7D32' }}>
+            <div className="istat-sayi" style={{ color: '#4F46E5' }}>
               {randevular.filter(r => r.durum === 'onaylandi').length}
             </div>
             <div className="istat-label">Onaylanan</div>
           </div>
           <div className="istat-kart">
-            <div className="istat-sayi" style={{ color: '#1565C0' }}>
+            <div className="istat-sayi" style={{ color: '#10B981' }}>
               {randevular.filter(r => r.durum === 'tamamlandi').length}
             </div>
             <div className="istat-label">Tamamlanan</div>
           </div>
           <div className="istat-kart">
-            <div className="istat-sayi" style={{ color: '#C62828' }}>
+            <div className="istat-sayi" style={{ color: '#EF4444' }}>
               {randevular.filter(r => r.durum === 'reddedildi').length}
             </div>
             <div className="istat-label">Reddedilen</div>

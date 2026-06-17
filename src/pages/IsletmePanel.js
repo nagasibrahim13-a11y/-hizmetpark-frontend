@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import IsletmeProfil from './IsletmeProfil';
 import './IsletmePanel.css';
 
 function IsletmePanel({ kullanici, onCikis }) {
@@ -31,6 +32,12 @@ function IsletmePanel({ kullanici, onCikis }) {
   const [musaitlikSaatler, setMusaitlikSaatler] = useState([]);
   const [musaitlikAciklama, setMusaitlikAciklama] = useState('');
   const [musaitlikBasari, setMusaitlikBasari] = useState('');
+  const [duzenleModuAcik, setDuzenleModuAcik] = useState(false);
+  const [profilAnahtar, setProfilAnahtar] = useState(0);
+  const [manuelModal, setManuelModal] = useState(false);
+  const [manuelForm, setManuelForm] = useState({ musteriAdi: '', musteriTelefon: '', tarih: '', saat: '', hizmetler: [] });
+  const [manuelBasari, setManuelBasari] = useState('');
+  const [manuelHata, setManuelHata] = useState('');
 
   const fiyatlar = {
     slider: { haftalik: 400, aylik: 1200 },
@@ -173,7 +180,12 @@ function IsletmePanel({ kullanici, onCikis }) {
         body: JSON.stringify(profilForm)
       });
       setProfilBasari('Profil güncellendi!');
-      setTimeout(() => { setProfilBasari(''); isletmeyiGetir(); }, 1500);
+      isletmeyiGetir();
+      setTimeout(() => {
+        setProfilBasari('');
+        setDuzenleModuAcik(false);
+        setProfilAnahtar(k => k + 1);
+      }, 1200);
     } catch (err) { console.error(err); }
   };
 
@@ -267,6 +279,48 @@ function IsletmePanel({ kullanici, onCikis }) {
         }));
       }
     } catch (err) { console.error(err); }
+  };
+
+  const manuelRandevuOlustur = async () => {
+    if (!manuelForm.musteriAdi.trim()) { setManuelHata('Müşteri adı zorunlu'); return; }
+    if (manuelForm.hizmetler.length === 0) { setManuelHata('En az bir hizmet seçin'); return; }
+    if (!manuelForm.tarih) { setManuelHata('Tarih seçin'); return; }
+    if (!manuelForm.saat) { setManuelHata('Saat seçin'); return; }
+    const kapaliKt = isletme?.kapaliTarihler?.find(kt => {
+      const kStr = new Date(kt.tarih).toISOString().split('T')[0];
+      return kStr === manuelForm.tarih;
+    });
+    if (kapaliKt?.tumGun) { setManuelHata('Bu tarih kapalı'); return; }
+    if (kapaliKt?.saatler?.includes(manuelForm.saat)) { setManuelHata('Bu saat kapalı'); return; }
+    setManuelHata('');
+    try {
+      const hizmetDetaylari = manuelForm.hizmetler
+        .map(hAd => isletme.hizmetler.find(h => h.ad === hAd))
+        .filter(Boolean);
+      const cevap = await fetch('http://localhost:5000/api/randevular', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          musteriAdi: manuelForm.musteriAdi,
+          musteriTelefon: manuelForm.musteriTelefon,
+          isletme: isletme._id,
+          hizmet: hizmetDetaylari,
+          tarih: manuelForm.tarih,
+          saat: manuelForm.saat,
+          durum: 'onaylandi',
+          manuelMi: true
+        })
+      });
+      const veri = await cevap.json();
+      if (!cevap.ok) { setManuelHata(veri.hata || 'Bir hata oluştu'); return; }
+      setManuelBasari('Manuel randevu oluşturuldu!');
+      randevulariGetir(isletme._id);
+      setTimeout(() => {
+        setManuelModal(false);
+        setManuelBasari('');
+        setManuelForm({ musteriAdi: '', musteriTelefon: '', tarih: '', saat: '', hizmetler: [] });
+      }, 1500);
+    } catch (err) { setManuelHata('Sunucuya bağlanılamadı'); }
   };
 
   const durumRenk = (durum) => {
@@ -364,6 +418,9 @@ function IsletmePanel({ kullanici, onCikis }) {
         {/* RANDEVULAR */}
         {aktifSekme === 'randevular' && (
           <div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px' }}>
+              <button onClick={() => { setManuelModal(true); setManuelHata(''); setManuelBasari(''); }} style={{ background: '#1565C0', color: 'white', border: 'none', padding: '9px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>+ Manuel Randevu Ekle</button>
+            </div>
             {randevular.length === 0 ? <div className="bos-mesaj">Henüz randevu yok</div> : (
               randevular.map(r => {
                 const stil = durumRenk(r.durum);
@@ -376,7 +433,11 @@ function IsletmePanel({ kullanici, onCikis }) {
                       <div className="randevu-tarih">{new Date(r.tarih).toLocaleDateString('tr-TR')}</div>
                     </div>
                     <div className="randevu-orta">
-                      <div className="randevu-musteri">{r.musteri?.ad} {r.musteri?.soyad}</div>
+                      <div className="randevu-musteri">
+                        {r.musteri ? `${r.musteri.ad} ${r.musteri.soyad}` : (r.musteriAdi || '—')}
+                        {r.manuelMi && <span style={{ fontSize: '11px', background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '2px 7px', marginLeft: '6px', fontWeight: '600' }}>📞 Manuel</span>}
+                      </div>
+                      {r.musteriTelefon && <div style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '2px' }}>📞 {r.musteriTelefon}</div>}
                       <div className="randevu-hizmet">{hizmetler}</div>
                       {r.hediyeMi ? <div style={{ fontSize: '12px', color: '#F57F17', fontWeight: '600' }}>🎁 Hediye — Ücretsiz</div>
                         : toplam > 0 ? <div className="randevu-fiyat">{toplam} ₺</div> : null}
@@ -547,80 +608,143 @@ function IsletmePanel({ kullanici, onCikis }) {
         {/* PROFİLİM */}
         {aktifSekme === 'profil' && (
           <div>
-            <div style={{
-              background: isletme.fotograf
-                ? `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(${isletme.fotograf})`
-                : 'linear-gradient(135deg, #DC2626, #B91C1C)',
-              backgroundSize: 'cover', backgroundPosition: 'center',
-              borderRadius: '16px', padding: '28px', marginBottom: '20px',
-              display: 'flex', alignItems: 'center', gap: '20px'
-            }}>
-              <div style={{ width: '72px', height: '72px', background: 'rgba(255,255,255,0.2)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', flexShrink: 0 }}>
-                {kategoriEmoji(isletme.kategori)}
-              </div>
+            {!duzenleModuAcik ? (
+              /* MÜŞTERİ GÖRÜNÜMÜ ÖNİZLEMESİ */
+              <IsletmeProfil
+                key={profilAnahtar}
+                isletmeId={isletme._id}
+                isOwnerView={true}
+                onDuzenle={() => setDuzenleModuAcik(true)}
+                onGeri={null}
+              />
+            ) : (
+              /* DÜZENLEME FORMU */
               <div>
-                <div style={{ fontSize: '22px', fontWeight: '800', color: 'white' }}>{isletme.isletmeAdi}</div>
-                {isletme.slogan && <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.85)', fontStyle: 'italic', marginTop: '4px' }}>"{isletme.slogan}"</div>}
-                <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', marginTop: '4px' }}>📍 {isletme.adres?.il} / {isletme.adres?.ilce}</div>
-                <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', marginTop: '2px' }}>📞 {isletme.telefon}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
+                  <button
+                    onClick={() => setDuzenleModuAcik(false)}
+                    style={{ background: 'transparent', border: '1.5px solid #E2E8F0', color: '#374151', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', transition: 'all 0.15s' }}
+                  >
+                    ← Önizlemeye Dön
+                  </button>
+                  <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#111827', margin: 0 }}>✏️ Profili Düzenle</h3>
+                </div>
+
+                <div style={{ background: 'white', borderRadius: '16px', padding: '28px', border: '1px solid #E2E8F0', maxWidth: '680px' }}>
+                  <label style={labelStyle}>İşletme Adı</label>
+                  <input style={inputStyle} value={profilForm.isletmeAdi || ''} onChange={e => setProfilForm({ ...profilForm, isletmeAdi: e.target.value })} />
+
+                  <label style={labelStyle}>Slogan</label>
+                  <input style={inputStyle} placeholder="20 yıllık deneyimle hizmetinizdeyiz" value={profilForm.slogan || ''} onChange={e => setProfilForm({ ...profilForm, slogan: e.target.value })} />
+
+                  <label style={labelStyle}>Hakkında</label>
+                  <textarea style={{ ...inputStyle, height: '100px', resize: 'none', fontFamily: 'inherit' }} placeholder="İşletmenizi tanıtın..." value={profilForm.hakkinda || ''} onChange={e => setProfilForm({ ...profilForm, hakkinda: e.target.value })} />
+
+                  <label style={labelStyle}>Telefon</label>
+                  <input style={inputStyle} value={profilForm.telefon || ''} onChange={e => setProfilForm({ ...profilForm, telefon: e.target.value })} />
+
+                  <label style={labelStyle}>Açık Adres</label>
+                  <input style={inputStyle} value={profilForm.adres?.acikAdres || ''} onChange={e => setProfilForm({ ...profilForm, adres: { ...profilForm.adres, acikAdres: e.target.value } })} />
+
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={labelStyle}>İl</label>
+                      <input style={inputStyle} value={profilForm.adres?.il || ''} onChange={e => setProfilForm({ ...profilForm, adres: { ...profilForm.adres, il: e.target.value } })} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={labelStyle}>İlçe</label>
+                      <input style={inputStyle} value={profilForm.adres?.ilce || ''} onChange={e => setProfilForm({ ...profilForm, adres: { ...profilForm.adres, ilce: e.target.value } })} />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={labelStyle}>Açılış Saati</label>
+                      <input style={inputStyle} type="time" value={profilForm.calismaBaslangic || ''} onChange={e => setProfilForm({ ...profilForm, calismaBaslangic: e.target.value })} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={labelStyle}>Kapanış Saati</label>
+                      <input style={inputStyle} type="time" value={profilForm.calismaBitis || ''} onChange={e => setProfilForm({ ...profilForm, calismaBitis: e.target.value })} />
+                    </div>
+                  </div>
+
+                  <label style={labelStyle}>İşletme Fotoğrafı</label>
+                  {profilForm.fotograf && (
+                    <div style={{ position: 'relative', marginBottom: '8px' }}>
+                      <img src={profilForm.fotograf} alt="işletme" style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '8px' }} />
+                      <button onClick={() => setProfilForm({ ...profilForm, fotograf: '' })} style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: '28px', height: '28px', cursor: 'pointer', fontSize: '12px' }}>✕</button>
+                    </div>
+                  )}
+                  <input type="file" accept="image/*" style={{ display: 'none' }} id="fotograf-input" onChange={fotografYukle} />
+                  <label htmlFor="fotograf-input" style={{ display: 'block', padding: '12px', border: '1.5px dashed #E2E8F0', borderRadius: '8px', textAlign: 'center', cursor: 'pointer', fontSize: '13px', color: '#9CA3AF', marginBottom: '16px' }}>
+                    📷 {profilForm.fotograf ? 'Fotoğrafı Değiştir' : 'Fotoğraf Yükle'} (max 2MB)
+                  </label>
+
+                  {profilBasari && <div style={{ background: '#ECFDF5', color: '#065F46', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', marginBottom: '12px', border: '1px solid #A7F3D0' }}>✅ {profilBasari}</div>}
+                  <button onClick={profilKaydet} style={{ background: '#DC2626', color: 'white', border: 'none', padding: '13px', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', width: '100%' }}>Kaydet</button>
+                </div>
               </div>
-            </div>
+            )}
+          </div>
+        )}
 
-            <div style={{ background: 'white', borderRadius: '16px', padding: '24px', border: '1px solid #F0F0F0' }}>
-              <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', marginBottom: '16px' }}>✏️ Profili Düzenle</h3>
-
-              <label style={labelStyle}>İşletme Adı</label>
-              <input style={inputStyle} value={profilForm.isletmeAdi || ''} onChange={e => setProfilForm({ ...profilForm, isletmeAdi: e.target.value })} />
-
-              <label style={labelStyle}>Slogan</label>
-              <input style={inputStyle} placeholder="20 yıllık deneyimle hizmetinizdeyiz" value={profilForm.slogan || ''} onChange={e => setProfilForm({ ...profilForm, slogan: e.target.value })} />
-
-              <label style={labelStyle}>Hakkında</label>
-              <textarea style={{ ...inputStyle, height: '100px', resize: 'none', fontFamily: 'Segoe UI' }} placeholder="İşletmenizi tanıtın..." value={profilForm.hakkinda || ''} onChange={e => setProfilForm({ ...profilForm, hakkinda: e.target.value })} />
-
-              <label style={labelStyle}>Telefon</label>
-              <input style={inputStyle} value={profilForm.telefon || ''} onChange={e => setProfilForm({ ...profilForm, telefon: e.target.value })} />
-
-              <label style={labelStyle}>Açık Adres</label>
-              <input style={inputStyle} value={profilForm.adres?.acikAdres || ''} onChange={e => setProfilForm({ ...profilForm, adres: { ...profilForm.adres, acikAdres: e.target.value } })} />
-
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>İl</label>
-                  <input style={inputStyle} value={profilForm.adres?.il || ''} onChange={e => setProfilForm({ ...profilForm, adres: { ...profilForm.adres, il: e.target.value } })} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>İlçe</label>
-                  <input style={inputStyle} value={profilForm.adres?.ilce || ''} onChange={e => setProfilForm({ ...profilForm, adres: { ...profilForm.adres, ilce: e.target.value } })} />
-                </div>
+        {/* MÜSAİTLİK */}
+        {aktifSekme === 'musaitlik' && (
+          <div>
+            <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #F0F0F0', marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>📆 Kapalı Tarih Ekle</h3>
+              <label style={labelStyle}>Tarih</label>
+              <input type="date" min={bugunTarih} value={musaitlikTarih} onChange={e => setMusaitlikTarih(e.target.value)} style={inputStyle} />
+              <label style={labelStyle}>Açıklama (opsiyonel)</label>
+              <input type="text" placeholder="Örn: Tatil, Öğle arası" value={musaitlikAciklama} onChange={e => setMusaitlikAciklama(e.target.value)} style={inputStyle} />
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}>
+                  <input type="checkbox" checked={musaitlikTumGun} onChange={e => { setMusaitlikTumGun(e.target.checked); if (e.target.checked) setMusaitlikSaatler([]); }} />
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A' }}>Tüm gün kapalı</span>
+                </label>
               </div>
-
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>Açılış Saati</label>
-                  <input style={inputStyle} type="time" value={profilForm.calismaBaslangic || ''} onChange={e => setProfilForm({ ...profilForm, calismaBaslangic: e.target.value })} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>Kapanış Saati</label>
-                  <input style={inputStyle} type="time" value={profilForm.calismaBitis || ''} onChange={e => setProfilForm({ ...profilForm, calismaBitis: e.target.value })} />
-                </div>
-              </div>
-
-              <label style={labelStyle}>İşletme Fotoğrafı</label>
-              {profilForm.fotograf && (
-                <div style={{ position: 'relative', marginBottom: '8px' }}>
-                  <img src={profilForm.fotograf} alt="işletme" style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '8px' }} />
-                  <button onClick={() => setProfilForm({ ...profilForm, fotograf: '' })} style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: '28px', height: '28px', cursor: 'pointer', fontSize: '12px' }}>✕</button>
+              {!musaitlikTumGun && (
+                <div>
+                  <label style={labelStyle}>Kapalı Saatler</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '16px' }}>
+                    {saatler.map(s => (
+                      <label key={s} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '9px', border: `1.5px solid ${musaitlikSaatler.includes(s) ? '#DC2626' : '#E0E0E0'}`, borderRadius: '8px', cursor: 'pointer', background: musaitlikSaatler.includes(s) ? '#FFF5F5' : 'white', fontSize: '13px', fontWeight: '500', color: musaitlikSaatler.includes(s) ? '#DC2626' : '#555', transition: 'all 0.15s' }}>
+                        <input type="checkbox" checked={musaitlikSaatler.includes(s)} onChange={e => setMusaitlikSaatler(e.target.checked ? [...musaitlikSaatler, s] : musaitlikSaatler.filter(x => x !== s))} style={{ display: 'none' }} />
+                        {s}
+                      </label>
+                    ))}
+                  </div>
                 </div>
               )}
-              <input type="file" accept="image/*" style={{ display: 'none' }} id="fotograf-input" onChange={fotografYukle} />
-              <label htmlFor="fotograf-input" style={{ display: 'block', padding: '12px', border: '1.5px dashed #E0E0E0', borderRadius: '8px', textAlign: 'center', cursor: 'pointer', fontSize: '13px', color: '#777', marginBottom: '16px' }}>
-                📷 {profilForm.fotograf ? 'Fotoğrafı Değiştir' : 'Fotoğraf Yükle'} (max 2MB)
-              </label>
-
-              {profilBasari && <div style={{ background: '#F1F8E9', color: '#2E7D32', padding: '10px', borderRadius: '8px', fontSize: '13px', marginBottom: '12px', border: '1px solid #C8E6C9' }}>✅ {profilBasari}</div>}
-              <button onClick={profilKaydet} style={{ background: '#DC2626', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>Kaydet</button>
+              {musaitlikBasari && <div style={{ background: '#F1F8E9', color: '#2E7D32', padding: '10px', borderRadius: '8px', fontSize: '13px', border: '1px solid #C8E6C9', marginBottom: '12px' }}>✅ {musaitlikBasari}</div>}
+              <button onClick={kapaliTarihEkle} style={{ background: '#DC2626', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                + Ekle
+              </button>
             </div>
+
+            <h3 style={{ fontSize: '14px', fontWeight: '700', margin: '0 0 12px' }}>Kapalı Tarihler ({(isletme.kapaliTarihler || []).length})</h3>
+            {(isletme.kapaliTarihler || []).length === 0 ? (
+              <div className="bos-mesaj">Kapalı tarih yok</div>
+            ) : (
+              (isletme.kapaliTarihler || []).map((kt, i) => (
+                <div key={kt._id || i} className="randevu-kart">
+                  <div className="randevu-sol">
+                    <div className="randevu-saat" style={{ fontSize: '20px' }}>🚫</div>
+                    <div className="randevu-tarih">{new Date(kt.tarih).toLocaleDateString('tr-TR')}</div>
+                  </div>
+                  <div className="randevu-orta">
+                    <div className="randevu-musteri">{kt.tumGun ? 'Tüm Gün Kapalı' : `${kt.saatler?.length || 0} saat kapalı`}</div>
+                    {!kt.tumGun && kt.saatler?.length > 0 && <div className="randevu-hizmet">{kt.saatler.join(', ')}</div>}
+                    {kt.aciklama && <div className="randevu-hizmet">{kt.aciklama}</div>}
+                  </div>
+                  <div className="randevu-sag">
+                    <button onClick={() => kapaliTarihKaldir(kt._id)} style={{ background: '#FFF5F5', color: '#B91C1C', border: '1px solid #FFCDD2', padding: '7px 14px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                      🗑 Kaldır
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         )}
       </div>
@@ -724,66 +848,80 @@ function IsletmePanel({ kullanici, onCikis }) {
         </div>
       )}
 
-      {/* MÜSAİTLİK */}
-      {aktifSekme === 'musaitlik' && (
-        <div>
-          <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #F0F0F0', marginBottom: '20px' }}>
-            <h3 style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>📆 Kapalı Tarih Ekle</h3>
-            <label style={labelStyle}>Tarih</label>
-            <input type="date" min={bugunTarih} value={musaitlikTarih} onChange={e => setMusaitlikTarih(e.target.value)} style={inputStyle} />
-            <label style={labelStyle}>Açıklama (opsiyonel)</label>
-            <input type="text" placeholder="Örn: Tatil, Öğle arası" value={musaitlikAciklama} onChange={e => setMusaitlikAciklama(e.target.value)} style={inputStyle} />
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', userSelect: 'none' }}>
-                <input type="checkbox" checked={musaitlikTumGun} onChange={e => { setMusaitlikTumGun(e.target.checked); if (e.target.checked) setMusaitlikSaatler([]); }} />
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1A1A1A' }}>Tüm gün kapalı</span>
-              </label>
-            </div>
-            {!musaitlikTumGun && (
-              <div>
-                <label style={labelStyle}>Kapalı Saatler</label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '16px' }}>
-                  {saatler.map(s => (
-                    <label key={s} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '9px', border: `1.5px solid ${musaitlikSaatler.includes(s) ? '#DC2626' : '#E0E0E0'}`, borderRadius: '8px', cursor: 'pointer', background: musaitlikSaatler.includes(s) ? '#FFF5F5' : 'white', fontSize: '13px', fontWeight: '500', color: musaitlikSaatler.includes(s) ? '#DC2626' : '#555', transition: 'all 0.15s' }}>
-                      <input type="checkbox" checked={musaitlikSaatler.includes(s)} onChange={e => setMusaitlikSaatler(e.target.checked ? [...musaitlikSaatler, s] : musaitlikSaatler.filter(x => x !== s))} style={{ display: 'none' }} />
-                      {s}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-            {musaitlikBasari && <div style={{ background: '#F1F8E9', color: '#2E7D32', padding: '10px', borderRadius: '8px', fontSize: '13px', border: '1px solid #C8E6C9', marginBottom: '12px' }}>✅ {musaitlikBasari}</div>}
-            <button onClick={kapaliTarihEkle} style={{ background: '#DC2626', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
-              + Ekle
-            </button>
-          </div>
 
-          <h3 style={{ fontSize: '14px', fontWeight: '700', margin: '0 0 12px' }}>Kapalı Tarihler ({(isletme.kapaliTarihler || []).length})</h3>
-          {(isletme.kapaliTarihler || []).length === 0 ? (
-            <div className="bos-mesaj">Kapalı tarih yok</div>
-          ) : (
-            (isletme.kapaliTarihler || []).map((kt, i) => (
-              <div key={kt._id || i} className="randevu-kart">
-                <div className="randevu-sol">
-                  <div className="randevu-saat" style={{ fontSize: '20px' }}>🚫</div>
-                  <div className="randevu-tarih">{new Date(kt.tarih).toLocaleDateString('tr-TR')}</div>
+      {/* MANUEL RANDEVU MODAL */}
+      {manuelModal && (
+        <div className="modal-overlay" onClick={() => setManuelModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>📞 Manuel Randevu Ekle</h2>
+              <button className="modal-kapat" onClick={() => setManuelModal(false)}>✕</button>
+            </div>
+            {manuelBasari ? (
+              <div style={{ background: '#F1F8E9', color: '#2E7D32', padding: '14px', borderRadius: '8px', border: '1px solid #C8E6C9', fontWeight: '600' }}>✅ {manuelBasari}</div>
+            ) : (
+              <>
+                {manuelHata && <div style={{ background: '#FFF5F5', color: '#B91C1C', padding: '10px 14px', borderRadius: '8px', border: '1px solid #FFCDD2', marginBottom: '12px', fontSize: '13px' }}>{manuelHata}</div>}
+
+                <label style={labelStyle}>Müşteri Adı *</label>
+                <input style={inputStyle} placeholder="Ad Soyad" value={manuelForm.musteriAdi} onChange={e => setManuelForm({ ...manuelForm, musteriAdi: e.target.value })} />
+
+                <label style={labelStyle}>Müşteri Telefonu</label>
+                <input style={inputStyle} placeholder="0555 123 45 67" value={manuelForm.musteriTelefon} onChange={e => setManuelForm({ ...manuelForm, musteriTelefon: e.target.value })} />
+
+                <label style={labelStyle}>Hizmet Seç *</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
+                  {isletme.hizmetler.map((h, i) => {
+                    const secili = manuelForm.hizmetler.includes(h.ad);
+                    return (
+                      <label key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', border: `1.5px solid ${secili ? '#1565C0' : '#E2E8F0'}`, borderRadius: '8px', cursor: 'pointer', background: secili ? '#EEF2FF' : 'white', fontSize: '13px' }}>
+                        <input type="checkbox" checked={secili} onChange={e => setManuelForm({ ...manuelForm, hizmetler: e.target.checked ? [...manuelForm.hizmetler, h.ad] : manuelForm.hizmetler.filter(x => x !== h.ad) })} />
+                        <span style={{ flex: 1, fontWeight: secili ? '600' : '400', color: secili ? '#1565C0' : '#374151' }}>{h.ad}</span>
+                        <span style={{ fontSize: '12px', color: '#999' }}>{h.sure} dk</span>
+                        <span style={{ fontWeight: '600', color: '#374151' }}>{h.fiyat} ₺</span>
+                      </label>
+                    );
+                  })}
                 </div>
-                <div className="randevu-orta">
-                  <div className="randevu-musteri">{kt.tumGun ? 'Tüm Gün Kapalı' : `${kt.saatler?.length || 0} saat kapalı`}</div>
-                  {!kt.tumGun && kt.saatler?.length > 0 && <div className="randevu-hizmet">{kt.saatler.join(', ')}</div>}
-                  {kt.aciklama && <div className="randevu-hizmet">{kt.aciklama}</div>}
+
+                <label style={labelStyle}>Tarih *</label>
+                <input type="date" min={bugunTarih} value={manuelForm.tarih} onChange={e => setManuelForm({ ...manuelForm, tarih: e.target.value, saat: '' })} style={inputStyle} />
+                {(() => {
+                  const kt = manuelForm.tarih && isletme?.kapaliTarihler?.find(k => new Date(k.tarih).toISOString().split('T')[0] === manuelForm.tarih);
+                  return kt?.tumGun ? (
+                    <div style={{ background: '#FFF5F5', color: '#C62828', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', border: '1px solid #FFCDD2', marginBottom: '12px' }}>
+                      ⛔ Bu tarih kapalı{kt.aciklama ? ` (${kt.aciklama})` : ''}
+                    </div>
+                  ) : null;
+                })()}
+
+                <label style={labelStyle}>Saat *</label>
+                <div className="saat-grid">
+                  {saatler.map(s => {
+                    const kt = manuelForm.tarih && isletme?.kapaliTarihler?.find(k => new Date(k.tarih).toISOString().split('T')[0] === manuelForm.tarih);
+                    const isKapali = kt?.tumGun || kt?.saatler?.includes(s);
+                    const isDolu = randevular.some(r => r.tarih?.split('T')[0] === manuelForm.tarih && r.saat === s && r.durum !== 'reddedildi');
+                    return (
+                      <button
+                        key={s}
+                        className={`saat-btn ${manuelForm.saat === s ? 'secili' : ''} ${isDolu || isKapali ? 'dolu' : ''}`}
+                        onClick={() => !isDolu && !isKapali && setManuelForm({ ...manuelForm, saat: s })}
+                        disabled={isDolu || isKapali}
+                      >
+                        {isKapali ? '🚫' : isDolu ? '🔒' : s}
+                      </button>
+                    );
+                  })}
                 </div>
-                <div className="randevu-sag">
-                  <button onClick={() => kapaliTarihKaldir(kt._id)} style={{ background: '#FFF5F5', color: '#B91C1C', border: '1px solid #FFCDD2', padding: '7px 14px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                    🗑 Kaldır
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
+
+                <button onClick={manuelRandevuOlustur} style={{ background: '#1565C0', color: 'white', border: 'none', padding: '13px', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', width: '100%', marginTop: '20px' }}>
+                  Randevuyu Kaydet (Onaylı)
+                </button>
+              </>
+            )}
+          </div>
         </div>
       )}
-
     </div>
   );
 }

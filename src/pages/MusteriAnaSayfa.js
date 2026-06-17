@@ -160,6 +160,8 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
       setRandevuHata('Lütfen en az bir hizmet, tarih ve saat seçin');
       return;
     }
+    if (kapaliBilgi?.tumGun) { setRandevuHata('Bu tarih işletme tarafından kapalıdır.'); return; }
+    if (kapaliBilgi?.saatler?.includes(secilenSaat)) { setRandevuHata('Bu saat işletme tarafından kapalıdır.'); return; }
     setGonderiyor(true);
     setRandevuHata('');
     try {
@@ -191,7 +193,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
     setGonderiyor(false);
   };
 
-  const modalAc = (isletme, e) => {
+  const modalAc = async (isletme, e) => {
     e.stopPropagation();
     if (!kullanici) {
       girisGerektir(() => {
@@ -205,7 +207,14 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
       });
       return;
     }
-    setSecilenIsletme(isletme);
+    // Taze veri çek — kapaliTarihler güncel olsun
+    try {
+      const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}`);
+      const taze = await cevap.json();
+      setSecilenIsletme(taze);
+    } catch {
+      setSecilenIsletme(isletme);
+    }
     setRandevuModal(true);
     setRandevuBasari('');
     setRandevuHata('');

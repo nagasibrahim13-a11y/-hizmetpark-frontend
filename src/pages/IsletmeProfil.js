@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import './IsletmeProfil.css';
 
-function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData }) {
+function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData, isOwnerView = false, onDuzenle }) {
   const { girisGerektir } = useAuth();
   const [isletme, setIsletme] = useState(null);
   const [yorumlar, setYorumlar] = useState([]);
@@ -96,6 +96,8 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData }) {
       setRandevuHata('Lütfen en az bir hizmet, tarih ve saat seçin');
       return;
     }
+    if (kapaliBilgi?.tumGun) { setRandevuHata('Bu tarih işletme tarafından kapalıdır.'); return; }
+    if (kapaliBilgi?.saatler?.includes(secilenSaat)) { setRandevuHata('Bu saat işletme tarafından kapalıdır.'); return; }
     setGonderiyor(true);
     setRandevuHata('');
     try {
@@ -157,22 +159,24 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData }) {
 
   return (
     <div className="profil-sayfa">
-      {/* HEADER */}
-      <header className="profil-header">
-        <button className="geri-btn" onClick={onGeri}>← Geri</button>
-        <div className="header-logo">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <rect x="3" y="4" width="18" height="18" rx="3" stroke="#DC2626" strokeWidth="2"/>
-            <path d="M3 9h18" stroke="#DC2626" strokeWidth="2"/>
-            <path d="M8 2.5v3M16 2.5v3" stroke="#DC2626" strokeWidth="2" strokeLinecap="round"/>
-            <circle cx="8" cy="14" r="1.5" fill="#DC2626"/>
-            <circle cx="12" cy="14" r="1.5" fill="#DC2626"/>
-            <circle cx="16" cy="14" r="1.5" fill="#DC2626"/>
-          </svg>
-          HizmetPark
-        </div>
-        <div style={{ width: '80px' }} />
-      </header>
+      {/* HEADER — owner view'da gizli */}
+      {!isOwnerView && (
+        <header className="profil-header">
+          <button className="geri-btn" onClick={onGeri}>← Geri</button>
+          <div className="header-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="4" width="18" height="18" rx="3" stroke="#DC2626" strokeWidth="2"/>
+              <path d="M3 9h18" stroke="#DC2626" strokeWidth="2"/>
+              <path d="M8 2.5v3M16 2.5v3" stroke="#DC2626" strokeWidth="2" strokeLinecap="round"/>
+              <circle cx="8" cy="14" r="1.5" fill="#DC2626"/>
+              <circle cx="12" cy="14" r="1.5" fill="#DC2626"/>
+              <circle cx="16" cy="14" r="1.5" fill="#DC2626"/>
+            </svg>
+            HizmetPark
+          </div>
+          <div style={{ width: '80px' }} />
+        </header>
+      )}
 
       {/* KOYU BANNER (mockup 2 stili) */}
       <div className="profil-kapak">
@@ -291,17 +295,23 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData }) {
           </div>
         </div>
 
-        {/* BÜYÜK RANDEVU AL BUTONU (pill, ortalanmış) */}
+        {/* BÜYÜK BUTON — owner view'da "Profili Düzenle", müşteri view'da "Randevu Al" */}
         <div className="randevu-al-alan">
-          <button className="randevu-al-pill" onClick={() => {
-            if (!kullanici) {
-              girisGerektir(() => setRandevuModal(true));
-            } else {
-              setRandevuModal(true);
-            }
-          }}>
-            📅 Randevu Al
-          </button>
+          {isOwnerView ? (
+            <button className="randevu-al-pill" onClick={onDuzenle}>
+              ✏️ Profili Düzenle
+            </button>
+          ) : (
+            <button className="randevu-al-pill" onClick={() => {
+              if (!kullanici) {
+                girisGerektir(() => setRandevuModal(true));
+              } else {
+                setRandevuModal(true);
+              }
+            }}>
+              📅 Randevu Al
+            </button>
+          )}
         </div>
       </div>
 
