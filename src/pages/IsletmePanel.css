@@ -1,128 +1,152 @@
-.panel-sayfa { min-height: 100vh; background: #F5F5F5; }
+.panel-sayfa { min-height: 100vh; background: #F5F7FA; }
 
+/* ======================== HEADER ======================== */
 .header {
   background: white;
-  padding: 18px 28px;
+  padding: 16px 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
   border-bottom: 2px solid #DC2626;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .header-logo {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #1E1B4B;
+  color: #DC2626;
   font-size: 20px;
   font-weight: 800;
   letter-spacing: -0.02em;
 }
 
-.header-orta { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.header-orta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
 
-.isletme-adi { font-size: 16px; font-weight: 700; color: #1A1A1A; }
+.isletme-adi { font-size: 16px; font-weight: 700; color: #111827; }
 
 .panel-badge {
-  background: #FFF5F5;
+  background: #FEF2F2;
   color: #DC2626;
-  border: 1px solid #FFCDD2;
-  padding: 2px 10px;
+  border: 1px solid #FECACA;
+  padding: 3px 10px;
   border-radius: 20px;
   font-size: 11px;
   font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .cikis-btn {
   background: white;
   border: 1.5px solid #DC2626;
   color: #DC2626;
-  padding: 7px 16px;
-  border-radius: 6px;
+  padding: 8px 18px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
+  transition: all 0.15s;
 }
-
 .cikis-btn:hover { background: #DC2626; color: white; }
 
+/* ======================== METRİK KARTLAR ======================== */
 .metrik-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  padding: 24px 28px;
-  max-width: 960px;
+  padding: 24px 32px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
 .metrik-kart {
   background: white;
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-  border: 1px solid #F0F0F0;
+  border-radius: 14px;
+  padding: 22px 20px 18px;
+  border: 1px solid #E5E7EB;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  transition: box-shadow 0.2s;
+}
+.metrik-kart:hover { box-shadow: 0 6px 20px rgba(220,38,38,0.1); border-color: #FECACA; }
+
+.metrik-ikon { font-size: 24px; margin-bottom: 2px; }
+.metrik-sayi { font-size: 32px; font-weight: 800; color: #DC2626; line-height: 1; }
+.metrik-label { font-size: 12px; color: #6B7280; font-weight: 500; letter-spacing: 0.01em; margin-top: 2px; }
+
+/* ======================== PANEL İÇERİK ======================== */
+.panel-icerik {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 32px 48px;
 }
 
-.metrik-sayi { font-size: 28px; font-weight: 800; color: #DC2626; }
-.metrik-label { font-size: 12px; color: #999; margin-top: 4px; font-weight: 500; }
-
-.panel-icerik { max-width: 960px; margin: 0 auto; padding: 0 28px 40px; }
-
+/* ======================== SEKMELER ======================== */
 .sekme-row {
   display: flex;
-  gap: 0;
-  margin-bottom: 20px;
+  gap: 4px;
   flex-wrap: wrap;
-  border-bottom: 2px solid #F0F0F0;
+  margin-bottom: 24px;
+  background: #F1F5F9;
+  border-radius: 12px;
+  padding: 5px;
 }
 
 .sekme-btn {
-  padding: 12px 20px;
+  padding: 10px 18px;
   border: none;
   background: transparent;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
-  color: #777;
-  border-bottom: 3px solid transparent;
-  border-radius: 0;
-  margin-bottom: -2px;
+  transition: all 0.18s;
+  color: #6B7280;
+  border-radius: 9px;
   white-space: nowrap;
 }
-
-.sekme-btn:hover { color: #DC2626; }
-
+.sekme-btn:hover { background: white; color: #DC2626; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
 .sekme-btn.aktif {
-  color: #DC2626;
-  border-bottom-color: #DC2626;
+  background: #DC2626;
+  color: white;
   font-weight: 700;
-  background: transparent;
+  box-shadow: 0 3px 10px rgba(220,38,38,0.3);
 }
 
+/* ======================== RANDEVU KARTLARI ======================== */
 .randevu-kart {
   background: white;
   border-radius: 12px;
   padding: 18px 20px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   gap: 20px;
-  border: 1px solid #F0F0F0;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  border: 1px solid #E5E7EB;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  transition: box-shadow 0.15s;
 }
+.randevu-kart:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 
 .randevu-sol { text-align: center; min-width: 60px; }
 .randevu-saat { font-size: 18px; font-weight: 800; color: #DC2626; }
-.randevu-tarih { font-size: 11px; color: #999; margin-top: 2px; }
+.randevu-tarih { font-size: 11px; color: #9CA3AF; margin-top: 3px; }
 
 .randevu-orta { flex: 1; }
-.randevu-musteri { font-size: 15px; font-weight: 700; color: #1A1A1A; }
-.randevu-hizmet { font-size: 13px; color: #777; margin-top: 3px; }
+.randevu-musteri { font-size: 15px; font-weight: 700; color: #111827; }
+.randevu-hizmet { font-size: 13px; color: #6B7280; margin-top: 3px; }
 .randevu-fiyat { font-size: 13px; font-weight: 700; color: #DC2626; margin-top: 3px; }
 
 .randevu-sag { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
@@ -137,44 +161,45 @@
 .aksiyon-butonlar { display: flex; gap: 6px; }
 
 .onayla-btn {
-  background: #E8F5E9;
-  color: #2E7D32;
-  border: 1px solid #C8E6C9;
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
+  background: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+  padding: 7px 15px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s;
 }
-
-.onayla-btn:hover { background: #2E7D32; color: white; }
+.onayla-btn:hover { background: #059669; color: white; border-color: #059669; }
 
 .reddet-btn {
-  background: #FFF5F5;
+  background: #FEF2F2;
   color: #B91C1C;
-  border: 1px solid #FFCDD2;
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
+  border: 1px solid #FECACA;
+  padding: 7px 15px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s;
 }
-
-.reddet-btn:hover { background: #B91C1C; color: white; }
+.reddet-btn:hover { background: #B91C1C; color: white; border-color: #B91C1C; }
 
 .tamamla-btn {
-  background: #E3F2FD;
-  color: #1565C0;
-  border: 1px solid #BBDEFB;
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #BFDBFE;
+  padding: 7px 15px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
+  transition: all 0.15s;
 }
+.tamamla-btn:hover { background: #1D4ED8; color: white; border-color: #1D4ED8; }
 
+/* ======================== HİZMET SATIRLARI ======================== */
 .hizmet-satir-panel {
   background: white;
   border-radius: 10px;
@@ -183,11 +208,70 @@
   display: flex;
   align-items: center;
   gap: 20px;
-  border: 1px solid #F0F0F0;
+  border: 1px solid #E5E7EB;
+  transition: box-shadow 0.15s;
+}
+.hizmet-satir-panel:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.07); }
+
+.hizmet-adi-panel { font-size: 15px; font-weight: 600; color: #111827; }
+.hizmet-sure { color: #9CA3AF; font-size: 12px; margin-top: 3px; }
+.hizmet-fiyat-panel { font-size: 18px; font-weight: 800; color: #DC2626; }
+
+/* ======================== SADAKAT KART ======================== */
+.sadakat-ayar-kart {
+  background: white;
+  border-radius: 14px;
+  padding: 24px;
+  border: 1px solid #E5E7EB;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 
-.hizmet-adi-panel { flex: 1; font-size: 15px; font-weight: 600; }
-.hizmet-sure { color: #999; font-size: 13px; }
-.hizmet-fiyat-panel { font-size: 16px; font-weight: 800; color: #DC2626; }
+/* ======================== BOŞ MESAJ ======================== */
+.bos-mesaj {
+  text-align: center;
+  padding: 60px 20px;
+  color: #9CA3AF;
+  font-size: 15px;
+  background: white;
+  border-radius: 12px;
+  border: 1px dashed #E5E7EB;
+}
 
-.bos-mesaj { text-align: center; padding: 60px; color: #999; font-size: 16px; }
+/* ======================== MODAL ======================== */
+.modal-overlay {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 16px;
+}
+.modal {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+}
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-header h2 { font-size: 18px; font-weight: 700; color: #111827; }
+.modal-kapat {
+  background: #F5F5F5; border: none; width: 32px; height: 32px;
+  border-radius: 50%; cursor: pointer; font-size: 14px; color: #6B7280;
+  display: flex; align-items: center; justify-content: center; transition: background 0.15s;
+}
+.modal-kapat:hover { background: #E5E7EB; color: #111827; }
+
+/* ======================== RESPONSIVE ======================== */
+@media (max-width: 900px) {
+  .metrik-row { grid-template-columns: repeat(2, 1fr); padding: 16px; }
+  .panel-icerik { padding: 0 16px 40px; }
+}
+@media (max-width: 540px) {
+  .metrik-row { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 12px; }
+  .header { padding: 12px 16px; }
+  .sekme-btn { padding: 9px 12px; font-size: 12px; }
+}
