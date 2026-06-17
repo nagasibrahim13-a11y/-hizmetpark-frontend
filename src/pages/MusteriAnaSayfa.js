@@ -244,7 +244,6 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
     onProfilAc(reklam.isletme._id);
   };
 
-  // Sponsorlu işletmeleri normal liste içinde göster
   const isletmelerikListele = () => {
     const liste = [...filtreliIsletmeler];
     const sponsorlu = sponsorluReklamlar.map(r => ({
@@ -254,8 +253,6 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
       _reklamBaslik: r.baslik,
       _reklamAciklama: r.aciklama
     }));
-
-    // Her 3 karttan sonra sponsorlu kart ekle
     const sonuc = [];
     let sponsorIndex = 0;
     liste.forEach((item, i) => {
@@ -267,6 +264,21 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
     });
     return sonuc;
   };
+
+  // Öne çıkan bölümler için veri
+  const puaniYuksekler = [...isletmeler]
+    .filter(i => (i.ortalamaPuan || 0) > 0)
+    .sort((a, b) => (b.ortalamaPuan || 0) - (a.ortalamaPuan || 0))
+    .slice(0, 3);
+
+  const populerler = [...isletmeler]
+    .filter(i => (i.yorumSayisi || 0) > 0)
+    .sort((a, b) => (b.yorumSayisi || 0) - (a.yorumSayisi || 0))
+    .slice(0, 4);
+
+  const oneCikanGosterilsin = !aktifFiltreVar && (puaniYuksekler.length > 0 || populerler.length > 0);
+
+  const kategoriEmoji = (kat) => kat === 'berber' ? '✂️' : kat === 'kuafor' ? '💅' : kat === 'guzellik' ? '💆' : '⚽';
 
   return (
     <div className="musteri-sayfa">
@@ -314,9 +326,25 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
         {/* ARAMA */}
         <div className="arama-kutusu">
           <span className="arama-icon">🔍</span>
-          <input type="text" placeholder="İşletme adı veya şehir ara..." value={aramaMetni} onChange={e => setAramaMetni(e.target.value)} className="arama-input" />
+          <input type="text" placeholder="İşletme, hizmet ara..." value={aramaMetni} onChange={e => setAramaMetni(e.target.value)} className="arama-input" />
           {aramaMetni && <button onClick={() => setAramaMetni('')} className="temizle-btn">✕</button>}
         </div>
+
+        {/* ŞEHİR ÇİPLERİ */}
+        {sehirler.length > 0 && (
+          <div className="sehir-cip-row">
+            <span className="sehir-cip-label">📍 Konumun:</span>
+            {sehirler.slice(0, 6).map(s => (
+              <button
+                key={s}
+                className={`sehir-cip ${sehir === s ? 'aktif' : ''}`}
+                onClick={() => setSehir(sehir === s ? '' : s)}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* FİLTRELER */}
         <div className="filtre-bolum">
@@ -342,6 +370,44 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
           </div>
         </div>
 
+        {/* ÖNE ÇIKAN BÖLÜMLER — sadece filtre yokken */}
+        {oneCikanGosterilsin && (
+          <>
+            {puaniYuksekler.length > 0 && (
+              <div className="one-cikan-bolum">
+                <h3 className="one-cikan-baslik">⭐ Puanı Yüksek İşletmeler</h3>
+                <div className="one-cikan-row">
+                  {puaniYuksekler.map(isletme => (
+                    <div key={isletme._id} className="mini-kart" onClick={() => onProfilAc(isletme._id)}>
+                      <div className="mini-kart-ust">
+                        <span className="mini-kart-isim">{isletme.isletmeAdi}</span>
+                        <span className="mini-kart-puan">⭐ {isletme.ortalamaPuan}</span>
+                      </div>
+                      <div className="mini-kart-slogan">{isletme.slogan || (isletme.hizmetler?.[0]?.ad ?? '')}</div>
+                      <div className="mini-kart-konum">📍 {isletme.adres?.il} / {isletme.adres?.ilce}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {populerler.length > 0 && (
+              <div className="one-cikan-bolum">
+                <h3 className="one-cikan-baslik">🔥 Popüler İşletmeler</h3>
+                <div className="one-cikan-row-4">
+                  {populerler.map(isletme => (
+                    <div key={isletme._id} className="mini-kart-kucuk" onClick={() => onProfilAc(isletme._id)}>
+                      <span className="mini-kart-kucuk-emoji">{kategoriEmoji(isletme.kategori)}</span>
+                      <div className="mini-kart-kucuk-isim">{isletme.isletmeAdi}</div>
+                      <div className="mini-kart-kucuk-yorum">{isletme.yorumSayisi} yorum</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
         <div className="sonuc-satiri">
           <span className="sonuc-sayi">
             {filtreliIsletmeler.length} işletme bulundu
@@ -361,7 +427,6 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
         ) : (
           <div className="isletme-grid">
             {isletmelerikListele().map((isletme, idx) => {
-              // Sponsorlu kart
               if (isletme._sponsorlu) {
                 return (
                   <div
@@ -375,9 +440,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                       <span style={{ background: '#FEF3C7', color: '#92400E', fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '4px', letterSpacing: '0.05em' }}>SPONSORLU</span>
-                      <span style={{ fontSize: '20px' }}>
-                        {isletme.kategori === 'berber' ? '✂️' : isletme.kategori === 'kuafor' ? '💅' : isletme.kategori === 'guzellik' ? '💆' : '⚽'}
-                      </span>
+                      <span style={{ fontSize: '20px' }}>{kategoriEmoji(isletme.kategori)}</span>
                     </div>
                     <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', marginBottom: '4px' }}>{isletme.isletmeAdi}</h3>
                     {isletme._reklamBaslik && <p style={{ fontSize: '13px', color: '#F59E0B', fontWeight: '600', marginBottom: '4px' }}>{isletme._reklamBaslik}</p>}
@@ -390,13 +453,10 @@ function MusteriAnaSayfa({ kullanici, onCikis, onProfilAc, onRandevularim, onSad
                 );
               }
 
-              // Normal kart
               return (
                 <div key={isletme._id} className="isletme-kart card" onClick={() => onProfilAc(isletme._id)} style={{ cursor: 'pointer' }}>
                   <div className="isletme-kart-ust">
-                    <span className="isletme-emoji">
-                      {isletme.kategori === 'berber' ? '✂️' : isletme.kategori === 'kuafor' ? '💅' : isletme.kategori === 'guzellik' ? '💆' : '⚽'}
-                    </span>
+                    <span className="isletme-emoji">{kategoriEmoji(isletme.kategori)}</span>
                     <div>
                       <h3>{isletme.isletmeAdi}</h3>
                       <p>{isletme.adres?.il} / {isletme.adres?.ilce}</p>
