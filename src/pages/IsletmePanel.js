@@ -43,6 +43,10 @@ function IsletmePanel({ kullanici, onCikis }) {
   const [yeniPersonelAd, setYeniPersonelAd] = useState('');
   const [yeniPersonelUnvan, setYeniPersonelUnvan] = useState('');
   const [personelYukleniyor, setPersonelYukleniyor] = useState(false);
+  const [analitik, setAnalitik] = useState(null);
+  const [analitikYukleniyor, setAnalitikYukleniyor] = useState(false);
+  const [vipHedef, setVipHedef] = useState(10);
+  const [vipHediye, setVipHediye] = useState('VIP Özel Hizmet');
 
   const fiyatlar = {
     slider: { haftalik: 400, aylik: 1200 },
@@ -66,7 +70,7 @@ function IsletmePanel({ kullanici, onCikis }) {
   const bugunTarih = new Date().toISOString().split('T')[0];
 
   useEffect(() => { isletmeyiGetir(); }, []);
-  useEffect(() => { if (isletme) personelGetir(); }, [isletme]);
+  useEffect(() => { if (isletme) { personelGetir(); analitikGetir(); } }, [isletme]);
 
   const isletmeyiGetir = async () => {
     try {
@@ -91,6 +95,17 @@ function IsletmePanel({ kullanici, onCikis }) {
       }
     } catch (err) { console.error(err); }
     setYukleniyor(false);
+  };
+
+  const analitikGetir = async () => {
+    if (!isletme?._id) return;
+    setAnalitikYukleniyor(true);
+    try {
+      const cevap = await fetch(`http://localhost:5000/api/randevular/isletme/${isletme._id}/analitik`);
+      const veri = await cevap.json();
+      setAnalitik(veri);
+    } catch (err) { console.error(err); }
+    setAnalitikYukleniyor(false);
   };
 
   const personelGetir = async () => {
@@ -170,7 +185,7 @@ function IsletmePanel({ kullanici, onCikis }) {
       await fetch(`http://localhost:5000/api/sadakat/isletme/${isletme._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ hedefZiyaret: Number(hedefZiyaret), hediye })
+        body: JSON.stringify({ hedefZiyaret: Number(hedefZiyaret), hediye, vipHedef: Number(vipHedef), vipHediye })
       });
       setSadakatKayitBasari('Sadakat ayarları kaydedildi!');
       setTimeout(() => setSadakatKayitBasari(''), 2000);
@@ -453,6 +468,14 @@ function IsletmePanel({ kullanici, onCikis }) {
           <button className={`sekme-btn ${aktifSekme === 'profil' ? 'aktif' : ''}`} onClick={() => setAktifSekme('profil')}>🏪 Profilim</button>
           <button className={`sekme-btn ${aktifSekme === 'musaitlik' ? 'aktif' : ''}`} onClick={() => setAktifSekme('musaitlik')}>📆 Müsaitlik</button>
           <button className={`sekme-btn ${aktifSekme === 'personel' ? 'aktif' : ''}`} onClick={() => setAktifSekme('personel')}>👥 Personel</button>
+          <button className={`sekme-btn ${aktifSekme === 'premium' ? 'aktif' : ''}`} onClick={() => setAktifSekme('premium')}>
+            👑 {isletme?.premium?.aktif ? 'Premium ✓' : 'Premium'}
+          </button>
+          {isletme?.premium?.aktif && (
+            <button className={`sekme-btn ${aktifSekme === 'analitik' ? 'aktif' : ''}`} onClick={() => setAktifSekme('analitik')}>
+              📊 Analitik
+            </button>
+          )}
         </div>
 
         {/* RANDEVULAR */}
@@ -550,6 +573,35 @@ function IsletmePanel({ kullanici, onCikis }) {
               <div style={{ background: '#FFF5F5', border: '1px solid #FFCDD2', borderRadius: '8px', padding: '10px 14px', marginTop: '8px', fontSize: '13px', color: '#DC2626' }}>
                 🎁 Her <strong>{hedefZiyaret}</strong> ziyarette müşteriye <strong>{hediye}</strong> hediye edilecek
               </div>
+              {isletme?.premium?.aktif && (
+                <div style={{marginTop:'20px', padding:'16px', background:'linear-gradient(135deg,#FEF3C7,#FDE68A)', borderRadius:'12px', border:'1px solid #F59E0B'}}>
+                  <div style={{fontWeight:'700', fontSize:'14px', marginBottom:'12px'}}>👑 VIP Müşteri Ayarları <span style={{fontSize:'12px', color:'#92400E', background:'#FEF3C7', padding:'2px 8px', borderRadius:'20px', marginLeft:'6px'}}>Premium</span></div>
+                  <div style={{display:'flex', gap:'10px', flexWrap:'wrap', marginBottom:'10px'}}>
+                    <div style={{flex:1, minWidth:'120px'}}>
+                      <label style={{fontSize:'12px', color:'#92400E', fontWeight:'600', display:'block', marginBottom:'4px'}}>VIP Hedef Ziyaret</label>
+                      <input
+                        type="number" min="1" max="20"
+                        value={vipHedef}
+                        onChange={e => setVipHedef(e.target.value)}
+                        style={{width:'100%', padding:'8px 12px', borderRadius:'8px', border:'1px solid #F59E0B', fontSize:'14px', background:'white'}}
+                      />
+                    </div>
+                    <div style={{flex:2, minWidth:'180px'}}>
+                      <label style={{fontSize:'12px', color:'#92400E', fontWeight:'600', display:'block', marginBottom:'4px'}}>VIP Hediye</label>
+                      <input
+                        type="text"
+                        value={vipHediye}
+                        onChange={e => setVipHediye(e.target.value)}
+                        placeholder="örn: Ücretsiz Saç Boyama"
+                        style={{width:'100%', padding:'8px 12px', borderRadius:'8px', border:'1px solid #F59E0B', fontSize:'14px', background:'white'}}
+                      />
+                    </div>
+                  </div>
+                  <div style={{fontSize:'12px', color:'#92400E'}}>
+                    👑 Her <strong>{vipHedef}</strong> ziyarette VIP müşteriye <strong>{vipHediye}</strong> hediye edilecek
+                  </div>
+                </div>
+              )}
             </div>
             <h3 style={{ fontSize: '14px', fontWeight: '700', margin: '20px 0 12px' }}>Sadakat Müşterileri ({sadakatListesi.length})</h3>
             {sadakatListesi.length === 0 ? <div className="bos-mesaj">Henüz sadakat müşterisi yok</div> : (
@@ -563,7 +615,12 @@ function IsletmePanel({ kullanici, onCikis }) {
                       </div>
                     </div>
                     <div className="randevu-orta">
-                      <div className="randevu-musteri">{s.musteri?.ad} {s.musteri?.soyad}</div>
+                      <div className="randevu-musteri">
+                        {s.musteri?.ad} {s.musteri?.soyad}
+                        {s.toplamZiyaret >= vipHedef && (
+                          <span style={{background:'#FEF3C7', color:'#92400E', fontSize:'11px', fontWeight:'700', padding:'2px 8px', borderRadius:'20px', marginLeft:'6px'}}>👑 VIP</span>
+                        )}
+                      </div>
                       <div className="randevu-hizmet">{s.musteri?.email}</div>
                       <div style={{ marginTop: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <div style={{ flex: '1', height: '6px', background: '#F0F0F0', borderRadius: '20px', overflow: 'hidden' }}>
@@ -856,6 +913,178 @@ function IsletmePanel({ kullanici, onCikis }) {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* PREMİUM */}
+        {aktifSekme === 'premium' && (
+          <div className="sekme-icerik">
+            {isletme?.premium?.aktif ? (
+              <div>
+                <div style={{background:'linear-gradient(135deg,#4F46E5,#7C3AED)', borderRadius:'16px', padding:'24px', color:'white', marginBottom:'24px'}}>
+                  <div style={{fontSize:'28px', marginBottom:'4px'}}>👑 Premium Aktif</div>
+                  <div style={{opacity:0.85, fontSize:'14px'}}>Paket: {isletme.premium.paket === 'yillik' ? 'Yıllık' : 'Aylık'}</div>
+                  <div style={{opacity:0.85, fontSize:'14px'}}>Bitiş: {new Date(isletme.premium.bitis).toLocaleDateString('tr-TR')}</div>
+                </div>
+                <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px'}}>
+                  <div
+                    key="analitik"
+                    onClick={() => setAktifSekme('analitik')}
+                    style={{background:'#F8FAFC', borderRadius:'12px', padding:'16px', border:'1px solid #E2E8F0', cursor:'pointer', transition:'box-shadow 0.2s'}}
+                    onMouseEnter={e => e.currentTarget.style.boxShadow='0 4px 12px rgba(79,70,229,0.15)'}
+                    onMouseLeave={e => e.currentTarget.style.boxShadow='none'}
+                  >
+                    <div style={{fontSize:'24px', marginBottom:'6px'}}>📊</div>
+                    <div style={{fontWeight:'600', fontSize:'14px', marginBottom:'4px'}}>Analitik Dashboard</div>
+                    <div style={{fontSize:'12px', color:'#64748B'}}>Ciro, müşteri ve randevu istatistikleri</div>
+                    <div style={{marginTop:'8px', fontSize:'12px', color:'#10B981', fontWeight:'600'}}>✓ Aç →</div>
+                  </div>
+                  {[
+                    {ikon:'👑', baslik:'VIP Müşteri Sistemi', aciklama:'Özel hediye ve indirimler'},
+                    {ikon:'🎨', baslik:'Yoğunluk Göstergesi', aciklama:'Takvimde dolu/boş saat renkleri'},
+                    {ikon:'⭐', baslik:'Öne Çıkma', aciklama:'Anasayfada üst sırada görün'},
+                    {ikon:'🎁', baslik:'Gelişmiş Hediyeler', aciklama:'VIP müşterilere özel ödüller'},
+                    {ikon:'📈', baslik:'Segment Analizi', aciklama:'Müşteri segmentlerini görüntüle'},
+                  ].map(f => (
+                    <div key={f.baslik} style={{background:'#F8FAFC', borderRadius:'12px', padding:'16px', border:'1px solid #E2E8F0'}}>
+                      <div style={{fontSize:'24px', marginBottom:'6px'}}>{f.ikon}</div>
+                      <div style={{fontWeight:'600', fontSize:'14px', marginBottom:'4px'}}>{f.baslik}</div>
+                      <div style={{fontSize:'12px', color:'#64748B'}}>{f.aciklama}</div>
+                      <div style={{marginTop:'8px', fontSize:'12px', color:'#10B981', fontWeight:'600'}}>✓ Aktif</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div style={{textAlign:'center', padding:'32px 16px'}}>
+                <div style={{fontSize:'48px', marginBottom:'12px'}}>👑</div>
+                <h3 style={{fontSize:'20px', fontWeight:'700', marginBottom:'8px'}}>Premium'a Geçin</h3>
+                <p style={{color:'#64748B', marginBottom:'24px', fontSize:'14px'}}>Analitik, VIP müşteri sistemi, yoğunluk göstergesi ve daha fazlası</p>
+                <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', marginBottom:'24px', textAlign:'left'}}>
+                  {[
+                    {ikon:'📊', baslik:'Analitik Dashboard', aciklama:'Ciro ve istatistikler'},
+                    {ikon:'👑', baslik:'VIP Müşteri', aciklama:'Özel hediye ve indirimler'},
+                    {ikon:'🎨', baslik:'Yoğunluk Göstergesi', aciklama:'Takvim renk kodlaması'},
+                    {ikon:'⭐', baslik:'Öne Çıkma', aciklama:'Anasayfada üst sıra'},
+                    {ikon:'🎁', baslik:'Gelişmiş Hediyeler', aciklama:'VIP ödül sistemi'},
+                    {ikon:'📈', baslik:'Segment Analizi', aciklama:'Müşteri grupları'},
+                  ].map(f => (
+                    <div key={f.baslik} style={{background:'#F8FAFC', borderRadius:'12px', padding:'12px', border:'1px solid #E2E8F0', opacity:0.7}}>
+                      <div style={{fontSize:'20px', marginBottom:'4px'}}>{f.ikon}</div>
+                      <div style={{fontWeight:'600', fontSize:'13px'}}>{f.baslik}</div>
+                      <div style={{fontSize:'12px', color:'#64748B'}}>{f.aciklama}</div>
+                      <div style={{marginTop:'6px', fontSize:'11px', color:'#94A3B8'}}>🔒 Kilitli</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{display:'flex', gap:'12px', justifyContent:'center', flexWrap:'wrap'}}>
+                  <div style={{background:'white', border:'2px solid #4F46E5', borderRadius:'16px', padding:'20px 24px', minWidth:'160px'}}>
+                    <div style={{fontWeight:'700', fontSize:'16px', color:'#4F46E5'}}>Aylık</div>
+                    <div style={{fontSize:'24px', fontWeight:'800', margin:'8px 0'}}>299₺</div>
+                    <div style={{fontSize:'12px', color:'#64748B'}}>/ ay</div>
+                  </div>
+                  <div style={{background:'linear-gradient(135deg,#4F46E5,#7C3AED)', borderRadius:'16px', padding:'20px 24px', minWidth:'160px', color:'white', position:'relative'}}>
+                    <div style={{position:'absolute', top:'-10px', left:'50%', transform:'translateX(-50%)', background:'#10B981', color:'white', fontSize:'11px', fontWeight:'700', padding:'3px 10px', borderRadius:'20px'}}>EN POPÜLER</div>
+                    <div style={{fontWeight:'700', fontSize:'16px'}}>Yıllık</div>
+                    <div style={{fontSize:'24px', fontWeight:'800', margin:'8px 0'}}>199₺</div>
+                    <div style={{fontSize:'12px', opacity:0.8}}>/ ay · %33 indirim</div>
+                  </div>
+                </div>
+                <p style={{marginTop:'16px', fontSize:'12px', color:'#94A3B8'}}>Premium aktivasyonu için yöneticinizle iletişime geçin.</p>
+                {!isletme?.premium?.aktif && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/premium`, {
+                          method: 'PUT',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ paket: 'aylik' })
+                        });
+                        if (cevap.ok) {
+                          await isletmeyiGetir();
+                        } else {
+                          const veri = await cevap.json();
+                          console.error('Premium hata:', veri);
+                        }
+                      } catch (err) { console.error(err); }
+                    }}
+                    style={{marginTop:'12px', padding:'10px 24px', background:'#10B981', color:'white', border:'none', borderRadius:'10px', cursor:'pointer', fontWeight:'600', fontSize:'14px'}}>
+                    🧪 Test: Premium Aktif Et (Geçici)
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ANALİTİK */}
+        {aktifSekme === 'analitik' && isletme?.premium?.aktif && (
+          <div className="sekme-icerik">
+            <h3 style={{marginBottom:'20px'}}>📊 Analitik Dashboard</h3>
+            {analitikYukleniyor ? (
+              <div style={{textAlign:'center', padding:'40px', color:'#94A3B8'}}>Yükleniyor...</div>
+            ) : analitik ? (
+              <div>
+                <div style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'12px', marginBottom:'24px'}}>
+                  {[
+                    {ikon:'📅', baslik:'Toplam Randevu', deger: analitik.ozet.toplamRandevu},
+                    {ikon:'✅', baslik:'Tamamlanan', deger: analitik.ozet.tamamlanan},
+                    {ikon:'❌', baslik:'İptal', deger: analitik.ozet.iptal},
+                    {ikon:'💰', baslik:'Toplam Ciro', deger: `${analitik.ozet.toplamCiro}₺`},
+                  ].map(k => (
+                    <div key={k.baslik} style={{background:'white', borderRadius:'12px', padding:'16px', border:'1px solid #E2E8F0', textAlign:'center'}}>
+                      <div style={{fontSize:'24px'}}>{k.ikon}</div>
+                      <div style={{fontSize:'22px', fontWeight:'800', color:'#0F172A', margin:'4px 0'}}>{k.deger}</div>
+                      <div style={{fontSize:'12px', color:'#64748B'}}>{k.baslik}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{background:'white', borderRadius:'12px', padding:'20px', border:'1px solid #E2E8F0', marginBottom:'16px'}}>
+                  <h4 style={{marginBottom:'16px', fontSize:'15px'}}>👥 Müşteri Segmentleri</h4>
+                  <div style={{display:'flex', gap:'12px'}}>
+                    {[
+                      {etiket:'🆕 Yeni', sayi: analitik.segmentler.yeni, renk:'#3B82F6'},
+                      {etiket:'🔄 Düzenli', sayi: analitik.segmentler.duzenli, renk:'#10B981'},
+                      {etiket:'👑 VIP', sayi: analitik.segmentler.vip, renk:'#F59E0B'},
+                    ].map(s => (
+                      <div key={s.etiket} style={{flex:1, textAlign:'center', padding:'16px', borderRadius:'10px', background:'#F8FAFC', border:`2px solid ${s.renk}20`}}>
+                        <div style={{fontSize:'28px', fontWeight:'800', color:s.renk}}>{s.sayi}</div>
+                        <div style={{fontSize:'13px', color:'#64748B', marginTop:'4px'}}>{s.etiket}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div style={{background:'white', borderRadius:'12px', padding:'20px', border:'1px solid #E2E8F0', marginBottom:'16px'}}>
+                  <h4 style={{marginBottom:'16px', fontSize:'15px'}}>✂️ En Popüler Hizmetler</h4>
+                  {analitik.populerHizmetler.map((h, i) => (
+                    <div key={h.ad} style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 0', borderBottom: i < analitik.populerHizmetler.length-1 ? '1px solid #F1F5F9' : 'none'}}>
+                      <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
+                        <div style={{width:'28px', height:'28px', borderRadius:'50%', background:'#4F46E510', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'13px', fontWeight:'700', color:'#4F46E5'}}>{i+1}</div>
+                        <span style={{fontSize:'14px', fontWeight:'500'}}>{h.ad}</span>
+                      </div>
+                      <div style={{textAlign:'right'}}>
+                        <div style={{fontSize:'14px', fontWeight:'700', color:'#0F172A'}}>{h.sayi}x</div>
+                        <div style={{fontSize:'12px', color:'#64748B'}}>{h.ciro}₺</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{background:'white', borderRadius:'12px', padding:'20px', border:'1px solid #E2E8F0'}}>
+                  <h4 style={{marginBottom:'16px', fontSize:'15px'}}>⭐ En Sadık Müşteriler</h4>
+                  {analitik.topMusteriler.map((m, i) => (
+                    <div key={m.ad} style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 0', borderBottom: i < analitik.topMusteriler.length-1 ? '1px solid #F1F5F9' : 'none'}}>
+                      <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
+                        <div style={{width:'28px', height:'28px', borderRadius:'50%', background: i===0?'#FEF3C7': i===1?'#F1F5F9':'#F8FAFC', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'13px'}}>{i===0?'🥇':i===1?'🥈':'🥉'}</div>
+                        <span style={{fontSize:'14px', fontWeight:'500'}}>{m.ad}</span>
+                      </div>
+                      <div style={{fontSize:'14px', fontWeight:'700', color:'#4F46E5'}}>{m.sayi} randevu</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div style={{textAlign:'center', padding:'40px', color:'#94A3B8'}}>Veri yüklenemedi</div>
+            )}
           </div>
         )}
       </div>
