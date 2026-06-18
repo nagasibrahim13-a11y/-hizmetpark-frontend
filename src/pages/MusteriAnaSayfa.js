@@ -126,6 +126,11 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
     if (siralama === 'puan') sonuc.sort((a, b) => (b.ortalamaPuan || 0) - (a.ortalamaPuan || 0));
     else if (siralama === 'yorum') sonuc.sort((a, b) => (b.yorumSayisi || 0) - (a.yorumSayisi || 0));
     else if (siralama === 'isim') sonuc.sort((a, b) => a.isletmeAdi?.localeCompare(b.isletmeAdi));
+    sonuc.sort((a, b) => {
+      const aPremium = a.premium?.aktif ? 1 : 0;
+      const bPremium = b.premium?.aktif ? 1 : 0;
+      return bPremium - aPremium;
+    });
     setFiltreliIsletmeler(sonuc);
   };
 
@@ -616,7 +621,11 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
                 <div key={isletme._id} className="isletme-kart" onClick={() => onProfilAc(isletme._id)}>
                   {/* Üst: İsim + Puan (mockup gibi) */}
                   <div className="isletme-kart-baslik">
-                    <h3>{isletme.isletmeAdi}</h3>
+                    <h3>{isletme.isletmeAdi}{isletme.premium?.aktif && (
+                      <span style={{background:'linear-gradient(135deg,#4F46E5,#7C3AED)', color:'white', fontSize:'10px', fontWeight:'700', padding:'2px 8px', borderRadius:'20px', marginLeft:'6px', verticalAlign:'middle'}}>
+                        ⭐ Premium
+                      </span>
+                    )}</h3>
                     <div className="isletme-kart-puan-inline">
                       <span style={{ color: '#F59E0B' }}>★</span>
                       <span>{isletme.ortalamaPuan > 0 ? isletme.ortalamaPuan : '—'}</span>
