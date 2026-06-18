@@ -85,6 +85,7 @@ function IsletmePanel({ kullanici, onCikis }) {
           slogan: benim.slogan || '',
           hakkinda: benim.hakkinda || '',
           fotograf: benim.fotograf || '',
+          calismaGunleri: benim.calismaGunleri || ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'],
           calismaBaslangic: benim.calismaBaslangic,
           calismaBitis: benim.calismaBitis,
           adres: { ...benim.adres }
@@ -782,6 +783,40 @@ function IsletmePanel({ kullanici, onCikis }) {
                     <div style={{ flex: 1 }}>
                       <label style={labelStyle}>İlçe</label>
                       <input style={inputStyle} value={profilForm.adres?.ilce || ''} onChange={e => setProfilForm({ ...profilForm, adres: { ...profilForm.adres, ilce: e.target.value } })} />
+                    </div>
+                  </div>
+
+                  <div style={{marginBottom:'16px'}}>
+                    <label style={labelStyle}>Çalışma Günleri</label>
+                    <div style={{display:'flex', gap:'6px', flexWrap:'wrap', marginTop:'6px'}}>
+                      {['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'].map(gun => {
+                        const secili = (profilForm.calismaGunleri || []).includes(gun);
+                        return (
+                          <button
+                            key={gun}
+                            type="button"
+                            onClick={() => {
+                              const gunler = secili
+                                ? profilForm.calismaGunleri.filter(g => g !== gun)
+                                : [...(profilForm.calismaGunleri || []), gun];
+                              setProfilForm(prev => ({ ...prev, calismaGunleri: gunler }));
+                            }}
+                            style={{
+                              padding:'6px 12px', borderRadius:'20px',
+                              border: secili ? 'none' : '1px solid #E2E8F0',
+                              background: secili ? '#4F46E5' : 'white',
+                              color: secili ? 'white' : '#374151',
+                              fontSize:'13px', cursor:'pointer',
+                              fontWeight: secili ? '600' : '400'
+                            }}
+                          >
+                            {gun.slice(0,3)}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div style={{fontSize:'12px', color:'#94A3B8', marginTop:'6px'}}>
+                      {(profilForm.calismaGunleri || []).length} gün seçili
                     </div>
                   </div>
 

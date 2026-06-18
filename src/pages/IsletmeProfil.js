@@ -18,6 +18,7 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData, isOw
   const [sadakatAyar, setSadakatAyar] = useState(null);
   const [personelListesi, setPersonelListesi] = useState([]);
   const [secilenPersonel, setSecilenPersonel] = useState(null);
+  const [doluluk, setDoluluk] = useState({});
 
   const saatler = [
     '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
@@ -29,6 +30,10 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData, isOw
   useEffect(() => { verileriGetir(); }, [isletmeId]);
 
   useEffect(() => {
+    if (secilenTarih) dolulukGetir(secilenTarih);
+  }, [secilenTarih]);
+
+  useEffect(() => {
     if (hediyeliRandevuData && isletme) {
       setRandevuModal(true);
       const hediyeHizmet = isletme.hizmetler?.find(
@@ -37,6 +42,15 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData, isOw
       setSecilenHizmetler([{ ...hediyeHizmet, fiyat: 0 }]);
     }
   }, [hediyeliRandevuData, isletme]);
+
+  const dolulukGetir = async (tarih) => {
+    if (!tarih || !isletme?._id) return;
+    try {
+      const cevap = await fetch(`http://localhost:5000/api/randevular/isletme/${isletme._id}/doluluk?tarih=${tarih}`);
+      const veri = await cevap.json();
+      setDoluluk(veri.doluluk || {});
+    } catch (err) { console.error(err); }
+  };
 
   const verileriGetir = async () => {
     setYukleniyor(true);
@@ -399,16 +413,36 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData, isOw
                 )}
 
                 <p className="modal-label">Saat Seç</p>
+                {Object.keys(doluluk).length > 0 && (
+                  <div style={{display:'flex', gap:'12px', marginBottom:'10px', fontSize:'12px', flexWrap:'wrap'}}>
+                    <span style={{display:'flex', alignItems:'center', gap:'4px'}}>
+                      <span style={{width:'12px', height:'12px', borderRadius:'3px', background:'white', border:'1px solid #E2E8F0', display:'inline-block'}}></span> Boş
+                    </span>
+                    <span style={{display:'flex', alignItems:'center', gap:'4px'}}>
+                      <span style={{width:'12px', height:'12px', borderRadius:'3px', background:'#FEF3C7', border:'1px solid #F59E0B', display:'inline-block'}}></span> Az yoğun
+                    </span>
+                    <span style={{display:'flex', alignItems:'center', gap:'4px'}}>
+                      <span style={{width:'12px', height:'12px', borderRadius:'3px', background:'#FEE2E2', border:'1px solid #EF4444', display:'inline-block'}}></span> Yoğun
+                    </span>
+                  </div>
+                )}
                 <div className="saat-grid">
                   {saatler.map(s => {
                     const isDolu = doluSaatler.has(s);
                     const isKapali = kapaliBilgi?.tumGun || (!kapaliBilgi?.tumGun && kapaliBilgi?.saatler?.includes(s));
+                    const saatDoluluk = doluluk[s] || 0;
+                    const dolulukRenk = saatDoluluk === 0 ? null : saatDoluluk === 1 ? '#FEF3C7' : '#FEE2E2';
+                    const dolulukBorder = saatDoluluk === 0 ? null : saatDoluluk === 1 ? '#F59E0B' : '#EF4444';
                     return (
                       <button
                         key={s}
                         className={`saat-btn ${secilenSaat === s ? 'secili' : ''} ${isDolu || isKapali ? 'dolu' : ''}`}
                         onClick={() => !isDolu && !isKapali && setSecilenSaat(s)}
                         disabled={isDolu || isKapali}
+                        style={!isDolu && !isKapali ? {
+                          background: dolulukRenk || undefined,
+                          borderColor: dolulukBorder || undefined
+                        } : undefined}
                       >
                         {isKapali ? '🚫' : isDolu ? '🔒' : s}
                       </button>

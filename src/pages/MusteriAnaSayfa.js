@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import YakinimdakiIsletmeler from '../components/YakinimdakiIsletmeler';
 import './MusteriAnaSayfa.css';
 
-function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilAc, onRandevularim, onSadakat }) {
+function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilAc, onRandevularim, onSadakat, onMarketplace }) {
   const { girisGerektir } = useAuth();
   const [dropdownAcik, setDropdownAcik] = useState(false);
   const dropdownRef = useRef(null);
@@ -384,6 +384,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
             <>
               {/* Masaüstü: yan yana linkler */}
               <div className="hesabim-masaustu">
+                <button className="hesabim-masaustu-btn" onClick={onMarketplace}>🛍️ Marketplace</button>
                 <button className="hesabim-masaustu-btn" onClick={() => setHaritaGoster(v => !v)}>
                   📍 Yakınımda
                 </button>

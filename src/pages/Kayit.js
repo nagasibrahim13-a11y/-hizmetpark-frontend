@@ -21,6 +21,7 @@ function Kayit({ onGirisGit }) {
     kategori: 'berber',
     telefon: '',
     adres: { il: '', ilce: '', acikAdres: '' },
+    calismaGunleri: ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'],
     calismaBaslangic: '09:00',
     calismaBitis: '19:00',
     hizmetler: [{ ad: '', sure: '', fiyat: '' }]
@@ -291,6 +292,42 @@ function Kayit({ onGirisGit }) {
 
             <label className="input-label">Açık Adres</label>
             <input style={inputStyle} placeholder="Cadde, sokak, no..." value={isletmeForm.adres.acikAdres} onChange={e => setIsletmeForm({ ...isletmeForm, adres: { ...isletmeForm.adres, acikAdres: e.target.value } })} />
+
+            <div style={{marginBottom:'16px'}}>
+              <label style={{fontSize:'13px', fontWeight:'600', color:'#374151', display:'block', marginBottom:'8px'}}>Çalışma Günleri</label>
+              <div style={{display:'flex', gap:'6px', flexWrap:'wrap'}}>
+                {['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'].map(gun => {
+                  const secili = isletmeForm.calismaGunleri.includes(gun);
+                  return (
+                    <button
+                      key={gun}
+                      type="button"
+                      onClick={() => {
+                        const gunler = isletmeForm.calismaGunleri.includes(gun)
+                          ? isletmeForm.calismaGunleri.filter(g => g !== gun)
+                          : [...isletmeForm.calismaGunleri, gun];
+                        setIsletmeForm(prev => ({ ...prev, calismaGunleri: gunler }));
+                      }}
+                      style={{
+                        padding:'6px 12px',
+                        borderRadius:'20px',
+                        border: secili ? 'none' : '1px solid #E2E8F0',
+                        background: secili ? '#4F46E5' : 'white',
+                        color: secili ? 'white' : '#374151',
+                        fontSize:'13px',
+                        cursor:'pointer',
+                        fontWeight: secili ? '600' : '400'
+                      }}
+                    >
+                      {gun.slice(0,3)}
+                    </button>
+                  );
+                })}
+              </div>
+              <div style={{fontSize:'12px', color:'#94A3B8', marginTop:'6px'}}>
+                {isletmeForm.calismaGunleri.length} gün seçili
+              </div>
+            </div>
 
             <div style={{ display: 'flex', gap: '12px' }}>
               <div style={{ flex: 1 }}>

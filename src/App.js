@@ -7,6 +7,7 @@ import IsletmePanel from './pages/IsletmePanel';
 import IsletmeProfil from './pages/IsletmeProfil';
 import Randevularim from './pages/Randevularim';
 import SadakatKartlarim from './pages/SadakatKartlarim';
+import Marketplace from './pages/Marketplace';
 import './App.css';
 
 function AppRouter() {
@@ -90,6 +91,7 @@ function AppRouter() {
           onProfilAc={profilAc}
           onRandevularim={handleRandevularimTikla}
           onSadakat={handleSadakatTikla}
+          onMarketplace={() => setSayfa('marketplace')}
         />
       )}
 
@@ -122,6 +124,10 @@ function AppRouter() {
           onGeri={() => setSayfa('anaSayfa')}
           onHediyeliRandevu={hediyeliRandevuAc}
         />
+      )}
+
+      {sayfa === 'marketplace' && (
+        <Marketplace onGeri={() => setSayfa('anaSayfa')} />
       )}
     </div>
   );
