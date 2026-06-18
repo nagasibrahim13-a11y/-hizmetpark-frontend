@@ -1,0 +1,29 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - img [ref=e7]
+      - text: HizmetPark
+    - generic [ref=e13]:
+      - generic [ref=e14]: 🔍
+      - textbox "Berber, hizmet veya ürün ara..." [ref=e15]
+    - generic [ref=e16]:
+      - button "Kayıt Ol" [ref=e17] [cursor=pointer]
+      - button "Giriş Yap" [ref=e18] [cursor=pointer]
+  - generic [ref=e19]:
+    - generic [ref=e20]:
+      - generic [ref=e21]:
+        - button "🏪 Tümü" [ref=e22] [cursor=pointer]
+        - button "✂️ Berber" [ref=e23] [cursor=pointer]
+        - button "💅 Kuaför" [ref=e24] [cursor=pointer]
+        - button "💆 Güzellik" [ref=e25] [cursor=pointer]
+        - button "⚽ Halısaha" [ref=e26] [cursor=pointer]
+      - generic [ref=e27]:
+        - combobox [ref=e28] [cursor=pointer]:
+          - option "📍 Tüm Şehirler" [selected]
+        - combobox [ref=e29] [cursor=pointer]:
+          - option "🔀 Varsayılan" [selected]
+          - option "⭐ En Yüksek Puan"
+          - option "💬 En Çok Yorum"
+          - option "🔤 İsme Göre (A-Z)"
+    - generic [ref=e31]: 0 işletme bulundu
+    - generic [ref=e32]: Yükleniyor...

@@ -16,6 +16,8 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData, isOw
   const [randevuHata, setRandevuHata] = useState('');
   const [gonderiyor, setGonderiyor] = useState(false);
   const [sadakatAyar, setSadakatAyar] = useState(null);
+  const [personelListesi, setPersonelListesi] = useState([]);
+  const [secilenPersonel, setSecilenPersonel] = useState(null);
 
   const saatler = [
     '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
@@ -50,6 +52,9 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData, isOw
       setIsletme(isletmeVeri);
       setYorumlar(yorumVeri);
       if (sadakatVeri.length > 0) setSadakatAyar(sadakatVeri[0].odul);
+      const pCevap = await fetch(`http://localhost:5000/api/isletmeler/${isletmeId}/personel`);
+      const pVeri = await pCevap.json();
+      setPersonelListesi(pVeri);
     } catch (err) { console.error(err); }
     setYukleniyor(false);
   };
@@ -111,7 +116,8 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData, isOw
           tarih: secilenTarih,
           saat: secilenSaat,
           hediyeMi: hediyeliRandevuData ? true : false,
-          sadakatId: hediyeliRandevuData?.sadakatId || null
+          sadakatId: hediyeliRandevuData?.sadakatId || null,
+          personel: secilenPersonel || null
         })
       });
       const veri = await cevap.json();
@@ -409,6 +415,26 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData, isOw
                     );
                   })}
                 </div>
+
+                {personelListesi.length > 0 && (
+                  <div style={{marginTop:'16px'}}>
+                    <div style={{fontWeight:'600', fontSize:'14px', marginBottom:'8px'}}>👤 Personel Seçin (İsteğe bağlı)</div>
+                    <div style={{display:'flex', gap:'8px', flexWrap:'wrap'}}>
+                      <button
+                        onClick={() => setSecilenPersonel(null)}
+                        style={{padding:'8px 14px', borderRadius:'20px', border: secilenPersonel === null ? 'none' : '1px solid #E2E8F0', background: secilenPersonel === null ? '#4F46E5' : 'white', color: secilenPersonel === null ? 'white' : '#374151', fontSize:'13px', cursor:'pointer'}}>
+                        Fark etmez
+                      </button>
+                      {personelListesi.map(p => (
+                        <button key={p._id}
+                          onClick={() => setSecilenPersonel(p._id)}
+                          style={{padding:'8px 14px', borderRadius:'20px', border: secilenPersonel === p._id ? 'none' : '1px solid #E2E8F0', background: secilenPersonel === p._id ? '#4F46E5' : 'white', color: secilenPersonel === p._id ? 'white' : '#374151', fontSize:'13px', cursor:'pointer'}}>
+                          {p.ad} — {p.unvan}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <button className="btn-primary" style={{ marginTop: '20px' }} onClick={randevuAl} disabled={gonderiyor || !!kapaliBilgi?.tumGun}>
                   {gonderiyor ? 'Gönderiliyor...' : hediyeliRandevuData ? '🎁 Hediye Randevuyu Onayla' : `Randevuyu Onayla${toplamFiyat > 0 ? ` — ${toplamFiyat} ₺` : ''}`}

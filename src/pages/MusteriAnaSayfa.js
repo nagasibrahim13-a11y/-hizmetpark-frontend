@@ -46,6 +46,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
   const [haritaGoster, setHaritaGoster] = useState(false);
   const [sliderReklamlar, setSliderReklamlar] = useState([]);
   const [sponsorluReklamlar, setSponsorluReklamlar] = useState([]);
+  const [oneCikanReklamlar, setOneCikanReklamlar] = useState([]);
   const [sliderIndex, setSliderIndex] = useState(0);
 
   const kategoriler = [
@@ -80,6 +81,14 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
     filtreUygula();
   }, [isletmeler, kategori, aramaMetni, sehir, siralama]);
 
+  useEffect(() => {
+    if (sliderReklamlar.length <= 1) return;
+    const id = setInterval(() => {
+      setSliderIndex(i => (i + 1) % sliderReklamlar.length);
+    }, 4000);
+    return () => clearInterval(id);
+  }, [sliderReklamlar]);
+
   const isletmeleriGetir = async () => {
     setYukleniyor(true);
     try {
@@ -98,6 +107,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
       const veri = await cevap.json();
       setSliderReklamlar(veri.filter(r => r.tip === 'slider'));
       setSponsorluReklamlar(veri.filter(r => r.tip === 'sponsorlu'));
+      setOneCikanReklamlar(veri.filter(r => r.tip === 'one_cikma'));
     } catch (err) { console.error(err); }
   };
 
@@ -428,12 +438,16 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
               )}
             </div>
             {sliderReklamlar.length > 1 && (
-              <div className="slider-noktalar">
-                {sliderReklamlar.map((_, i) => (
-                  <div key={i} className={`slider-nokta ${i === sliderIndex ? 'aktif' : ''}`}
-                    onClick={e => { e.stopPropagation(); setSliderIndex(i); }} />
-                ))}
-              </div>
+              <>
+                <button className="slider-ok slider-ok-sol" onClick={e => { e.stopPropagation(); setSliderIndex(i => i === 0 ? sliderReklamlar.length - 1 : i - 1); }}>‹</button>
+                <button className="slider-ok slider-ok-sag" onClick={e => { e.stopPropagation(); setSliderIndex(i => (i + 1) % sliderReklamlar.length); }}>›</button>
+                <div className="slider-noktalar">
+                  {sliderReklamlar.map((_, i) => (
+                    <div key={i} className={`slider-nokta ${i === sliderIndex ? 'aktif' : ''}`}
+                      onClick={e => { e.stopPropagation(); setSliderIndex(i); }} />
+                  ))}
+                </div>
+              </>
             )}
           </div>
         )}
@@ -538,6 +552,19 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
               </div>
             )}
           </>
+        )}
+
+        {/* ÖNE ÇIKAN REKLAMLAR */}
+        {oneCikanReklamlar.length > 0 && (
+          <div className="one-cikma-reklamlar">
+            {oneCikanReklamlar.map(r => (
+              <div key={r._id} className="one-cikma-kart" onClick={() => { fetch(`http://localhost:5000/api/reklamlar/${r._id}/tikla`, {method:'PUT'}); onProfilAc(r.isletme._id); }}>
+                <span className="one-cikma-badge">⭐ ÖNE ÇIKAN</span>
+                <span className="one-cikma-isletme">{r.isletme?.isletmeAdi}</span>
+                <span className="one-cikma-baslik">{r.baslik}</span>
+              </div>
+            ))}
+          </div>
         )}
 
         <div className="sonuc-satiri">

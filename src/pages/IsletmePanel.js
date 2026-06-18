@@ -38,6 +38,11 @@ function IsletmePanel({ kullanici, onCikis }) {
   const [manuelForm, setManuelForm] = useState({ musteriAdi: '', musteriTelefon: '', tarih: '', saat: '', hizmetler: [] });
   const [manuelBasari, setManuelBasari] = useState('');
   const [manuelHata, setManuelHata] = useState('');
+  const [personelListesi, setPersonelListesi] = useState([]);
+  const [personelFiltre, setPersonelFiltre] = useState('hepsi');
+  const [yeniPersonelAd, setYeniPersonelAd] = useState('');
+  const [yeniPersonelUnvan, setYeniPersonelUnvan] = useState('');
+  const [personelYukleniyor, setPersonelYukleniyor] = useState(false);
 
   const fiyatlar = {
     slider: { haftalik: 400, aylik: 1200 },
@@ -61,6 +66,7 @@ function IsletmePanel({ kullanici, onCikis }) {
   const bugunTarih = new Date().toISOString().split('T')[0];
 
   useEffect(() => { isletmeyiGetir(); }, []);
+  useEffect(() => { if (isletme) personelGetir(); }, [isletme]);
 
   const isletmeyiGetir = async () => {
     try {
@@ -85,6 +91,39 @@ function IsletmePanel({ kullanici, onCikis }) {
       }
     } catch (err) { console.error(err); }
     setYukleniyor(false);
+  };
+
+  const personelGetir = async () => {
+    try {
+      const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/personel`);
+      const veri = await cevap.json();
+      setPersonelListesi(veri);
+    } catch (err) { console.error(err); }
+  };
+
+  const personelEkle = async () => {
+    if (!yeniPersonelAd.trim()) return;
+    setPersonelYukleniyor(true);
+    try {
+      const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/personel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ad: yeniPersonelAd, unvan: yeniPersonelUnvan || 'Çalışan' })
+      });
+      const veri = await cevap.json();
+      setPersonelListesi(veri.personel);
+      setYeniPersonelAd('');
+      setYeniPersonelUnvan('');
+    } catch (err) { console.error(err); }
+    setPersonelYukleniyor(false);
+  };
+
+  const personelSil = async (personelId) => {
+    try {
+      const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/personel/${personelId}`, { method: 'DELETE' });
+      const veri = await cevap.json();
+      setPersonelListesi(veri.personel);
+    } catch (err) { console.error(err); }
   };
 
   const randevulariGetir = async (isletmeId) => {
@@ -413,6 +452,7 @@ function IsletmePanel({ kullanici, onCikis }) {
           <button className={`sekme-btn ${aktifSekme === 'reklamlar' ? 'aktif' : ''}`} onClick={() => setAktifSekme('reklamlar')}>📢 Reklamlar</button>
           <button className={`sekme-btn ${aktifSekme === 'profil' ? 'aktif' : ''}`} onClick={() => setAktifSekme('profil')}>🏪 Profilim</button>
           <button className={`sekme-btn ${aktifSekme === 'musaitlik' ? 'aktif' : ''}`} onClick={() => setAktifSekme('musaitlik')}>📆 Müsaitlik</button>
+          <button className={`sekme-btn ${aktifSekme === 'personel' ? 'aktif' : ''}`} onClick={() => setAktifSekme('personel')}>👥 Personel</button>
         </div>
 
         {/* RANDEVULAR */}
@@ -421,8 +461,34 @@ function IsletmePanel({ kullanici, onCikis }) {
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px' }}>
               <button onClick={() => { setManuelModal(true); setManuelHata(''); setManuelBasari(''); }} style={{ background: '#1565C0', color: 'white', border: 'none', padding: '9px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>+ Manuel Randevu Ekle</button>
             </div>
-            {randevular.length === 0 ? <div className="bos-mesaj">Henüz randevu yok</div> : (
-              randevular.map(r => {
+            {personelListesi.length > 0 && (
+              <div style={{display:'flex', gap:'8px', marginBottom:'16px', flexWrap:'wrap'}}>
+                <button
+                  onClick={() => setPersonelFiltre('hepsi')}
+                  style={{padding:'6px 14px', borderRadius:'20px', border: personelFiltre==='hepsi' ? 'none' : '1px solid #E2E8F0', background: personelFiltre==='hepsi' ? '#4F46E5' : 'white', color: personelFiltre==='hepsi' ? 'white' : '#374151', fontSize:'13px', cursor:'pointer', fontWeight:'600'}}>
+                  👥 Hepsi
+                </button>
+                <button
+                  onClick={() => setPersonelFiltre('atanmamis')}
+                  style={{padding:'6px 14px', borderRadius:'20px', border: personelFiltre==='atanmamis' ? 'none' : '1px solid #E2E8F0', background: personelFiltre==='atanmamis' ? '#4F46E5' : 'white', color: personelFiltre==='atanmamis' ? 'white' : '#374151', fontSize:'13px', cursor:'pointer'}}>
+                  — Personelsiz
+                </button>
+                {personelListesi.map(p => (
+                  <button key={p._id}
+                    onClick={() => setPersonelFiltre(p._id)}
+                    style={{padding:'6px 14px', borderRadius:'20px', border: personelFiltre===p._id ? 'none' : '1px solid #E2E8F0', background: personelFiltre===p._id ? '#4F46E5' : 'white', color: personelFiltre===p._id ? 'white' : '#374151', fontSize:'13px', cursor:'pointer'}}>
+                    👤 {p.ad}
+                  </button>
+                ))}
+              </div>
+            )}
+            {randevular.length === 0 ? <div className="bos-mesaj">Henüz randevu yok</div> : (() => {
+              const filtreliRandevular = personelFiltre === 'hepsi'
+                ? randevular
+                : personelFiltre === 'atanmamis'
+                  ? randevular.filter(r => !r.personel)
+                  : randevular.filter(r => r.personel === personelFiltre || r.personel?._id === personelFiltre);
+              return filtreliRandevular.map(r => {
                 const stil = durumRenk(r.durum);
                 const hizmetler = Array.isArray(r.hizmet) ? r.hizmet.map(h => h.ad).join(', ') : r.hizmet?.ad || '-';
                 const toplam = Array.isArray(r.hizmet) ? r.hizmet.reduce((t, h) => t + (h.fiyat || 0), 0) : r.hizmet?.fiyat || 0;
@@ -438,6 +504,11 @@ function IsletmePanel({ kullanici, onCikis }) {
                         {r.manuelMi && <span style={{ fontSize: '11px', background: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', borderRadius: '10px', padding: '2px 7px', marginLeft: '6px', fontWeight: '600' }}>📞 Manuel</span>}
                       </div>
                       {r.musteriTelefon && <div style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '2px' }}>📞 {r.musteriTelefon}</div>}
+                      {r.personel && (
+                        <div style={{fontSize:'12px', color:'#4F46E5', marginTop:'2px'}}>
+                          👤 {personelListesi.find(p => p._id === r.personel || p._id === r.personel?._id)?.ad || 'Personel'}
+                        </div>
+                      )}
                       <div className="randevu-hizmet">{hizmetler}</div>
                       {r.hediyeMi ? <div style={{ fontSize: '12px', color: '#F57F17', fontWeight: '600' }}>🎁 Hediye — Ücretsiz</div>
                         : toplam > 0 ? <div className="randevu-fiyat">{toplam} ₺</div> : null}
@@ -454,8 +525,8 @@ function IsletmePanel({ kullanici, onCikis }) {
                     </div>
                   </div>
                 );
-              })
-            )}
+              });
+            })()}
           </div>
         )}
 
@@ -745,6 +816,46 @@ function IsletmePanel({ kullanici, onCikis }) {
                 </div>
               ))
             )}
+          </div>
+        )}
+
+        {/* PERSONEL */}
+        {aktifSekme === 'personel' && (
+          <div className="sekme-icerik">
+            <h3>👥 Personel Yönetimi</h3>
+            <div style={{display:'flex', gap:'8px', marginBottom:'16px', flexWrap:'wrap'}}>
+              <input
+                placeholder="Personel adı *"
+                value={yeniPersonelAd}
+                onChange={e => setYeniPersonelAd(e.target.value)}
+                style={{padding:'8px 12px', borderRadius:'8px', border:'1px solid #E2E8F0', fontSize:'14px', flex:1, minWidth:'140px'}}
+              />
+              <input
+                placeholder="Ünvan (örn: Usta Berber)"
+                value={yeniPersonelUnvan}
+                onChange={e => setYeniPersonelUnvan(e.target.value)}
+                style={{padding:'8px 12px', borderRadius:'8px', border:'1px solid #E2E8F0', fontSize:'14px', flex:1, minWidth:'140px'}}
+              />
+              <button onClick={personelEkle} disabled={personelYukleniyor}
+                style={{padding:'8px 16px', background:'#4F46E5', color:'white', border:'none', borderRadius:'8px', cursor:'pointer', fontWeight:'600'}}>
+                + Ekle
+              </button>
+            </div>
+            <div style={{display:'flex', flexDirection:'column', gap:'8px'}}>
+              {personelListesi.length === 0 && <p style={{color:'#94A3B8'}}>Henüz personel eklenmemiş.</p>}
+              {personelListesi.map(p => (
+                <div key={p._id} style={{display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 16px', background:'#F8FAFC', borderRadius:'10px', border:'1px solid #E2E8F0'}}>
+                  <div>
+                    <div style={{fontWeight:'600', fontSize:'14px'}}>👤 {p.ad}</div>
+                    <div style={{fontSize:'12px', color:'#64748B'}}>{p.unvan}</div>
+                  </div>
+                  <button onClick={() => personelSil(p._id)}
+                    style={{padding:'6px 12px', background:'white', color:'#EF4444', border:'1px solid #EF4444', borderRadius:'8px', cursor:'pointer', fontSize:'13px'}}>
+                    Sil
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

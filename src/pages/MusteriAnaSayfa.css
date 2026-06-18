@@ -223,7 +223,7 @@
   overflow: hidden;
   margin-bottom: 20px;
   cursor: pointer;
-  min-height: 130px;
+  min-height: 220px;
   display: flex;
   align-items: flex-end;
   transition: transform 0.2s;
@@ -233,12 +233,24 @@
 .reklam-slider-gorsel { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.3; }
 .reklam-slider-icerik { position: relative; z-index: 1; padding: 20px 24px; flex: 1; }
 .reklam-badge { background: #DC2626; color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.05em; }
-.reklam-slider-baslik { font-size: 22px; font-weight: 800; color: white; margin-top: 6px; }
-.reklam-slider-isletme { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 4px; }
+.reklam-slider-baslik { font-size: 22px; font-weight: 700; color: white; margin-top: 6px; }
+.reklam-slider-isletme { font-size: 15px; color: rgba(255,255,255,0.7); margin-top: 4px; }
 .reklam-slider-aciklama { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
 .slider-noktalar { position: absolute; bottom: 12px; right: 16px; display: flex; gap: 6px; z-index: 2; }
 .slider-nokta { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.4); cursor: pointer; transition: background 0.2s; }
 .slider-nokta.aktif { background: white; }
+.slider-ok { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.25); border: none; color: white; font-size: 28px; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; z-index: 3; display: flex; align-items: center; justify-content: center; transition: background 0.2s; line-height: 1; }
+.slider-ok:hover { background: rgba(255,255,255,0.45); }
+.slider-ok-sol { left: 12px; }
+.slider-ok-sag { right: 12px; }
+
+/* ======================== ÖNE ÇIKMA REKLAMLAR ======================== */
+.one-cikma-reklamlar { display: flex; gap: 10px; margin: 12px 0; flex-wrap: wrap; }
+.one-cikma-kart { display: flex; align-items: center; gap: 8px; background: #FFFBEB; border: 1.5px solid #F59E0B; border-radius: 12px; padding: 10px 16px; cursor: pointer; transition: box-shadow 0.2s; }
+.one-cikma-kart:hover { box-shadow: 0 2px 8px rgba(245,158,11,0.3); }
+.one-cikma-badge { font-size: 12px; font-weight: 700; color: #D97706; }
+.one-cikma-isletme { font-size: 14px; font-weight: 600; color: #1A1A1A; }
+.one-cikma-baslik { font-size: 13px; color: #64748B; }
 
 /* ======================== CITY CHIPS ======================== */
 .sehir-cip-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
