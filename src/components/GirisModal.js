@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 import { useGirisForm } from '../hooks/useGirisForm';
 import './GirisModal.css';
@@ -6,6 +7,26 @@ import './GirisModal.css';
 function GirisModal({ onKayitGit }) {
   const { girisYap, modalKapat } = useAuth();
   const { email, setEmail, sifre, setSifre, hata, yukleniyor, girisYap: submitGiris } = useGirisForm(girisYap);
+  const [googleHata, setGoogleHata] = useState('');
+
+  const handleGoogleBasari = async (credentialResponse) => {
+    setGoogleHata('');
+    try {
+      const cevap = await fetch('http://localhost:5000/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: credentialResponse.credential })
+      });
+      const veri = await cevap.json();
+      if (cevap.ok) {
+        girisYap(veri.kullanici);
+      } else {
+        setGoogleHata(veri.hata || 'Google ile giriş başarısız');
+      }
+    } catch {
+      setGoogleHata('Sunucuya bağlanılamadı');
+    }
+  };
 
   return (
     <div className="giris-modal-overlay" onClick={modalKapat}>
@@ -56,6 +77,18 @@ function GirisModal({ onKayitGit }) {
         <button className="btn-primary" onClick={submitGiris} disabled={yukleniyor}>
           {yukleniyor ? 'Giriş yapılıyor...' : 'Giriş Yap'}
         </button>
+
+        <div className="giris-ayrac"><span>veya</span></div>
+
+        {googleHata && <div className="hata">{googleHata}</div>}
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <GoogleLogin
+            onSuccess={handleGoogleBasari}
+            onError={() => setGoogleHata('Google ile giriş başarısız')}
+            text="signin_with"
+            locale="tr"
+          />
+        </div>
 
         <p className="giris-modal-kayit">
           Hesabın yok mu?{' '}

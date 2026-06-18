@@ -1,9 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { GoogleLogin } from '@react-oauth/google';
 import { useGirisForm } from '../hooks/useGirisForm';
 import './Giris.css';
 
+async function googleAuthIste(credential) {
+  const cevap = await fetch('http://localhost:5000/api/auth/google', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ idToken: credential })
+  });
+  return cevap;
+}
+
 function Giris({ onGiris, onKayitGit }) {
   const { email, setEmail, sifre, setSifre, hata, yukleniyor, girisYap } = useGirisForm(onGiris);
+  const [googleHata, setGoogleHata] = useState('');
+
+  const handleGoogleBasari = async (credentialResponse) => {
+    setGoogleHata('');
+    try {
+      const cevap = await googleAuthIste(credentialResponse.credential);
+      const veri = await cevap.json();
+      if (cevap.ok) {
+        onGiris(veri.kullanici);
+      } else {
+        setGoogleHata(veri.hata || 'Google ile giriş başarısız');
+      }
+    } catch {
+      setGoogleHata('Sunucuya bağlanılamadı');
+    }
+  };
 
   return (
     <div className="giris-sayfa">
@@ -47,6 +73,18 @@ function Giris({ onGiris, onKayitGit }) {
         <button className="btn-primary" onClick={girisYap} disabled={yukleniyor}>
           {yukleniyor ? 'Giriş yapılıyor...' : 'Giriş Yap'}
         </button>
+
+        <div className="giris-ayrac"><span>veya</span></div>
+
+        {googleHata && <div className="hata">{googleHata}</div>}
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <GoogleLogin
+            onSuccess={handleGoogleBasari}
+            onError={() => setGoogleHata('Google ile giriş başarısız')}
+            text="signin_with"
+            locale="tr"
+          />
+        </div>
 
         <p className="kayit-link">
           Hesabın yok mu?{' '}

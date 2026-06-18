@@ -90,3 +90,19 @@
   cursor: pointer;
 }
 .giris-modal-kayit span:hover { text-decoration: underline; }
+
+.giris-ayrac {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  color: #9CA3AF;
+  font-size: 13px;
+}
+.giris-ayrac::before,
+.giris-ayrac::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #E5E7EB;
+}
