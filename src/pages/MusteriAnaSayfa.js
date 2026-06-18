@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import YakinimdakiIsletmeler from '../components/YakinimdakiIsletmeler';
 import './MusteriAnaSayfa.css';
 
 function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilAc, onRandevularim, onSadakat }) {
@@ -42,6 +43,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
   const [tamamlananRandevular, setTamamlananRandevular] = useState([]);
   const [secilenRandevu, setSecilenRandevu] = useState('');
   const [sehirler, setSehirler] = useState([]);
+  const [haritaGoster, setHaritaGoster] = useState(false);
   const [sliderReklamlar, setSliderReklamlar] = useState([]);
   const [sponsorluReklamlar, setSponsorluReklamlar] = useState([]);
   const [sliderIndex, setSliderIndex] = useState(0);
@@ -364,30 +366,43 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
         {/* SAĞ: Butonlar */}
         <div className="header-sag">
           {kullanici ? (
-            <div className="hesabim-wrapper" ref={dropdownRef}>
-              <button className="hesabim-btn" onClick={() => setDropdownAcik(v => !v)}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="8" r="4" stroke="white" strokeWidth="2"/>
-                  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
-                Hesabım
-              </button>
-              {dropdownAcik && (
-                <div className="hesabim-dropdown">
-                  <div className="hesabim-dropdown-merhaba">Merhaba, {kullanici.ad} 👋</div>
-                  <button onClick={() => { onRandevularim(); setDropdownAcik(false); }}>
-                    📅 Randevularım
-                  </button>
-                  <button onClick={() => { onSadakat(); setDropdownAcik(false); }}>
-                    🎁 Sadakat Programı
-                  </button>
-                  <div className="hesabim-dropdown-ayirici" />
-                  <button className="hesabim-dropdown-cikis" onClick={() => { onCikis(); setDropdownAcik(false); }}>
-                    🚪 Çıkış Yap
-                  </button>
-                </div>
-              )}
-            </div>
+            <>
+              {/* Masaüstü: yan yana linkler */}
+              <div className="hesabim-masaustu">
+                <button className="hesabim-masaustu-btn" onClick={() => setHaritaGoster(v => !v)}>
+                  📍 Yakınımda
+                </button>
+                <span className="hesabim-masaustu-isim">👤 {kullanici.ad}</span>
+                <button className="hesabim-masaustu-btn" onClick={onRandevularim}>📅 Randevularım</button>
+                <button className="hesabim-masaustu-btn" onClick={onSadakat}>🎁 Sadakat</button>
+                <button className="hesabim-masaustu-btn hesabim-masaustu-cikis" onClick={onCikis}>🚪 Çıkış</button>
+              </div>
+              {/* Mobil: dropdown */}
+              <div className="hesabim-wrapper" ref={dropdownRef}>
+                <button className="hesabim-btn" onClick={() => setDropdownAcik(v => !v)}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="8" r="4" stroke="white" strokeWidth="2"/>
+                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                  Hesabım
+                </button>
+                {dropdownAcik && (
+                  <div className="hesabim-dropdown">
+                    <div className="hesabim-dropdown-merhaba">Merhaba, {kullanici.ad} 👋</div>
+                    <button onClick={() => { onRandevularim(); setDropdownAcik(false); }}>
+                      📅 Randevularım
+                    </button>
+                    <button onClick={() => { onSadakat(); setDropdownAcik(false); }}>
+                      🎁 Sadakat Programı
+                    </button>
+                    <div className="hesabim-dropdown-ayirici" />
+                    <button className="hesabim-dropdown-cikis" onClick={() => { onCikis(); setDropdownAcik(false); }}>
+                      🚪 Çıkış Yap
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
           ) : (
             <>
               <button className="kayit-ol-btn" onClick={onKayitGit}>Kayıt Ol</button>
@@ -438,6 +453,30 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
             ))}
           </div>
         )}
+
+        {/* YAKINIMDAKİ İŞLETMELER */}
+        <div style={{ margin: '16px 0' }}>
+          <button
+            onClick={() => setHaritaGoster(v => !v)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '10px 20px', background: haritaGoster ? '#DC2626' : '#fff',
+              color: haritaGoster ? '#fff' : '#DC2626', border: '2px solid #DC2626',
+              borderRadius: '8px', fontWeight: '600', fontSize: '14px',
+              cursor: 'pointer', transition: 'all 0.2s'
+            }}
+          >
+            📍 Yakınımdaki İşletmeleri {haritaGoster ? 'Gizle' : 'Göster'}
+          </button>
+          {haritaGoster && (
+            <div style={{ marginTop: '16px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1A1A1A', marginBottom: '12px' }}>
+                Yakınımdaki İşletmeler
+              </h3>
+              <YakinimdakiIsletmeler onProfilAc={onProfilAc} />
+            </div>
+          )}
+        </div>
 
         {/* FİLTRELER */}
         <div className="filtre-bolum">

@@ -96,6 +96,49 @@
 .giris-yap-btn:hover { background: #B91C1C; }
 
 /* Giriş yapmış: Hesabım butonu + dropdown */
+
+/* Masaüstü: varsayılan görünür, mobilde gizli */
+.hesabim-masaustu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hesabim-masaustu-isim {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.hesabim-masaustu-btn {
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+  background: white;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s;
+}
+.hesabim-masaustu-btn:hover { background: #F8FAFC; }
+
+.hesabim-masaustu-cikis {
+  color: #EF4444;
+  border-color: #EF4444;
+}
+.hesabim-masaustu-cikis:hover { background: #FFF5F5; }
+
+/* Mobilde masaüstü nav gizle, dropdown göster */
+@media (max-width: 768px) {
+  .hesabim-masaustu { display: none; }
+}
+
+/* Masaüstünde dropdown gizle */
+@media (min-width: 769px) {
+  .hesabim-wrapper { display: none; }
+}
+
 .hesabim-wrapper { position: relative; }
 
 .hesabim-btn {
