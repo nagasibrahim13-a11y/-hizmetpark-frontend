@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import YakinimdakiIsletmeler from '../components/YakinimdakiIsletmeler';
+import { Scissors, Sparkles, Heart, CircleDot, Store } from 'lucide-react';
 import './MusteriAnaSayfa.css';
 
 function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilAc, onRandevularim, onSadakat, onMarketplace }) {
@@ -349,7 +350,12 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
 
   const oneCikanGosterilsin = !aktifFiltreVar && (puaniYuksekler.length > 0 || populerler.length > 0);
 
-  const kategoriEmoji = (kat) => kat === 'berber' ? '✂️' : kat === 'kuafor' ? '💅' : kat === 'guzellik' ? '💆' : '⚽';
+  const KategoriIkon = ({ kat, size = 20, color = '#DC2626' }) => {
+    if (kat === 'berber') return <Scissors size={size} color={color} />;
+    if (kat === 'kuafor') return <Sparkles size={size} color={color} />;
+    if (kat === 'guzellik') return <Heart size={size} color={color} />;
+    return <CircleDot size={size} color={color} />;
+  };
 
   const kapaliBilgi = secilenTarih && secilenIsletme?.kapaliTarihler?.length > 0
     ? secilenIsletme.kapaliTarihler.find(kt => {
@@ -360,121 +366,8 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
 
   return (
     <div className="musteri-sayfa">
-      <header className="header">
-        {/* SOL: Logo */}
-        <div className="header-logo">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <rect x="3" y="4" width="18" height="18" rx="3" stroke="#DC2626" strokeWidth="2"/>
-            <path d="M3 9h18" stroke="#DC2626" strokeWidth="2"/>
-            <path d="M8 2.5v3M16 2.5v3" stroke="#DC2626" strokeWidth="2" strokeLinecap="round"/>
-            <circle cx="8" cy="14" r="1.5" fill="#DC2626"/>
-            <circle cx="12" cy="14" r="1.5" fill="#DC2626"/>
-            <circle cx="16" cy="14" r="1.5" fill="#DC2626"/>
-          </svg>
-          HizmetPark
-        </div>
 
-        {/* ORTA: Arama kutusu */}
-        <div className="header-arama">
-          <span className="header-arama-icon">🔍</span>
-          <input
-            type="text"
-            placeholder="Berber, hizmet veya ürün ara..."
-            value={aramaMetni}
-            onChange={e => setAramaMetni(e.target.value)}
-            className="header-arama-input"
-          />
-          {aramaMetni && (
-            <button className="header-arama-temizle" onClick={() => setAramaMetni('')}>✕</button>
-          )}
-        </div>
 
-        {kullanici && (
-          <button className="bildirim-zil-btn" onClick={() => alert('Bildirimler yakında!')}>
-            🔔
-            <span className="bildirim-rozet">2</span>
-          </button>
-        )}
-
-        {/* SAĞ: Butonlar */}
-        <div className="header-sag">
-          {kullanici ? (
-            <>
-              {/* Masaüstü: yan yana linkler */}
-              <div className="hesabim-masaustu">
-                <button className="hesabim-masaustu-btn" onClick={onMarketplace}>🛍️ Marketplace</button>
-                <button className="hesabim-masaustu-btn" onClick={() => setHaritaGoster(v => !v)}>
-                  📍 Yakınımda
-                </button>
-                <span className="hesabim-masaustu-isim">👤 {kullanici.ad}</span>
-                <button className="hesabim-masaustu-btn" onClick={onRandevularim}>📅 Randevularım</button>
-                <button className="hesabim-masaustu-btn" onClick={onSadakat}>🎁 Sadakat</button>
-                <button className="hesabim-masaustu-btn hesabim-masaustu-cikis" onClick={onCikis}>🚪 Çıkış</button>
-              </div>
-              {/* Mobil: dropdown */}
-              <div className="hesabim-wrapper" ref={dropdownRef}>
-                <button className="hesabim-btn" onClick={() => setDropdownAcik(v => !v)}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="8" r="4" stroke="white" strokeWidth="2"/>
-                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                  </svg>
-                  Hesabım
-                </button>
-                {dropdownAcik && (
-                  <div className="hesabim-dropdown">
-                    <div className="hesabim-dropdown-merhaba">Merhaba, {kullanici.ad} 👋</div>
-                    <button onClick={() => { onRandevularim(); setDropdownAcik(false); }}>
-                      📅 Randevularım
-                    </button>
-                    <button onClick={() => { onSadakat(); setDropdownAcik(false); }}>
-                      🎁 Sadakat Programı
-                    </button>
-                    <div className="hesabim-dropdown-ayirici" />
-                    <button className="hesabim-dropdown-cikis" onClick={() => { onCikis(); setDropdownAcik(false); }}>
-                      🚪 Çıkış Yap
-                    </button>
-                  </div>
-                )}
-              </div>
-            </>
-          ) : (
-            <>
-              <button className="kayit-ol-btn" onClick={onKayitGit}>Kayıt Ol</button>
-              <button className="giris-yap-btn" onClick={onGirisYap}>Giriş Yap</button>
-            </>
-          )}
-        </div>
-      </header>
-
-      <div className="ana-govde">
-        <div className="sol-menu">
-          <div className="sol-menu-item aktif">
-            <span className="sol-menu-ikon">🏠</span>
-            <span>Ana Sayfa</span>
-          </div>
-          <div className="sol-menu-item" onClick={onRandevularim}>
-            <span className="sol-menu-ikon">📅</span>
-            <span>Randevularım</span>
-          </div>
-          <div className="sol-menu-item" onClick={onSadakat}>
-            <span className="sol-menu-ikon">🎁</span>
-            <span>Sadakat Programı</span>
-          </div>
-          <div className="sol-menu-item" onClick={() => setHaritaGoster(v => !v)}>
-            <span className="sol-menu-ikon">📍</span>
-            <span>Yakınımdaki İşletmeler</span>
-          </div>
-          <div className="sol-menu-item" onClick={() => setKategori('berber')}>
-            <span className="sol-menu-ikon">✂️</span>
-            <span>Kuaför & Güzellik</span>
-          </div>
-          <div className="sol-menu-item" onClick={onMarketplace}>
-            <span className="sol-menu-ikon">🛍️</span>
-            <span>Marketplace</span>
-          </div>
-        </div>
-
-        <div className="icerik">
         {/* SLIDER REKLAMLAR */}
         {sliderReklamlar.length > 0 && (
           <div className="reklam-slider" onClick={() => sliderTikla(sliderReklamlar[sliderIndex])}>
@@ -595,7 +488,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
                 <div className="one-cikan-row-4">
                   {populerler.map(isletme => (
                     <div key={isletme._id} className="mini-kart-kucuk" onClick={() => onProfilAc(isletme._id)}>
-                      <span className="mini-kart-kucuk-emoji">{kategoriEmoji(isletme.kategori)}</span>
+                      <span className="mini-kart-kucuk-emoji"><KategoriIkon kat={isletme.kategori} size={28} /></span>
                       <div className="mini-kart-kucuk-isim">{isletme.isletmeAdi}</div>
                       <div className="mini-kart-kucuk-yorum">{isletme.yorumSayisi} yorum</div>
                     </div>
@@ -651,7 +544,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                       <span style={{ background: '#FEF3C7', color: '#92400E', fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '4px', letterSpacing: '0.05em' }}>SPONSORLU</span>
-                      <span style={{ fontSize: '20px' }}>{kategoriEmoji(isletme.kategori)}</span>
+                      <KategoriIkon kat={isletme.kategori} size={18} />
                     </div>
                     <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#1A1A1A', marginBottom: '4px' }}>{isletme.isletmeAdi}</h3>
                     {isletme._reklamBaslik && <p style={{ fontSize: '13px', color: '#F59E0B', fontWeight: '600', marginBottom: '4px' }}>{isletme._reklamBaslik}</p>}
@@ -671,7 +564,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
                       <img src={isletme.fotograf} alt={isletme.isletmeAdi} />
                     ) : (
                       <div className="isletme-kart-foto-placeholder">
-                        {isletme.kategori === 'berber' ? '✂️' : isletme.kategori === 'kuafor' ? '💇' : isletme.kategori === 'guzellik' ? '💅' : '⚽'}
+                        <KategoriIkon kat={isletme.kategori} size={40} color="#C7D2FE" />
                       </div>
                     )}
                   </div>
@@ -681,6 +574,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
                   >
                     {favoriler.has(isletme._id) ? '❤️' : '🤍'}
                   </button>
+                  <div className="isletme-kart-icerik">
                   {/* Üst: İsim + Puan (mockup gibi) */}
                   <div className="isletme-kart-baslik">
                     <h3>{isletme.isletmeAdi}{isletme.premium?.aktif && (
@@ -723,13 +617,12 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
                   <button className="btn-secondary" style={{ marginTop: '8px' }} onClick={e => yorumModalAc(isletme, e)}>
                     ⭐ Yorumlar ({isletme.yorumSayisi || 0})
                   </button>
+                  </div>
                 </div>
               );
             })}
           </div>
         )}
-      </div>
-      </div>
 
       {(
         <div className="ozel-firsatlar-panel">

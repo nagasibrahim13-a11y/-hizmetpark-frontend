@@ -401,6 +401,35 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData, isOw
                   onChange={e => { setSecilenTarih(e.target.value); setSecilenSaat(''); }}
                   className="tarih-input"
                 />
+                <div style={{display:'flex', gap:'6px', marginTop:'10px', marginBottom:'4px', overflowX:'auto', paddingBottom:'4px'}}>
+                  {Array.from({length: 7}).map((_, i) => {
+                    const tarih = new Date();
+                    tarih.setDate(tarih.getDate() + i);
+                    const tarihStr = tarih.toISOString().split('T')[0];
+                    const gunAdlari = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+                    const secili = secilenTarih === tarihStr;
+                    return (
+                      <button
+                        key={tarihStr}
+                        onClick={() => { setSecilenTarih(tarihStr); setSecilenSaat(''); }}
+                        style={{
+                          minWidth:'52px',
+                          padding:'8px 4px',
+                          borderRadius:'12px',
+                          border: secili ? 'none' : '1px solid #E2E8F0',
+                          background: secili ? '#4F46E5' : 'white',
+                          color: secili ? 'white' : '#374151',
+                          cursor:'pointer',
+                          textAlign:'center',
+                          flexShrink:0
+                        }}
+                      >
+                        <div style={{fontSize:'11px', fontWeight:'600', opacity:0.8}}>{gunAdlari[tarih.getDay()]}</div>
+                        <div style={{fontSize:'16px', fontWeight:'700'}}>{tarih.getDate()}</div>
+                      </button>
+                    );
+                  })}
+                </div>
                 {kapaliBilgi?.tumGun && (
                   <div style={{ marginTop: '8px', background: '#FFF5F5', color: '#C62828', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', border: '1px solid #FFCDD2' }}>
                     ⛔ Bu tarih işletme tarafından kapalı.{kapaliBilgi.aciklama ? ` (${kapaliBilgi.aciklama})` : ''}
@@ -412,20 +441,14 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData, isOw
                   </div>
                 )}
 
-                <p className="modal-label">Saat Seç</p>
-                {Object.keys(doluluk).length > 0 && (
-                  <div style={{display:'flex', gap:'12px', marginBottom:'10px', fontSize:'12px', flexWrap:'wrap'}}>
-                    <span style={{display:'flex', alignItems:'center', gap:'4px'}}>
-                      <span style={{width:'12px', height:'12px', borderRadius:'3px', background:'white', border:'1px solid #E2E8F0', display:'inline-block'}}></span> Boş
-                    </span>
-                    <span style={{display:'flex', alignItems:'center', gap:'4px'}}>
-                      <span style={{width:'12px', height:'12px', borderRadius:'3px', background:'#FEF3C7', border:'1px solid #F59E0B', display:'inline-block'}}></span> Az yoğun
-                    </span>
-                    <span style={{display:'flex', alignItems:'center', gap:'4px'}}>
-                      <span style={{width:'12px', height:'12px', borderRadius:'3px', background:'#FEE2E2', border:'1px solid #EF4444', display:'inline-block'}}></span> Yoğun
-                    </span>
+                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'8px'}}>
+                  <p className="modal-label" style={{margin:0}}>Saat Seç</p>
+                  <div style={{display:'flex', gap:'10px', fontSize:'11px', color:'#64748B'}}>
+                    <span style={{display:'flex', alignItems:'center', gap:'3px'}}><span style={{width:'8px',height:'8px',borderRadius:'2px',background:'white',border:'1px solid #E2E8F0',display:'inline-block'}}></span>Boş</span>
+                    <span style={{display:'flex', alignItems:'center', gap:'3px'}}><span style={{width:'8px',height:'8px',borderRadius:'2px',background:'#FEF3C7',border:'1px solid #F59E0B',display:'inline-block'}}></span>Meşgul</span>
+                    <span style={{display:'flex', alignItems:'center', gap:'3px'}}><span style={{width:'8px',height:'8px',borderRadius:'2px',background:'#E2E8F0',display:'inline-block'}}></span>Dolu</span>
                   </div>
-                )}
+                </div>
                 <div className="saat-grid">
                   {saatler.map(s => {
                     const isDolu = doluSaatler.has(s);
@@ -475,6 +498,22 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData, isOw
                   </div>
                 )}
 
+                {secilenHizmetler.length > 0 && secilenSaat && (
+                  <div style={{display:'flex', justifyContent:'space-between', background:'#F8FAFC', borderRadius:'12px', padding:'12px 16px', marginTop:'16px', marginBottom:'10px'}}>
+                    <div>
+                      <div style={{fontSize:'10px', color:'#94A3B8', fontWeight:'600', textTransform:'uppercase'}}>Toplam Süre</div>
+                      <div style={{fontSize:'14px', fontWeight:'700', color:'#0F172A'}}>{toplamSure} Dakika</div>
+                    </div>
+                    <div>
+                      <div style={{fontSize:'10px', color:'#94A3B8', fontWeight:'600', textTransform:'uppercase'}}>Randevu</div>
+                      <div style={{fontSize:'14px', fontWeight:'700', color:'#0F172A'}}>{secilenSaat}</div>
+                    </div>
+                    <div style={{textAlign:'right'}}>
+                      <div style={{fontSize:'10px', color:'#94A3B8', fontWeight:'600', textTransform:'uppercase'}}>Toplam Tutar</div>
+                      <div style={{fontSize:'16px', fontWeight:'800', color:'#10B981'}}>{toplamFiyat} ₺</div>
+                    </div>
+                  </div>
+                )}
                 <button className="btn-primary" style={{ marginTop: '20px' }} onClick={randevuAl} disabled={gonderiyor || !!kapaliBilgi?.tumGun}>
                   {gonderiyor ? 'Gönderiliyor...' : hediyeliRandevuData ? '🎁 Hediye Randevuyu Onayla' : `Randevuyu Onayla${toplamFiyat > 0 ? ` — ${toplamFiyat} ₺` : ''}`}
                 </button>

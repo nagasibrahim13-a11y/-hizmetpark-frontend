@@ -1,0 +1,174 @@
+.layout-govde {
+  min-height: 100vh;
+  background: #F8FAFC;
+}
+
+.layout-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: white;
+  border-bottom: 1px solid #E2E8F0;
+  padding: 18px 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+}
+
+.layout-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.layout-arama {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  max-width: 40vw;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #F1F5F9;
+  border-radius: 16px;
+  padding: 11px 18px;
+}
+
+.layout-sag {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.layout-bildirim {
+  position: relative;
+  background: #F1F5F9;
+  border: none;
+  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.layout-bildirim-rozet {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #EF4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.layout-profil {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.layout-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4F46E5, #7C3AED);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.layout-kayit-btn {
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  background: white;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.layout-giris-btn {
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: none;
+  background: #DC2626;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.layout-ana-govde {
+  display: flex;
+}
+
+.layout-sol-menu {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .layout-sol-menu {
+    display: flex;
+    flex-direction: column;
+    width: 220px;
+    min-width: 220px;
+    background: white;
+    border-right: 1px solid #E2E8F0;
+    padding: 20px 12px;
+    height: calc(100vh - 65px);
+    position: sticky;
+    top: 65px;
+    gap: 4px;
+  }
+}
+
+.layout-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.layout-menu-item:hover {
+  background: #F8FAFC;
+}
+
+.layout-menu-item.aktif {
+  background: #EEF2FF;
+  color: #4F46E5;
+  font-weight: 600;
+}
+
+.layout-cikis {
+  color: #EF4444;
+}
+
+.layout-icerik {
+  flex: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 28px 32px;
+}

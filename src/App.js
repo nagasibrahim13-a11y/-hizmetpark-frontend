@@ -8,6 +8,8 @@ import IsletmeProfil from './pages/IsletmeProfil';
 import Randevularim from './pages/Randevularim';
 import SadakatKartlarim from './pages/SadakatKartlarim';
 import Marketplace from './pages/Marketplace';
+import Layout from './components/Layout';
+import './components/Layout.css';
 import './App.css';
 
 function AppRouter() {
@@ -67,6 +69,20 @@ function AppRouter() {
     setSayfa('isletmeProfil');
   };
 
+  const layoutProps = {
+    kullanici,
+    onAnaSayfa: () => setSayfa('anaSayfa'),
+    onRandevularim: handleRandevularimTikla,
+    onSadakat: handleSadakatTikla,
+    onYakinimda: () => setSayfa('anaSayfa'),
+    onKategoriGit: () => setSayfa('anaSayfa'),
+    onMarketplace: () => setSayfa('marketplace'),
+    onGirisYap: handleGirisYapTikla,
+    onKayitGit: () => setSayfa('kayit'),
+    onCikis: handleCikis,
+    aktifSayfa: sayfa
+  };
+
   return (
     <div className="app">
       {girisModalAcik && (
@@ -83,20 +99,24 @@ function AppRouter() {
       )}
 
       {sayfa === 'anaSayfa' && (
-        <MusteriAnaSayfa
-          kullanici={kullanici}
-          onCikis={handleCikis}
-          onGirisYap={handleGirisYapTikla}
-          onKayitGit={() => setSayfa('kayit')}
-          onProfilAc={profilAc}
-          onRandevularim={handleRandevularimTikla}
-          onSadakat={handleSadakatTikla}
-          onMarketplace={() => setSayfa('marketplace')}
-        />
+        <Layout {...layoutProps}>
+          <MusteriAnaSayfa
+            kullanici={kullanici}
+            onCikis={handleCikis}
+            onGirisYap={handleGirisYapTikla}
+            onKayitGit={() => setSayfa('kayit')}
+            onProfilAc={profilAc}
+            onRandevularim={handleRandevularimTikla}
+            onSadakat={handleSadakatTikla}
+            onMarketplace={() => setSayfa('marketplace')}
+          />
+        </Layout>
       )}
 
       {sayfa === 'isletmePanel' && kullanici && (
-        <IsletmePanel kullanici={kullanici} onCikis={handleCikis} />
+        <Layout {...layoutProps}>
+          <IsletmePanel kullanici={kullanici} onCikis={handleCikis} />
+        </Layout>
       )}
 
       {sayfa === 'isletmeProfil' && (
@@ -112,22 +132,28 @@ function AppRouter() {
       )}
 
       {sayfa === 'randevularim' && kullanici && (
-        <Randevularim
-          kullanici={kullanici}
-          onGeri={() => setSayfa('anaSayfa')}
-        />
+        <Layout {...layoutProps}>
+          <Randevularim
+            kullanici={kullanici}
+            onGeri={() => setSayfa('anaSayfa')}
+          />
+        </Layout>
       )}
 
       {sayfa === 'sadakat' && kullanici && (
-        <SadakatKartlarim
-          kullanici={kullanici}
-          onGeri={() => setSayfa('anaSayfa')}
-          onHediyeliRandevu={hediyeliRandevuAc}
-        />
+        <Layout {...layoutProps}>
+          <SadakatKartlarim
+            kullanici={kullanici}
+            onGeri={() => setSayfa('anaSayfa')}
+            onHediyeliRandevu={hediyeliRandevuAc}
+          />
+        </Layout>
       )}
 
       {sayfa === 'marketplace' && (
-        <Marketplace onGeri={() => setSayfa('anaSayfa')} />
+        <Layout {...layoutProps}>
+          <Marketplace onGeri={() => setSayfa('anaSayfa')} />
+        </Layout>
       )}
     </div>
   );
