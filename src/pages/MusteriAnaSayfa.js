@@ -637,6 +637,36 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
           {oneCikanReklamlar.length === 0 && (
             <div style={{fontSize:'13px', color:'#94A3B8', textAlign:'center', padding:'12px 0'}}>Şu an fırsat yok</div>
           )}
+          <div style={{marginTop:'16px', paddingTop:'16px', borderTop:'1px solid #F1F5F9'}}>
+            <div style={{display:'flex', alignItems:'center', gap:'6px', fontWeight:'700', fontSize:'13px', marginBottom:'10px'}}>
+              📅 {new Date().toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric' })}
+            </div>
+            <div style={{fontSize:'24px', fontWeight:'800', color:'#4F46E5', marginBottom:'12px'}}>
+              {new Date().toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' })}
+            </div>
+            <div style={{display:'grid', gridTemplateColumns:'repeat(7, 1fr)', gap:'4px'}}>
+              {['Pt','Sa','Ça','Pe','Cu','Ct','Pa'].map(g => (
+                <div key={g} style={{fontSize:'10px', color:'#94A3B8', textAlign:'center', fontWeight:'600'}}>{g}</div>
+              ))}
+              {Array.from({length: 30}).map((_, i) => {
+                const gun = i + 1;
+                const bugun = new Date().getDate() === gun;
+                return (
+                  <div key={i} style={{
+                    fontSize:'11px',
+                    textAlign:'center',
+                    padding:'4px 0',
+                    borderRadius:'6px',
+                    background: bugun ? '#4F46E5' : 'transparent',
+                    color: bugun ? 'white' : '#374151',
+                    fontWeight: bugun ? '700' : '400'
+                  }}>
+                    {gun}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
 

@@ -13,7 +13,6 @@
   display: flex;
   align-items: center;
   gap: 24px;
-  position: relative;
 }
 
 .layout-logo {
@@ -127,26 +126,26 @@
   .layout-sol-menu {
     display: flex;
     flex-direction: column;
-    width: 220px;
-    min-width: 220px;
+    width: 260px;
+    min-width: 260px;
     background: white;
     border-right: 1px solid #E2E8F0;
-    padding: 20px 12px;
+    padding: 24px 16px;
     height: calc(100vh - 65px);
     position: sticky;
     top: 65px;
-    gap: 4px;
+    gap: 10px;
   }
 }
 
 .layout-menu-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border-radius: 10px;
+  gap: 12px;
+  padding: 13px 16px;
+  border-radius: 12px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   color: #374151;
 }
