@@ -6,6 +6,7 @@ import './MusteriAnaSayfa.css';
 function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilAc, onRandevularim, onSadakat, onMarketplace }) {
   const { girisGerektir } = useAuth();
   const [dropdownAcik, setDropdownAcik] = useState(false);
+  const [favoriler, setFavoriler] = useState(new Set());
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -88,6 +89,16 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
     }, 4000);
     return () => clearInterval(id);
   }, [sliderReklamlar]);
+
+  const favoriToggle = (e, isletmeId) => {
+    e.stopPropagation();
+    setFavoriler(prev => {
+      const yeni = new Set(prev);
+      if (yeni.has(isletmeId)) yeni.delete(isletmeId);
+      else yeni.add(isletmeId);
+      return yeni;
+    });
+  };
 
   const isletmeleriGetir = async () => {
     setYukleniyor(true);
@@ -378,6 +389,13 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
           )}
         </div>
 
+        {kullanici && (
+          <button className="bildirim-zil-btn" onClick={() => alert('Bildirimler yakında!')}>
+            🔔
+            <span className="bildirim-rozet">2</span>
+          </button>
+        )}
+
         {/* SAĞ: Butonlar */}
         <div className="header-sag">
           {kullanici ? (
@@ -428,7 +446,35 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
         </div>
       </header>
 
-      <div className="icerik">
+      <div className="ana-govde">
+        <div className="sol-menu">
+          <div className="sol-menu-item aktif">
+            <span className="sol-menu-ikon">🏠</span>
+            <span>Ana Sayfa</span>
+          </div>
+          <div className="sol-menu-item" onClick={onRandevularim}>
+            <span className="sol-menu-ikon">📅</span>
+            <span>Randevularım</span>
+          </div>
+          <div className="sol-menu-item" onClick={onSadakat}>
+            <span className="sol-menu-ikon">🎁</span>
+            <span>Sadakat Programı</span>
+          </div>
+          <div className="sol-menu-item" onClick={() => setHaritaGoster(v => !v)}>
+            <span className="sol-menu-ikon">📍</span>
+            <span>Yakınımdaki İşletmeler</span>
+          </div>
+          <div className="sol-menu-item" onClick={() => setKategori('berber')}>
+            <span className="sol-menu-ikon">✂️</span>
+            <span>Kuaför & Güzellik</span>
+          </div>
+          <div className="sol-menu-item" onClick={onMarketplace}>
+            <span className="sol-menu-ikon">🛍️</span>
+            <span>Marketplace</span>
+          </div>
+        </div>
+
+        <div className="icerik">
         {/* SLIDER REKLAMLAR */}
         {sliderReklamlar.length > 0 && (
           <div className="reklam-slider" onClick={() => sliderTikla(sliderReklamlar[sliderIndex])}>
@@ -620,6 +666,21 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
 
               return (
                 <div key={isletme._id} className="isletme-kart" onClick={() => onProfilAc(isletme._id)}>
+                  <div className="isletme-kart-foto">
+                    {isletme.fotograf ? (
+                      <img src={isletme.fotograf} alt={isletme.isletmeAdi} />
+                    ) : (
+                      <div className="isletme-kart-foto-placeholder">
+                        {isletme.kategori === 'berber' ? '✂️' : isletme.kategori === 'kuafor' ? '💇' : isletme.kategori === 'guzellik' ? '💅' : '⚽'}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    className="favori-btn"
+                    onClick={(e) => favoriToggle(e, isletme._id)}
+                  >
+                    {favoriler.has(isletme._id) ? '❤️' : '🤍'}
+                  </button>
                   {/* Üst: İsim + Puan (mockup gibi) */}
                   <div className="isletme-kart-baslik">
                     <h3>{isletme.isletmeAdi}{isletme.premium?.aktif && (
@@ -668,6 +729,23 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
           </div>
         )}
       </div>
+      </div>
+
+      {(
+        <div className="ozel-firsatlar-panel">
+          <div className="ozel-firsatlar-baslik">⚡ Öne Çıkan Fırsatlar</div>
+          {oneCikanReklamlar.slice(0, 3).map(r => (
+            <div key={r._id} className="ozel-firsat-kart" onClick={() => { fetch(`http://localhost:5000/api/reklamlar/${r._id}/tikla`, {method:'PUT'}); onProfilAc(r.isletme._id); }}>
+              <div className="ozel-firsat-isletme">{r.isletme?.isletmeAdi}</div>
+              <div className="ozel-firsat-baslik">{r.baslik}</div>
+              <button className="ozel-firsat-buton">İncele</button>
+            </div>
+          ))}
+          {oneCikanReklamlar.length === 0 && (
+            <div style={{fontSize:'13px', color:'#94A3B8', textAlign:'center', padding:'12px 0'}}>Şu an fırsat yok</div>
+          )}
+        </div>
+      )}
 
       {/* RANDEVU MODAL */}
       {randevuModal && secilenIsletme && (
@@ -823,6 +901,24 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
           </div>
         </div>
       )}
+      <div className="mobil-alt-nav">
+        <button className="mobil-nav-item aktif" onClick={() => window.scrollTo({top:0, behavior:'smooth'})}>
+          <span className="mobil-nav-ikon">🏠</span>
+          <span className="mobil-nav-etiket">Ana Sayfa</span>
+        </button>
+        <button className="mobil-nav-item" onClick={() => { setHaritaGoster(v => !v); }}>
+          <span className="mobil-nav-ikon">📍</span>
+          <span className="mobil-nav-etiket">Yakınımda</span>
+        </button>
+        <button className="mobil-nav-item" onClick={onRandevularim}>
+          <span className="mobil-nav-ikon">📅</span>
+          <span className="mobil-nav-etiket">Randevularım</span>
+        </button>
+        <button className="mobil-nav-item" onClick={() => kullanici ? setDropdownAcik(v => !v) : onGirisYap()}>
+          <span className="mobil-nav-ikon">👤</span>
+          <span className="mobil-nav-etiket">Profil</span>
+        </button>
+      </div>
     </div>
   );
 }

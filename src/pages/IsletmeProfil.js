@@ -30,8 +30,8 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData, isOw
   useEffect(() => { verileriGetir(); }, [isletmeId]);
 
   useEffect(() => {
-    if (secilenTarih) dolulukGetir(secilenTarih);
-  }, [secilenTarih]);
+    if (secilenTarih && isletme?._id) dolulukGetir(secilenTarih);
+  }, [secilenTarih, isletme]);
 
   useEffect(() => {
     if (hediyeliRandevuData && isletme) {
@@ -439,12 +439,17 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData, isOw
                         className={`saat-btn ${secilenSaat === s ? 'secili' : ''} ${isDolu || isKapali ? 'dolu' : ''}`}
                         onClick={() => !isDolu && !isKapali && setSecilenSaat(s)}
                         disabled={isDolu || isKapali}
-                        style={!isDolu && !isKapali ? {
+                        style={{
                           background: dolulukRenk || undefined,
                           borderColor: dolulukBorder || undefined
-                        } : undefined}
+                        }}
                       >
                         {isKapali ? '🚫' : isDolu ? '🔒' : s}
+                        {!isDolu && !isKapali && saatDoluluk > 0 && (
+                          <span style={{fontSize:'9px', display:'block', marginTop:'2px'}}>
+                            {saatDoluluk === 1 ? '🟡' : '🔴'}
+                          </span>
+                        )}
                       </button>
                     );
                   })}
