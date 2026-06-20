@@ -418,25 +418,6 @@ function IsletmePanel({ kullanici, onCikis }) {
 
   return (
     <div className="panel-sayfa">
-      <header className="header">
-        <div className="header-logo">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <rect x="3" y="4" width="18" height="18" rx="3" stroke="#DC2626" strokeWidth="2"/>
-            <path d="M3 9h18" stroke="#DC2626" strokeWidth="2"/>
-            <path d="M8 2.5v3M16 2.5v3" stroke="#DC2626" strokeWidth="2" strokeLinecap="round"/>
-            <circle cx="8" cy="14" r="1.5" fill="#DC2626"/>
-            <circle cx="12" cy="14" r="1.5" fill="#DC2626"/>
-            <circle cx="16" cy="14" r="1.5" fill="#DC2626"/>
-          </svg>
-          HizmetPark
-        </div>
-        <div className="header-orta">
-          <span className="isletme-adi">{isletme.isletmeAdi}</span>
-          <span className="panel-badge">Yönetim Paneli</span>
-        </div>
-        <button onClick={onCikis} className="cikis-btn">Çıkış</button>
-      </header>
-
       <div className="metrik-row">
         <div className="metrik-kart">
           <div className="metrik-ikon">📅</div>

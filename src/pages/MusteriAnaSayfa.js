@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import YakinimdakiIsletmeler from '../components/YakinimdakiIsletmeler';
 import { Scissors, Sparkles, Heart, CircleDot, Store } from 'lucide-react';
+import AcikGunler from '../components/AcikGunler';
+import { sessizKonumAl, mesafeHesapla } from '../utils/mesafe';
+import MesafeGoster from '../components/MesafeGoster';
 import './MusteriAnaSayfa.css';
 
 function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilAc, onRandevularim, onSadakat, onMarketplace }) {
@@ -19,6 +22,11 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
     document.addEventListener('mousedown', kapat);
     return () => document.removeEventListener('mousedown', kapat);
   }, []);
+
+  useEffect(() => {
+    sessizKonumAl().then(konum => { if (konum) setKullaniciKonumu(konum); });
+  }, []);
+
   const [isletmeler, setIsletmeler] = useState([]);
   const [filtreliIsletmeler, setFiltreliIsletmeler] = useState([]);
   const [kategori, setKategori] = useState('');
@@ -26,6 +34,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
   const [sehir, setSehir] = useState('');
   const [siralama, setSiralama] = useState('varsayilan');
   const [yukleniyor, setYukleniyor] = useState(true);
+  const [kullaniciKonumu, setKullaniciKonumu] = useState(null);
   const [secilenIsletme, setSecilenIsletme] = useState(null);
   const [randevuModal, setRandevuModal] = useState(false);
   const [secilenHizmetler, setSecilenHizmetler] = useState([]);
@@ -91,14 +100,26 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
     return () => clearInterval(id);
   }, [sliderReklamlar]);
 
-  const favoriToggle = (e, isletmeId) => {
+  useEffect(() => {
+    if (!kullanici) return;
+    fetch(`http://localhost:5000/api/kullanicilar/${kullanici.id}/favoriler`)
+      .then(r => r.json())
+      .then(data => setFavoriler(new Set(data.map(f => f._id))))
+      .catch(err => console.error(err));
+  }, [kullanici]);
+
+  const favoriToggle = async (e, isletmeId) => {
     e.stopPropagation();
+    if (!kullanici) return;
     setFavoriler(prev => {
       const yeni = new Set(prev);
       if (yeni.has(isletmeId)) yeni.delete(isletmeId);
       else yeni.add(isletmeId);
       return yeni;
     });
+    try {
+      await fetch(`http://localhost:5000/api/kullanicilar/${kullanici.id}/favori/${isletmeId}`, { method: 'PUT' });
+    } catch (err) { console.error(err); }
   };
 
   const isletmeleriGetir = async () => {
@@ -578,8 +599,8 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
                   {/* Üst: İsim + Puan (mockup gibi) */}
                   <div className="isletme-kart-baslik">
                     <h3>{isletme.isletmeAdi}{isletme.premium?.aktif && (
-                      <span style={{background:'linear-gradient(135deg,#4F46E5,#7C3AED)', color:'white', fontSize:'10px', fontWeight:'700', padding:'2px 8px', borderRadius:'20px', marginLeft:'6px', verticalAlign:'middle'}}>
-                        ⭐ Premium
+                      <span style={{background:'linear-gradient(135deg,#4F46E5,#7C3AED)', color:'white', fontSize:'10px', fontWeight:'700', padding:'3px 10px', borderRadius:'20px', marginLeft:'8px', verticalAlign:'middle', whiteSpace:'nowrap', display:'inline-block'}}>
+                        Premium
                       </span>
                     )}</h3>
                     <div className="isletme-kart-puan-inline">
@@ -598,6 +619,13 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
                     <span>📍</span>
                     <span>{isletme.adres?.il} / {isletme.adres?.ilce}</span>
                   </div>
+                  <AcikGunler gunler={isletme.calismaGunleri} />
+                  {kullaniciKonumu && isletme.konum?.coordinates && (
+                    <MesafeGoster mesafeMetre={mesafeHesapla(
+                      kullaniciKonumu.lat, kullaniciKonumu.lng,
+                      isletme.konum.coordinates[1], isletme.konum.coordinates[0]
+                    )} />
+                  )}
 
                   {/* Hizmetler (compact list) */}
                   <div className="hizmet-listesi">

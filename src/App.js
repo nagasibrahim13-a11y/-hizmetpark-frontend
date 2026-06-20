@@ -8,12 +8,15 @@ import IsletmeProfil from './pages/IsletmeProfil';
 import Randevularim from './pages/Randevularim';
 import SadakatKartlarim from './pages/SadakatKartlarim';
 import Marketplace from './pages/Marketplace';
+import YakinimdakiSayfa from './pages/YakinimdakiSayfa';
+import Favorilerim from './pages/Favorilerim';
+import Ayarlar from './pages/Ayarlar';
 import Layout from './components/Layout';
 import './components/Layout.css';
 import './App.css';
 
 function AppRouter() {
-  const { kullanici, girisModalAcik, girisGerektir, cikisYap, modalKapat } = useAuth();
+  const { kullanici, girisModalAcik, girisGerektir, girisYap, cikisYap, modalKapat } = useAuth();
   const [sayfa, setSayfa] = useState('anaSayfa');
   const [profilIsletmeId, setProfilIsletmeId] = useState(null);
   const [hediyeliRandevuData, setHediyeliRandevuData] = useState(null);
@@ -74,8 +77,10 @@ function AppRouter() {
     onAnaSayfa: () => setSayfa('anaSayfa'),
     onRandevularim: handleRandevularimTikla,
     onSadakat: handleSadakatTikla,
-    onYakinimda: () => setSayfa('anaSayfa'),
-    onKategoriGit: () => setSayfa('anaSayfa'),
+    onYakinimda: () => setSayfa('yakinimda'),
+    onIsletmePanel: () => setSayfa('isletmePanel'),
+    onFavorilerim: () => setSayfa('favorilerim'),
+    onAyarlar: () => setSayfa('ayarlar'),
     onMarketplace: () => setSayfa('marketplace'),
     onGirisYap: handleGirisYapTikla,
     onKayitGit: () => setSayfa('kayit'),
@@ -153,6 +158,24 @@ function AppRouter() {
       {sayfa === 'marketplace' && (
         <Layout {...layoutProps}>
           <Marketplace onGeri={() => setSayfa('anaSayfa')} />
+        </Layout>
+      )}
+
+      {sayfa === 'yakinimda' && (
+        <Layout {...layoutProps}>
+          <YakinimdakiSayfa onProfilAc={profilAc} />
+        </Layout>
+      )}
+
+      {sayfa === 'favorilerim' && (
+        <Layout {...layoutProps}>
+          <Favorilerim kullanici={kullanici} onProfilAc={profilAc} />
+        </Layout>
+      )}
+
+      {sayfa === 'ayarlar' && (
+        <Layout {...layoutProps}>
+          <Ayarlar kullanici={kullanici} onGuncelle={girisYap} />
         </Layout>
       )}
     </div>

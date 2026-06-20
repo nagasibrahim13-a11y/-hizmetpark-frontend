@@ -199,7 +199,11 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData, isOw
       )}
 
       {/* KOYU BANNER (mockup 2 stili) */}
-      <div className="profil-kapak">
+      <div className="profil-kapak" style={isletme.fotograf ? {
+  backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${isletme.fotograf})`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center'
+} : {}}>
         <div className="profil-avatar-daire">
           <span style={{ fontSize: '44px' }}>{kategoriEmoji(isletme.kategori)}</span>
         </div>

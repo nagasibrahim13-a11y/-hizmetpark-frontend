@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Scissors, Sparkles, Heart, CircleDot, MapPin } from 'lucide-react';
 import './SadakatKartlarim.css';
 
 function SadakatKartlarim({ kullanici, onGeri, onHediyeliRandevu }) {
@@ -21,11 +22,11 @@ function SadakatKartlarim({ kullanici, onGeri, onHediyeliRandevu }) {
     setYukleniyor(false);
   };
 
-  const kategoriEmoji = (kat) => {
-    if (kat === 'berber') return '✂️';
-    if (kat === 'kuafor') return '💅';
-    if (kat === 'guzellik') return '💆';
-    return '⚽';
+  const KategoriIkon = ({ kat, size = 22, color = '#4F46E5' }) => {
+    if (kat === 'berber') return <Scissors size={size} color={color} />;
+    if (kat === 'kuafor') return <Sparkles size={size} color={color} />;
+    if (kat === 'guzellik') return <Heart size={size} color={color} />;
+    return <CircleDot size={size} color={color} />;
   };
 
   const bekleyenOduller = (sadakat) => {
@@ -34,15 +35,9 @@ function SadakatKartlarim({ kullanici, onGeri, onHediyeliRandevu }) {
 
   return (
     <div className="sadakat-sayfa">
-      <header className="header">
-        <button className="geri-btn" onClick={onGeri}>← Geri</button>
-        <div className="header-logo">✂️ HizmetPark</div>
-        <div style={{ width: '80px' }} />
-      </header>
-
       <div className="sadakat-icerik">
         <div className="sadakat-baslik">
-          <h2>🎁 Sadakat Kartlarım</h2>
+          <h2>Sadakat Programı</h2>
           <p>Puanlarını takip et, ödüllerini kazan</p>
         </div>
 
@@ -66,12 +61,12 @@ function SadakatKartlarim({ kullanici, onGeri, onHediyeliRandevu }) {
                   <div className="sadakat-kart-header">
                     <div className="sadakat-isletme-info">
                       <div className="sadakat-avatar">
-                        {kategoriEmoji(s.isletme?.kategori)}
+                        <KategoriIkon kat={s.isletme?.kategori} />
                       </div>
                       <div>
                         <div className="sadakat-isletme-adi">{s.isletme?.isletmeAdi}</div>
                         <div className="sadakat-isletme-konum">
-                          📍 {s.isletme?.adres?.il} / {s.isletme?.adres?.ilce}
+                          <MapPin size={12} style={{display:'inline', verticalAlign:'middle'}} /> {s.isletme?.adres?.il} / {s.isletme?.adres?.ilce}
                         </div>
                       </div>
                     </div>

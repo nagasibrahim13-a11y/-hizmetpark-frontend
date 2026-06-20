@@ -1,7 +1,7 @@
 import React from 'react';
-import { Home, Calendar, Gift, MapPin, Scissors, ShoppingBag, LogOut, Bell, Search } from 'lucide-react';
+import { Home, Calendar, Gift, MapPin, Scissors, ShoppingBag, LogOut, Bell, Search, Heart, Settings, LayoutDashboard } from 'lucide-react';
 
-const Layout = ({ children, kullanici, onAnaSayfa, onRandevularim, onSadakat, onYakinimda, onKategoriGit, onMarketplace, onGirisYap, onKayitGit, onCikis, aktifSayfa }) => {
+const Layout = ({ children, kullanici, onAnaSayfa, onIsletmePanel, onRandevularim, onSadakat, onYakinimda, onFavorilerim, onMarketplace, onAyarlar, onGirisYap, onKayitGit, onCikis, aktifSayfa }) => {
   return (
     <div className="layout-govde">
       <header className="layout-header">
@@ -20,7 +20,13 @@ const Layout = ({ children, kullanici, onAnaSayfa, onRandevularim, onSadakat, on
           </button>
           {kullanici ? (
             <div className="layout-profil">
-              <div className="layout-avatar">{kullanici.ad?.[0]?.toUpperCase() || '👤'}</div>
+              <div className="layout-avatar">
+                {kullanici.fotograf ? (
+                  <img src={kullanici.fotograf} alt="Profil" style={{width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%'}} />
+                ) : (
+                  kullanici.ad?.[0]?.toUpperCase() || '👤'
+                )}
+              </div>
               <span style={{fontSize:'14px', fontWeight:'600', color:'#374151'}}>{kullanici.ad}</span>
             </div>
           ) : (
@@ -37,6 +43,11 @@ const Layout = ({ children, kullanici, onAnaSayfa, onRandevularim, onSadakat, on
           <div className={`layout-menu-item ${aktifSayfa === 'anaSayfa' ? 'aktif' : ''}`} onClick={onAnaSayfa}>
             <Home size={18} /><span>Ana Sayfa</span>
           </div>
+          {kullanici?.rol === 'isletme' && (
+            <div className={`layout-menu-item ${aktifSayfa === 'isletmePanel' ? 'aktif' : ''}`} onClick={onIsletmePanel}>
+              <LayoutDashboard size={18} /><span>İşletme Paneli</span>
+            </div>
+          )}
           <div className={`layout-menu-item ${aktifSayfa === 'randevularim' ? 'aktif' : ''}`} onClick={onRandevularim}>
             <Calendar size={18} /><span>Randevularım</span>
           </div>
@@ -46,16 +57,22 @@ const Layout = ({ children, kullanici, onAnaSayfa, onRandevularim, onSadakat, on
           <div className={`layout-menu-item ${aktifSayfa === 'yakinimda' ? 'aktif' : ''}`} onClick={onYakinimda}>
             <MapPin size={18} /><span>Yakınımdaki İşletmeler</span>
           </div>
-          <div className={`layout-menu-item ${aktifSayfa === 'kategori' ? 'aktif' : ''}`} onClick={onKategoriGit}>
-            <Scissors size={18} /><span>Kuaför &amp; Güzellik</span>
+          <div className={`layout-menu-item ${aktifSayfa === 'favorilerim' ? 'aktif' : ''}`} onClick={onFavorilerim}>
+            <Heart size={18} /><span>Favorilerim</span>
           </div>
+
           <div className={`layout-menu-item ${aktifSayfa === 'marketplace' ? 'aktif' : ''}`} onClick={onMarketplace}>
             <ShoppingBag size={18} /><span>Marketplace</span>
           </div>
           {kullanici && (
-            <div className="layout-menu-item layout-cikis" onClick={onCikis} style={{marginTop:'auto'}}>
-              <LogOut size={18} /><span>Çıkış Yap</span>
-            </div>
+            <>
+              <div className={`layout-menu-item ${aktifSayfa === 'ayarlar' ? 'aktif' : ''}`} onClick={onAyarlar}>
+                <Settings size={18} /><span>Ayarlar</span>
+              </div>
+              <div className="layout-menu-item layout-cikis" onClick={onCikis} style={{marginTop:'auto'}}>
+                <LogOut size={18} /><span>Çıkış Yap</span>
+              </div>
+            </>
           )}
         </div>
         <div className="layout-icerik">

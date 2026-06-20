@@ -46,6 +46,10 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  height: 260px;
+  justify-content: center;
+  background-size: cover !important;
+  background-position: center 30% !important;
 }
 
 /* Yuvarlak avatar — kırmızı bg, emoji içinde */
