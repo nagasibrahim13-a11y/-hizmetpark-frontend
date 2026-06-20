@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Calendar, Gift, Scissors, Megaphone, Store, CalendarDays, Users, Crown, BarChart3, Sun, Hourglass, Star } from 'lucide-react';
 import IsletmeProfil from './IsletmeProfil';
 import './IsletmePanel.css';
 
@@ -420,22 +421,22 @@ function IsletmePanel({ kullanici, onCikis }) {
     <div className="panel-sayfa">
       <div className="metrik-row">
         <div className="metrik-kart">
-          <div className="metrik-ikon">📅</div>
+          <div className="metrik-ikon"><Calendar size={24} color="#4F46E5" /></div>
           <div className="metrik-sayi">{randevular.length}</div>
           <div className="metrik-label">Toplam Randevu</div>
         </div>
         <div className="metrik-kart">
-          <div className="metrik-ikon">☀️</div>
+          <div className="metrik-ikon"><Sun size={24} color="#F59E0B" /></div>
           <div className="metrik-sayi">{bugunRandevular.length}</div>
           <div className="metrik-label">Bugün</div>
         </div>
         <div className="metrik-kart">
-          <div className="metrik-ikon">⏳</div>
+          <div className="metrik-ikon"><Hourglass size={24} color="#EF4444" /></div>
           <div className="metrik-sayi">{randevular.filter(r => r.durum === 'bekliyor').length}</div>
           <div className="metrik-label">Bekleyen</div>
         </div>
         <div className="metrik-kart">
-          <div className="metrik-ikon">⭐</div>
+          <div className="metrik-ikon"><Star size={24} color="#F59E0B" /></div>
           <div className="metrik-sayi">{isletme.ortalamaPuan || '0'}</div>
           <div className="metrik-label">Ortalama Puan</div>
         </div>
@@ -443,19 +444,19 @@ function IsletmePanel({ kullanici, onCikis }) {
 
       <div className="panel-icerik">
         <div className="sekme-row">
-          <button className={`sekme-btn ${aktifSekme === 'randevular' ? 'aktif' : ''}`} onClick={() => setAktifSekme('randevular')}>📅 Randevular</button>
-          <button className={`sekme-btn ${aktifSekme === 'sadakat' ? 'aktif' : ''}`} onClick={() => setAktifSekme('sadakat')}>🎁 Sadakat</button>
-          <button className={`sekme-btn ${aktifSekme === 'hizmetler' ? 'aktif' : ''}`} onClick={() => setAktifSekme('hizmetler')}>✂️ Hizmetler</button>
-          <button className={`sekme-btn ${aktifSekme === 'reklamlar' ? 'aktif' : ''}`} onClick={() => setAktifSekme('reklamlar')}>📢 Reklamlar</button>
-          <button className={`sekme-btn ${aktifSekme === 'profil' ? 'aktif' : ''}`} onClick={() => setAktifSekme('profil')}>🏪 Profilim</button>
-          <button className={`sekme-btn ${aktifSekme === 'musaitlik' ? 'aktif' : ''}`} onClick={() => setAktifSekme('musaitlik')}>📆 Müsaitlik</button>
-          <button className={`sekme-btn ${aktifSekme === 'personel' ? 'aktif' : ''}`} onClick={() => setAktifSekme('personel')}>👥 Personel</button>
+          <button className={`sekme-btn ${aktifSekme === 'randevular' ? 'aktif' : ''}`} onClick={() => setAktifSekme('randevular')}><><Calendar size={16} /> Randevular</></button>
+          <button className={`sekme-btn ${aktifSekme === 'sadakat' ? 'aktif' : ''}`} onClick={() => setAktifSekme('sadakat')}><><Gift size={16} /> Sadakat</></button>
+          <button className={`sekme-btn ${aktifSekme === 'hizmetler' ? 'aktif' : ''}`} onClick={() => setAktifSekme('hizmetler')}><><Scissors size={16} /> Hizmetler</></button>
+          <button className={`sekme-btn ${aktifSekme === 'reklamlar' ? 'aktif' : ''}`} onClick={() => setAktifSekme('reklamlar')}><><Megaphone size={16} /> Reklamlar</></button>
+          <button className={`sekme-btn ${aktifSekme === 'profil' ? 'aktif' : ''}`} onClick={() => setAktifSekme('profil')}><><Store size={16} /> Profilim</></button>
+          <button className={`sekme-btn ${aktifSekme === 'musaitlik' ? 'aktif' : ''}`} onClick={() => setAktifSekme('musaitlik')}><><CalendarDays size={16} /> Müsaitlik</></button>
+          <button className={`sekme-btn ${aktifSekme === 'personel' ? 'aktif' : ''}`} onClick={() => setAktifSekme('personel')}><><Users size={16} /> Personel</></button>
           <button className={`sekme-btn ${aktifSekme === 'premium' ? 'aktif' : ''}`} onClick={() => setAktifSekme('premium')}>
-            👑 {isletme?.premium?.aktif ? 'Premium ✓' : 'Premium'}
+            <><Crown size={16} /> {isletme?.premium?.aktif ? 'Premium ✓' : 'Premium'}</>
           </button>
           {isletme?.premium?.aktif && (
             <button className={`sekme-btn ${aktifSekme === 'analitik' ? 'aktif' : ''}`} onClick={() => setAktifSekme('analitik')}>
-              📊 Analitik
+              <><BarChart3 size={16} /> Analitik</>
             </button>
           )}
         </div>
