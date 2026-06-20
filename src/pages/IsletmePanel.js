@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import jsPDF from 'jspdf';
 import { Calendar, Gift, Scissors, Megaphone, Store, CalendarDays, Users, Crown, BarChart3, Sun, Hourglass, Star } from 'lucide-react';
 import IsletmeProfil from './IsletmeProfil';
 import './IsletmePanel.css';
@@ -33,7 +34,9 @@ function IsletmePanel({ kullanici, onCikis }) {
   const [musaitlikSaatler, setMusaitlikSaatler] = useState([]);
   const [musaitlikAciklama, setMusaitlikAciklama] = useState('');
   const [musaitlikBasari, setMusaitlikBasari] = useState('');
+  const [duzenlenenKapaliTarihId, setDuzenlenenKapaliTarihId] = useState(null);
   const [secilenPersonelIzin, setSecilenPersonelIzin] = useState(null);
+  const [duzenlenenIzinId, setDuzenlenenIzinId] = useState(null);
   const [izinTarih, setIzinTarih] = useState('');
   const [izinTumGun, setIzinTumGun] = useState(true);
   const [izinSaatler, setIzinSaatler] = useState([]);
@@ -58,8 +61,21 @@ function IsletmePanel({ kullanici, onCikis }) {
   const [personelYukleniyor, setPersonelYukleniyor] = useState(false);
   const [analitik, setAnalitik] = useState(null);
   const [analitikYukleniyor, setAnalitikYukleniyor] = useState(false);
+  const [netKar, setNetKar] = useState(null);
+  const [giderler, setGiderler] = useState([]);
+  const [yeniGiderAd, setYeniGiderAd] = useState('');
+  const [yeniGiderTutar, setYeniGiderTutar] = useState('');
+  const [maasDuzenle, setMaasDuzenle] = useState({});
+  const [secilenPersonelPerf, setSecilenPersonelPerf] = useState(null);
+  const [personelPerfVerisi, setPersonelPerfVerisi] = useState(null);
+  const [personelPerfYukleniyor, setPersonelPerfYukleniyor] = useState(false);
+  const [tarihFiltre, setTarihFiltre] = useState('tumZamanlar');
+  const [ozelBaslangic, setOzelBaslangic] = useState('');
+  const [ozelBitis, setOzelBitis] = useState('');
   const [vipHedef, setVipHedef] = useState(10);
   const [vipHediye, setVipHediye] = useState('VIP Özel Hizmet');
+  const [vipMusteriler, setVipMusteriler] = useState([]);
+  const [secilenSegment, setSecilenSegment] = useState(null);
 
   const fiyatlar = {
     slider: { haftalik: 400, aylik: 1200 },
@@ -84,6 +100,21 @@ function IsletmePanel({ kullanici, onCikis }) {
 
   useEffect(() => { isletmeyiGetir(); }, []);
   useEffect(() => { if (isletme) { personelGetir(); analitikGetir(); } }, [isletme]);
+  useEffect(() => {
+    if (isletme?._id) {
+      netKarGetir();
+      setGiderler(isletme.giderler || []);
+    }
+  }, [isletme]);
+  useEffect(() => {
+    if (isletme?._id) {
+      netKarGetir();
+      if (secilenPersonelPerf) personelPerformansGetir(secilenPersonelPerf);
+    }
+  }, [tarihFiltre, ozelBaslangic, ozelBitis]);
+  useEffect(() => {
+    if (isletme?._id) vipMusterileriGetir();
+  }, [isletme]);
 
   const isletmeyiGetir = async () => {
     try {
@@ -120,6 +151,154 @@ function IsletmePanel({ kullanici, onCikis }) {
       setAnalitik(veri);
     } catch (err) { console.error(err); }
     setAnalitikYukleniyor(false);
+  };
+
+  const tarihAraligiHesapla = () => {
+    const bugun = new Date();
+    if (tarihFiltre === 'gunluk') {
+      const baslangic = new Date(bugun); baslangic.setHours(0,0,0,0);
+      return { baslangic: baslangic.toISOString().split('T')[0], bitis: bugun.toISOString().split('T')[0] };
+    }
+    if (tarihFiltre === 'aylik') {
+      const baslangic = new Date(bugun.getFullYear(), bugun.getMonth(), 1);
+      return { baslangic: baslangic.toISOString().split('T')[0], bitis: bugun.toISOString().split('T')[0] };
+    }
+    if (tarihFiltre === 'ozel' && ozelBaslangic && ozelBitis) {
+      return { baslangic: ozelBaslangic, bitis: ozelBitis };
+    }
+    return { baslangic: '', bitis: '' };
+  };
+
+  const netKarGetir = async () => {
+    if (!isletme?._id) return;
+    try {
+      const { baslangic, bitis } = tarihAraligiHesapla();
+      const params = new URLSearchParams();
+      if (baslangic) params.append('baslangic', baslangic);
+      if (bitis) params.append('bitis', bitis);
+      const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/net-kar?${params}`);
+      const veri = await cevap.json();
+      setNetKar(veri);
+    } catch (err) { console.error(err); }
+  };
+
+  const turkceDuzelt = (metin) => {
+    if (!metin) return '';
+    return metin
+      .replace(/ğ/g, 'g').replace(/Ğ/g, 'G')
+      .replace(/ü/g, 'u').replace(/Ü/g, 'U')
+      .replace(/ş/g, 's').replace(/Ş/g, 'S')
+      .replace(/ı/g, 'i').replace(/İ/g, 'I')
+      .replace(/ö/g, 'o').replace(/Ö/g, 'O')
+      .replace(/ç/g, 'c').replace(/Ç/g, 'C');
+  };
+
+  const pdfRaporuIndir = () => {
+    if (!netKar) { alert('Önce veriler yüklensin'); return; }
+
+    const doc = new jsPDF();
+    const tarihAraligi = tarihFiltre === 'gunluk' ? 'Gunluk'
+      : tarihFiltre === 'aylik' ? 'Aylik'
+      : tarihFiltre === 'ozel' ? `${ozelBaslangic} - ${ozelBitis}`
+      : 'Tum Zamanlar';
+
+    doc.setFontSize(18);
+    doc.text(turkceDuzelt('HizmetPark - Finansal Rapor'), 20, 20);
+
+    doc.setFontSize(11);
+    doc.text(turkceDuzelt(`Isletme: ${isletme?.isletmeAdi || '-'}`), 20, 32);
+    doc.text(`Rapor Tarihi: ${new Date().toLocaleDateString('tr-TR')}`, 20, 39);
+    doc.text(turkceDuzelt(`Donem: ${tarihAraligi}`), 20, 46);
+
+    doc.setLineWidth(0.5);
+    doc.line(20, 52, 190, 52);
+
+    doc.setFontSize(13);
+    doc.text(turkceDuzelt('Ozet'), 20, 62);
+
+    doc.setFontSize(11);
+    doc.text(turkceDuzelt('Toplam Ciro:'), 20, 72);
+    doc.text(`${netKar.toplamCiro} TL`, 150, 72);
+
+    doc.text(turkceDuzelt('Personel Maaslari:'), 20, 80);
+    doc.text(`-${netKar.toplamMaas} TL`, 150, 80);
+
+    doc.text(turkceDuzelt('Diger Giderler:'), 20, 88);
+    doc.text(`-${netKar.toplamGider} TL`, 150, 88);
+
+    doc.line(20, 94, 190, 94);
+
+    doc.setFontSize(13);
+    doc.setFont(undefined, 'bold');
+    doc.text(turkceDuzelt('Net Kar:'), 20, 104);
+    doc.text(`${netKar.netKar} TL`, 150, 104);
+    doc.setFont(undefined, 'normal');
+
+    doc.setFontSize(9);
+    doc.setTextColor(150);
+    doc.text(turkceDuzelt('HizmetPark tarafindan otomatik olusturuldu.'), 20, 280);
+
+    doc.save(`hizmetpark-rapor-${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
+  const giderEkle = async () => {
+    if (!yeniGiderAd.trim() || !yeniGiderTutar) return;
+    try {
+      const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/gider`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ad: yeniGiderAd, tutar: Number(yeniGiderTutar) })
+      });
+      const veri = await cevap.json();
+      setGiderler(veri.giderler);
+      setYeniGiderAd(''); setYeniGiderTutar('');
+      netKarGetir();
+    } catch (err) { console.error(err); }
+  };
+
+  const giderSil = async (giderId) => {
+    try {
+      const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/gider/${giderId}`, { method: 'DELETE' });
+      const veri = await cevap.json();
+      setGiderler(veri.giderler);
+      netKarGetir();
+    } catch (err) { console.error(err); }
+  };
+
+  const maasGuncelle = async (personelId, maas) => {
+    try {
+      await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/personel/${personelId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ maas: Number(maas) })
+      });
+      personelGetir();
+      netKarGetir();
+    } catch (err) { console.error(err); }
+  };
+
+  const personelPerformansGetir = async (personelId) => {
+    if (!personelId) { setPersonelPerfVerisi(null); return; }
+    setPersonelPerfYukleniyor(true);
+    try {
+      const { baslangic, bitis } = tarihAraligiHesapla();
+      const params = new URLSearchParams();
+      if (baslangic) params.append('baslangic', baslangic);
+      if (bitis) params.append('bitis', bitis);
+      const cevap = await fetch(`http://localhost:5000/api/randevular/personel/${personelId}?${params}`);
+      const veri = await cevap.json();
+      setPersonelPerfVerisi(veri);
+    } catch (err) { console.error(err); }
+    setPersonelPerfYukleniyor(false);
+  };
+
+  const vipMusterileriGetir = async () => {
+    if (!isletme?._id) return;
+    try {
+      const cevap = await fetch(`http://localhost:5000/api/kullanicilar/isletme/${isletme._id}/vip-musteriler`);
+      const veri = await cevap.json();
+      setVipMusteriler(veri);
+    } catch (err) { console.error(err); }
   };
 
   const personelGetir = async () => {
@@ -340,8 +519,12 @@ function IsletmePanel({ kullanici, onCikis }) {
     if (!musaitlikTarih) { alert('Lütfen tarih seçin'); return; }
     if (!musaitlikTumGun && musaitlikSaatler.length === 0) { alert('Lütfen kapalı saatleri seçin'); return; }
     try {
-      const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/kapali-tarih`, {
-        method: 'PUT',
+      const url = duzenlenenKapaliTarihId
+        ? `http://localhost:5000/api/isletmeler/${isletme._id}/kapali-tarih/${duzenlenenKapaliTarihId}`
+        : `http://localhost:5000/api/isletmeler/${isletme._id}/kapali-tarih`;
+      const method = duzenlenenKapaliTarihId ? 'PUT' : 'POST';
+      const cevap = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tarih: musaitlikTarih,
@@ -353,13 +536,22 @@ function IsletmePanel({ kullanici, onCikis }) {
       const veri = await cevap.json();
       if (!cevap.ok) { alert(veri.hata || 'Bir hata oluştu'); return; }
       setIsletme(veri.isletme);
-      setMusaitlikBasari('Kapalı tarih eklendi!');
+      setMusaitlikBasari(duzenlenenKapaliTarihId ? 'Kapalı tarih güncellendi!' : 'Kapalı tarih eklendi!');
       setMusaitlikTarih('');
       setMusaitlikSaatler([]);
       setMusaitlikAciklama('');
       setMusaitlikTumGun(true);
+      setDuzenlenenKapaliTarihId(null);
       setTimeout(() => setMusaitlikBasari(''), 2000);
     } catch (err) { console.error(err); alert('Sunucuya bağlanılamadı'); }
+  };
+
+  const kapaliTarihDuzenlemeyiBaslat = (kt) => {
+    setDuzenlenenKapaliTarihId(kt._id);
+    setMusaitlikTarih(new Date(kt.tarih).toISOString().split('T')[0]);
+    setMusaitlikTumGun(kt.tumGun);
+    setMusaitlikSaatler(kt.saatler || []);
+    setMusaitlikAciklama(kt.aciklama || '');
   };
 
   const kapaliTarihKaldir = async (tarihId) => {
@@ -378,16 +570,28 @@ function IsletmePanel({ kullanici, onCikis }) {
     if (!secilenPersonelIzin || !izinTarih) { alert('Personel ve tarih seçin'); return; }
     if (!izinTumGun && izinSaatler.length === 0) { alert('En az bir saat seçin veya tüm gün seçin'); return; }
     try {
+      if (duzenlenenIzinId) {
+        await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/personel/${secilenPersonelIzin}/izin/${duzenlenenIzinId}`, { method: 'DELETE' });
+      }
       await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/personel/${secilenPersonelIzin}/izin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tarih: izinTarih, tumGun: izinTumGun, saatler: izinTumGun ? [] : izinSaatler, aciklama: izinAciklama })
       });
-      setIzinBasari('İzin eklendi!');
+      setIzinBasari(duzenlenenIzinId ? 'İzin güncellendi!' : 'İzin eklendi!');
       setIzinTarih(''); setIzinAciklama(''); setIzinSaatler([]); setIzinTumGun(true);
+      setDuzenlenenIzinId(null);
       setTimeout(() => setIzinBasari(''), 2000);
       personelGetir();
     } catch (err) { console.error(err); }
+  };
+
+  const izinDuzenlemeyiBaslat = (izin) => {
+    setDuzenlenenIzinId(izin._id);
+    setIzinTarih(new Date(izin.tarih).toISOString().split('T')[0]);
+    setIzinTumGun(izin.tumGun);
+    setIzinSaatler(izin.saatler || []);
+    setIzinAciklama(izin.aciklama || '');
   };
 
   const personelIzinSil = async (personelId, izinId) => {
@@ -516,7 +720,12 @@ function IsletmePanel({ kullanici, onCikis }) {
           </button>
           {isletme?.premium?.aktif && (
             <button className={`sekme-btn ${aktifSekme === 'analitik' ? 'aktif' : ''}`} onClick={() => setAktifSekme('analitik')}>
-              <><BarChart3 size={16} /> Analitik</>
+              <><BarChart3 size={16} /> Performans Analizi</>
+            </button>
+          )}
+          {isletme?.premium?.aktif && (
+            <button className={`sekme-btn ${aktifSekme === 'segmentAnalizi' ? 'aktif' : ''}`} onClick={() => setAktifSekme('segmentAnalizi')}>
+              <Users size={16} /> Segment Analizi
             </button>
           )}
         </div>
@@ -599,6 +808,26 @@ function IsletmePanel({ kullanici, onCikis }) {
         {/* SADAKAT */}
         {aktifSekme === 'sadakat' && (
           <div>
+            {vipMusteriler.length > 0 && (
+              <div style={{background:'linear-gradient(135deg,#FEF3C7,#FDE68A)', borderRadius:'16px', padding:'20px', marginBottom:'20px', border:'1px solid #F59E0B'}}>
+                <h4 style={{marginBottom:'14px', display:'flex', alignItems:'center', gap:'8px'}}>
+                  👑 VIP Müşterileriniz ({vipMusteriler.length})
+                </h4>
+                <div style={{display:'flex', flexDirection:'column', gap:'8px'}}>
+                  {vipMusteriler.map(v => (
+                    <div key={v.musteri._id} style={{display:'flex', justifyContent:'space-between', alignItems:'center', background:'white', borderRadius:'10px', padding:'10px 14px'}}>
+                      <div>
+                        <div style={{fontWeight:'700', fontSize:'14px'}}>{v.musteri.ad} {v.musteri.soyad}</div>
+                        <div style={{fontSize:'12px', color:'#64748B'}}>{v.musteri.telefon || v.musteri.email}</div>
+                      </div>
+                      <div style={{textAlign:'right'}}>
+                        <div style={{fontSize:'14px', fontWeight:'700', color:'#92400E'}}>{v.toplamZiyaret} ziyaret</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="sadakat-ayar-kart">
               <h3 style={{ fontSize: '15px', fontWeight: '700', marginBottom: '16px' }}>🎁 Sadakat Programı Ayarları</h3>
               <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
@@ -943,6 +1172,9 @@ function IsletmePanel({ kullanici, onCikis }) {
                     {kt.aciklama && <div className="randevu-hizmet">{kt.aciklama}</div>}
                   </div>
                   <div className="randevu-sag">
+                    <button onClick={() => kapaliTarihDuzenlemeyiBaslat(kt)} style={{ background: '#EEF2FF', color: '#4F46E5', border: '1px solid #C7D2FE', padding: '7px 14px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap', marginRight: '8px' }}>
+                      ✏️ Düzenle
+                    </button>
                     <button onClick={() => kapaliTarihKaldir(kt._id)} style={{ background: '#FFF5F5', color: '#B91C1C', border: '1px solid #FFCDD2', padding: '7px 14px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                       🗑 Kaldır
                     </button>
@@ -1004,7 +1236,10 @@ function IsletmePanel({ kullanici, onCikis }) {
                           <div style={{fontWeight:'600', fontSize:'13px'}}>{new Date(izin.tarih).toLocaleDateString('tr-TR')}</div>
                           <div style={{fontSize:'12px', color:'#64748B'}}>{izin.tumGun ? 'Tüm gün' : izin.saatler.join(', ')} {izin.aciklama && `· ${izin.aciklama}`}</div>
                         </div>
-                        <button onClick={() => personelIzinSil(secilenPersonelIzin, izin._id)} style={{padding:'4px 10px', background:'white', color:'#EF4444', border:'1px solid #EF4444', borderRadius:'6px', cursor:'pointer', fontSize:'12px'}}>Sil</button>
+                        <div style={{display:'flex', gap:'6px'}}>
+                          <button onClick={() => izinDuzenlemeyiBaslat(izin)} style={{padding:'4px 10px', background:'white', color:'#4F46E5', border:'1px solid #4F46E5', borderRadius:'6px', cursor:'pointer', fontSize:'12px'}}>Düzenle</button>
+                          <button onClick={() => personelIzinSil(secilenPersonelIzin, izin._id)} style={{padding:'4px 10px', background:'white', color:'#EF4444', border:'1px solid #EF4444', borderRadius:'6px', cursor:'pointer', fontSize:'12px'}}>Sil</button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1264,6 +1499,154 @@ function IsletmePanel({ kullanici, onCikis }) {
         {aktifSekme === 'analitik' && isletme?.premium?.aktif && (
           <div className="sekme-icerik">
             <h3 style={{marginBottom:'20px'}}>📊 Analitik Dashboard</h3>
+
+            <div style={{display:'flex', gap:'8px', marginBottom:'20px', flexWrap:'wrap', alignItems:'center'}}>
+              {['gunluk','aylik','tumZamanlar','ozel'].map(f => {
+                const etiket = { gunluk:'📅 Günlük', aylik:'📆 Aylık', tumZamanlar:'🗂️ Tüm Zamanlar', ozel:'🎯 Özel Tarih' }[f];
+                const secili = tarihFiltre === f;
+                return (
+                  <button key={f} onClick={() => setTarihFiltre(f)}
+                    style={{padding:'8px 16px', borderRadius:'20px', border: secili ? 'none' : '1px solid #E2E8F0', background: secili ? '#4F46E5' : 'white', color: secili ? 'white' : '#374151', fontSize:'13px', fontWeight:'600', cursor:'pointer'}}>
+                    {etiket}
+                  </button>
+                );
+              })}
+              {tarihFiltre === 'ozel' && (
+                <>
+                  <input type="date" value={ozelBaslangic} onChange={e => setOzelBaslangic(e.target.value)}
+                    style={{padding:'8px 12px', borderRadius:'8px', border:'1px solid #E2E8F0', fontSize:'13px'}} />
+                  <span style={{color:'#94A3B8'}}>—</span>
+                  <input type="date" value={ozelBitis} onChange={e => setOzelBitis(e.target.value)}
+                    style={{padding:'8px 12px', borderRadius:'8px', border:'1px solid #E2E8F0', fontSize:'13px'}} />
+                </>
+              )}
+              <button onClick={pdfRaporuIndir}
+                style={{padding:'8px 16px', background:'#10B981', color:'white', border:'none', borderRadius:'10px', fontWeight:'600', fontSize:'13px', cursor:'pointer', marginLeft:'auto', display:'flex', alignItems:'center', gap:'6px'}}>
+                📄 PDF Olarak İndir
+              </button>
+            </div>
+
+            <div style={{background:'white', border:'1px solid #E2E8F0', borderRadius:'16px', padding:'20px', marginBottom:'24px'}}>
+              <h4 style={{marginBottom:'16px'}}>💰 Personel Maaşları</h4>
+              <div style={{display:'flex', flexDirection:'column', gap:'8px', marginBottom:'20px'}}>
+                {personelListesi.map(p => (
+                  <div key={p._id} style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 14px', background:'#F8FAFC', borderRadius:'10px'}}>
+                    <div>
+                      <div style={{fontWeight:'600', fontSize:'14px'}}>{p.ad}</div>
+                      <div style={{fontSize:'12px', color:'#64748B'}}>{p.unvan}</div>
+                    </div>
+                    <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
+                      <input
+                        type="number"
+                        placeholder="Maaş"
+                        defaultValue={p.maas || ''}
+                        onBlur={(e) => maasGuncelle(p._id, e.target.value)}
+                        style={{width:'100px', padding:'8px 10px', borderRadius:'8px', border:'1px solid #E2E8F0', fontSize:'13px', textAlign:'right'}}
+                      />
+                      <span style={{fontSize:'13px', color:'#64748B'}}>₺</span>
+                    </div>
+                  </div>
+                ))}
+                {personelListesi.length === 0 && <p style={{color:'#94A3B8', fontSize:'13px'}}>Henüz personel eklenmemiş.</p>}
+              </div>
+
+              <h4 style={{marginBottom:'12px'}}>📋 Diğer Giderler</h4>
+              <div style={{display:'flex', gap:'8px', marginBottom:'12px'}}>
+                <input placeholder="Gider adı (örn: Kira)" value={yeniGiderAd} onChange={e => setYeniGiderAd(e.target.value)}
+                  style={{flex:2, padding:'8px 12px', borderRadius:'8px', border:'1px solid #E2E8F0', fontSize:'14px'}} />
+                <input type="number" placeholder="Tutar" value={yeniGiderTutar} onChange={e => setYeniGiderTutar(e.target.value)}
+                  style={{flex:1, padding:'8px 12px', borderRadius:'8px', border:'1px solid #E2E8F0', fontSize:'14px'}} />
+                <button onClick={giderEkle} style={{padding:'8px 16px', background:'#4F46E5', color:'white', border:'none', borderRadius:'8px', cursor:'pointer', fontWeight:'600'}}>+ Ekle</button>
+              </div>
+              <div style={{display:'flex', flexDirection:'column', gap:'6px', marginBottom:'20px'}}>
+                {giderler.map(g => (
+                  <div key={g._id} style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 12px', background:'#F8FAFC', borderRadius:'8px'}}>
+                    <span style={{fontSize:'13px'}}>{g.ad}</span>
+                    <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
+                      <span style={{fontSize:'13px', fontWeight:'600'}}>{g.tutar} ₺</span>
+                      <button onClick={() => giderSil(g._id)} style={{padding:'2px 8px', background:'white', color:'#EF4444', border:'1px solid #EF4444', borderRadius:'6px', cursor:'pointer', fontSize:'12px'}}>Sil</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {netKar && (
+                <div style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'10px', paddingTop:'16px', borderTop:'1px solid #F1F5F9'}}>
+                  <div style={{textAlign:'center'}}>
+                    <div style={{fontSize:'18px', fontWeight:'800', color:'#10B981'}}>{netKar.toplamCiro}₺</div>
+                    <div style={{fontSize:'11px', color:'#64748B'}}>Toplam Ciro</div>
+                  </div>
+                  <div style={{textAlign:'center'}}>
+                    <div style={{fontSize:'18px', fontWeight:'800', color:'#EF4444'}}>-{netKar.toplamMaas}₺</div>
+                    <div style={{fontSize:'11px', color:'#64748B'}}>Maaşlar</div>
+                  </div>
+                  <div style={{textAlign:'center'}}>
+                    <div style={{fontSize:'18px', fontWeight:'800', color:'#EF4444'}}>-{netKar.toplamGider}₺</div>
+                    <div style={{fontSize:'11px', color:'#64748B'}}>Diğer Giderler</div>
+                  </div>
+                  <div style={{textAlign:'center', background: netKar.netKar >= 0 ? '#D1FAE5' : '#FEE2E2', borderRadius:'10px', padding:'4px'}}>
+                    <div style={{fontSize:'18px', fontWeight:'800', color: netKar.netKar >= 0 ? '#065F46' : '#991B1B'}}>{netKar.netKar}₺</div>
+                    <div style={{fontSize:'11px', color:'#64748B'}}>Net Kar</div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div style={{background:'white', borderRadius:'16px', padding:'20px', border:'1px solid #E2E8F0', marginBottom:'20px'}}>
+              <h4 style={{marginBottom:'14px', fontSize:'15px'}}>👤 Personel Performans Detayı</h4>
+              <select
+                value={secilenPersonelPerf || ''}
+                onChange={e => { setSecilenPersonelPerf(e.target.value); personelPerformansGetir(e.target.value); }}
+                style={{width:'100%', padding:'9px 12px', borderRadius:'8px', border:'1px solid #E2E8F0', fontSize:'14px', marginBottom:'14px', background:'white'}}
+              >
+                <option value="">— Personel Seçin —</option>
+                {personelListesi.map(p => (
+                  <option key={p._id} value={p._id}>{p.ad} {p.soyad || ''}</option>
+                ))}
+              </select>
+
+              {personelPerfYukleniyor ? (
+                <div style={{textAlign:'center', padding:'30px', color:'#94A3B8'}}>Yükleniyor...</div>
+              ) : personelPerfVerisi ? (
+                <>
+                  <div style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'10px', marginBottom:'16px'}}>
+                    {[
+                      {baslik:'Toplam Randevu', deger: personelPerfVerisi.ozet.toplamRandevu, renk:'#4F46E5'},
+                      {baslik:'Onaylanan', deger: personelPerfVerisi.ozet.onaylanan, renk:'#3B82F6'},
+                      {baslik:'Tamamlanan', deger: personelPerfVerisi.ozet.tamamlanan, renk:'#10B981'},
+                      {baslik:'Toplam Ciro', deger: `${personelPerfVerisi.ozet.toplamCiro}₺`, renk:'#F59E0B'},
+                    ].map(k => (
+                      <div key={k.baslik} style={{background:'#F8FAFC', borderRadius:'10px', padding:'12px', textAlign:'center', border:'1px solid #E2E8F0'}}>
+                        <div style={{fontSize:'20px', fontWeight:'800', color:k.renk}}>{k.deger}</div>
+                        <div style={{fontSize:'11px', color:'#64748B', marginTop:'3px'}}>{k.baslik}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <h5 style={{fontSize:'13px', fontWeight:'700', color:'#374151', marginBottom:'10px'}}>Son Randevular</h5>
+                  {personelPerfVerisi.randevular.slice(0, 5).map(r => {
+                    const hizmetler = Array.isArray(r.hizmet) ? r.hizmet.map(h => h.ad).join(', ') : r.hizmet?.ad;
+                    const tutar = Array.isArray(r.hizmet) ? r.hizmet.reduce((t,h) => t+(h.fiyat||0), 0) : (r.hizmet?.fiyat || 0);
+                    return (
+                      <div key={r._id} style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 0', borderBottom:'1px solid #F1F5F9'}}>
+                        <div>
+                          <div style={{fontSize:'13px', fontWeight:'600'}}>{r.musteriAdi || (r.musteri ? `${r.musteri.ad}` : 'Müşteri')}</div>
+                          <div style={{fontSize:'12px', color:'#64748B'}}>{hizmetler} · {new Date(r.tarih).toLocaleDateString('tr-TR')} {r.saat}</div>
+                        </div>
+                        <div style={{textAlign:'right'}}>
+                          <div style={{fontSize:'12px', color: r.durum === 'tamamlandi' ? '#10B981' : r.durum === 'iptal' ? '#EF4444' : '#F59E0B', fontWeight:'600'}}>
+                            {r.durum === 'tamamlandi' ? '✅ Tamamlandı' : r.durum === 'iptal' ? '🚫 İptal' : r.durum === 'onaylandi' ? '✅ Onaylandı' : r.durum}
+                          </div>
+                          <div style={{fontSize:'12px', fontWeight:'700', color:'#10B981'}}>{tutar}₺</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </>
+              ) : secilenPersonelPerf ? (
+                <div style={{textAlign:'center', padding:'20px', color:'#94A3B8', fontSize:'13px'}}>Veri bulunamadı</div>
+              ) : null}
+            </div>
+
             {analitikYukleniyor ? (
               <div style={{textAlign:'center', padding:'40px', color:'#94A3B8'}}>Yükleniyor...</div>
             ) : analitik ? (
@@ -1281,21 +1664,6 @@ function IsletmePanel({ kullanici, onCikis }) {
                       <div style={{fontSize:'12px', color:'#64748B'}}>{k.baslik}</div>
                     </div>
                   ))}
-                </div>
-                <div style={{background:'white', borderRadius:'12px', padding:'20px', border:'1px solid #E2E8F0', marginBottom:'16px'}}>
-                  <h4 style={{marginBottom:'16px', fontSize:'15px'}}>👥 Müşteri Segmentleri</h4>
-                  <div style={{display:'flex', gap:'12px'}}>
-                    {[
-                      {etiket:'🆕 Yeni', sayi: analitik.segmentler.yeni, renk:'#3B82F6'},
-                      {etiket:'🔄 Düzenli', sayi: analitik.segmentler.duzenli, renk:'#10B981'},
-                      {etiket:'👑 VIP', sayi: analitik.segmentler.vip, renk:'#F59E0B'},
-                    ].map(s => (
-                      <div key={s.etiket} style={{flex:1, textAlign:'center', padding:'16px', borderRadius:'10px', background:'#F8FAFC', border:`2px solid ${s.renk}20`}}>
-                        <div style={{fontSize:'28px', fontWeight:'800', color:s.renk}}>{s.sayi}</div>
-                        <div style={{fontSize:'13px', color:'#64748B', marginTop:'4px'}}>{s.etiket}</div>
-                      </div>
-                    ))}
-                  </div>
                 </div>
                 <div style={{background:'white', borderRadius:'12px', padding:'20px', border:'1px solid #E2E8F0', marginBottom:'16px'}}>
                   <h4 style={{marginBottom:'16px', fontSize:'15px'}}>✂️ En Popüler Hizmetler</h4>
@@ -1327,6 +1695,67 @@ function IsletmePanel({ kullanici, onCikis }) {
               </div>
             ) : (
               <div style={{textAlign:'center', padding:'40px', color:'#94A3B8'}}>Veri yüklenemedi</div>
+            )}
+          </div>
+        )}
+
+        {aktifSekme === 'segmentAnalizi' && isletme?.premium?.aktif && (
+          <div className="sekme-icerik">
+            <h3 style={{marginBottom:'20px'}}>👥 Segment Analizi</h3>
+            {!analitik ? (
+              <div style={{textAlign:'center', padding:'40px', color:'#94A3B8'}}>Önce Performans Analizi sekmesini açıp verilerin yüklenmesini sağlayın</div>
+            ) : (
+              <div style={{background:'white', borderRadius:'12px', padding:'20px', border:'1px solid #E2E8F0'}}>
+                <div style={{display:'flex', gap:'12px', marginBottom:'20px'}}>
+                  {[
+                    {key:'yeni', etiket:'🆕 Yeni', sayi: analitik.segmentler.yeni, renk:'#3B82F6', ciro: analitik.segmentler.segmentCiro?.yeni},
+                    {key:'duzenli', etiket:'🔄 Düzenli', sayi: analitik.segmentler.duzenli, renk:'#10B981', ciro: analitik.segmentler.segmentCiro?.duzenli},
+                    {key:'vip', etiket:'👑 VIP', sayi: analitik.segmentler.vip, renk:'#F59E0B', ciro: analitik.segmentler.segmentCiro?.vip},
+                  ].map(s => (
+                    <div key={s.etiket}
+                      onClick={() => setSecilenSegment(secilenSegment === s.key ? null : s.key)}
+                      style={{flex:1, textAlign:'center', padding:'16px', borderRadius:'10px', background: secilenSegment === s.key ? `${s.renk}15` : '#F8FAFC', border:`2px solid ${secilenSegment === s.key ? s.renk : s.renk+'20'}`, cursor:'pointer', transition:'all 0.15s'}}>
+                      <div style={{fontSize:'28px', fontWeight:'800', color:s.renk}}>{s.sayi}</div>
+                      <div style={{fontSize:'13px', color:'#64748B', marginTop:'4px'}}>{s.etiket}</div>
+                      <div style={{fontSize:'12px', color:s.renk, fontWeight:'700', marginTop:'6px'}}>{s.ciro || 0}₺</div>
+                    </div>
+                  ))}
+                </div>
+
+                {secilenSegment && (
+                  <div style={{marginBottom:'16px'}}>
+                    <h5 style={{fontSize:'13px', fontWeight:'700', color:'#374151', marginBottom:'10px'}}>
+                      {secilenSegment === 'yeni' ? '🆕 Yeni Müşteriler' : secilenSegment === 'duzenli' ? '🔄 Düzenli Müşteriler' : '👑 VIP Müşteriler'}
+                    </h5>
+                    {(analitik.segmentler[`${secilenSegment}Liste`] || []).length === 0 ? (
+                      <div style={{color:'#94A3B8', fontSize:'13px', padding:'10px 0'}}>Bu segmentte müşteri yok</div>
+                    ) : (
+                      analitik.segmentler[`${secilenSegment}Liste`].map((m, i) => (
+                        <div key={i} style={{display:'flex', justifyContent:'space-between', padding:'8px 12px', background:'#F8FAFC', borderRadius:'8px', marginBottom:'6px', fontSize:'13px'}}>
+                          <span>{m.ad}</span>
+                          <span style={{display:'flex', gap:'12px'}}>
+                            <span style={{color:'#64748B'}}>{m.sayi} ziyaret</span>
+                            <span style={{fontWeight:'700', color:'#10B981'}}>{m.ciro}₺</span>
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+
+                {analitik.segmentler.vipeYakinListe && analitik.segmentler.vipeYakinListe.length > 0 && (
+                  <div style={{background:'#FFFBEB', border:'1px solid #FDE68A', borderRadius:'10px', padding:'14px'}}>
+                    <div style={{fontSize:'13px', fontWeight:'700', color:'#92400E', marginBottom:'8px'}}>
+                      ⚡ VIP'e Yakın Müşteriler ({analitik.segmentler.vipeYakinListe.length})
+                    </div>
+                    {analitik.segmentler.vipeYakinListe.map((m, i) => (
+                      <div key={i} style={{fontSize:'12px', color:'#92400E', padding:'4px 0'}}>
+                        {m.ad} — {m.sayi} ziyaret (VIP'e {5 - m.sayi} ziyaret kaldı)
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
           </div>
         )}

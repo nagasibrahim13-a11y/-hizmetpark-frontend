@@ -64,7 +64,14 @@ function SadakatKartlarim({ kullanici, onGeri, onHediyeliRandevu }) {
                         <KategoriIkon kat={s.isletme?.kategori} />
                       </div>
                       <div>
-                        <div className="sadakat-isletme-adi">{s.isletme?.isletmeAdi}</div>
+                        <div className="sadakat-isletme-adi" style={{display:'flex', alignItems:'center', gap:'6px'}}>
+                          {s.isletme?.isletmeAdi}
+                          {s.toplamZiyaret >= (s.odul?.vipHedef || 10) && (
+                            <span style={{background:'linear-gradient(135deg,#F59E0B,#D97706)', color:'white', fontSize:'10px', fontWeight:'700', padding:'2px 8px', borderRadius:'20px'}}>
+                              👑 VIP
+                            </span>
+                          )}
+                        </div>
                         <div className="sadakat-isletme-konum">
                           <MapPin size={12} style={{display:'inline', verticalAlign:'middle'}} /> {s.isletme?.adres?.il} / {s.isletme?.adres?.ilce}
                         </div>
