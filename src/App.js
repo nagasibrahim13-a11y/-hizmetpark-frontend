@@ -11,6 +11,8 @@ import Marketplace from './pages/Marketplace';
 import YakinimdakiSayfa from './pages/YakinimdakiSayfa';
 import Favorilerim from './pages/Favorilerim';
 import Ayarlar from './pages/Ayarlar';
+import PersonelGiris from './pages/PersonelGiris';
+import PersonelPanel from './pages/PersonelPanel';
 import Layout from './components/Layout';
 import './components/Layout.css';
 import './App.css';
@@ -19,6 +21,7 @@ function AppRouter() {
   const { kullanici, girisModalAcik, girisGerektir, girisYap, cikisYap, modalKapat } = useAuth();
   const [sayfa, setSayfa] = useState('anaSayfa');
   const [profilIsletmeId, setProfilIsletmeId] = useState(null);
+  const [personelBilgisi, setPersonelBilgisi] = useState(null);
   const [hediyeliRandevuData, setHediyeliRandevuData] = useState(null);
 
   // Guard: if user logs out while on a protected page, return to anaSayfa
@@ -84,6 +87,7 @@ function AppRouter() {
     onMarketplace: () => setSayfa('marketplace'),
     onGirisYap: handleGirisYapTikla,
     onKayitGit: () => setSayfa('kayit'),
+    onPersonelGiris: () => setSayfa('personelGiris'),
     onCikis: handleCikis,
     aktifSayfa: sayfa
   };
@@ -101,6 +105,19 @@ function AppRouter() {
 
       {sayfa === 'kayit' && (
         <Kayit onGirisGit={() => setSayfa('anaSayfa')} />
+      )}
+
+      {sayfa === 'personelGiris' && (
+        <PersonelGiris
+          onGirisBasarili={(veri) => { setPersonelBilgisi(veri); setSayfa('personelPanel'); }}
+          onGeri={() => setSayfa('anaSayfa')}
+        />
+      )}
+      {sayfa === 'personelPanel' && personelBilgisi && (
+        <PersonelPanel
+          personel={personelBilgisi}
+          onCikis={() => { setPersonelBilgisi(null); setSayfa('anaSayfa'); }}
+        />
       )}
 
       {sayfa === 'anaSayfa' && (

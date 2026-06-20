@@ -43,6 +43,8 @@ function IsletmePanel({ kullanici, onCikis }) {
   const [personelFiltre, setPersonelFiltre] = useState('hepsi');
   const [yeniPersonelAd, setYeniPersonelAd] = useState('');
   const [yeniPersonelUnvan, setYeniPersonelUnvan] = useState('');
+  const [yeniPersonelKullaniciAdi, setYeniPersonelKullaniciAdi] = useState('');
+  const [yeniPersonelSifre, setYeniPersonelSifre] = useState('');
   const [personelYukleniyor, setPersonelYukleniyor] = useState(false);
   const [analitik, setAnalitik] = useState(null);
   const [analitikYukleniyor, setAnalitikYukleniyor] = useState(false);
@@ -125,12 +127,19 @@ function IsletmePanel({ kullanici, onCikis }) {
       const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/personel`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ad: yeniPersonelAd, unvan: yeniPersonelUnvan || 'Çalışan' })
+        body: JSON.stringify({
+          ad: yeniPersonelAd,
+          unvan: yeniPersonelUnvan || 'Çalışan',
+          kullaniciAdi: yeniPersonelKullaniciAdi,
+          sifre: yeniPersonelSifre
+        })
       });
       const veri = await cevap.json();
       setPersonelListesi(veri.personel);
       setYeniPersonelAd('');
       setYeniPersonelUnvan('');
+      setYeniPersonelKullaniciAdi('');
+      setYeniPersonelSifre('');
     } catch (err) { console.error(err); }
     setPersonelYukleniyor(false);
   };
@@ -909,6 +918,19 @@ function IsletmePanel({ kullanici, onCikis }) {
                 onChange={e => setYeniPersonelUnvan(e.target.value)}
                 style={{padding:'8px 12px', borderRadius:'8px', border:'1px solid #E2E8F0', fontSize:'14px', flex:1, minWidth:'140px'}}
               />
+              <input
+                placeholder="Kullanıcı adı (giriş için)"
+                value={yeniPersonelKullaniciAdi}
+                onChange={e => setYeniPersonelKullaniciAdi(e.target.value)}
+                style={{padding:'8px 12px', borderRadius:'8px', border:'1px solid #E2E8F0', fontSize:'14px', flex:1, minWidth:'140px'}}
+              />
+              <input
+                type="password"
+                placeholder="Şifre"
+                value={yeniPersonelSifre}
+                onChange={e => setYeniPersonelSifre(e.target.value)}
+                style={{padding:'8px 12px', borderRadius:'8px', border:'1px solid #E2E8F0', fontSize:'14px', flex:1, minWidth:'100px'}}
+              />
               <button onClick={personelEkle} disabled={personelYukleniyor}
                 style={{padding:'8px 16px', background:'#4F46E5', color:'white', border:'none', borderRadius:'8px', cursor:'pointer', fontWeight:'600'}}>
                 + Ekle
@@ -921,6 +943,11 @@ function IsletmePanel({ kullanici, onCikis }) {
                   <div>
                     <div style={{fontWeight:'600', fontSize:'14px'}}>👤 {p.ad}</div>
                     <div style={{fontSize:'12px', color:'#64748B'}}>{p.unvan}</div>
+                    {p.kullaniciAdi && (
+                      <div style={{fontSize:'11px', color:'#94A3B8', marginTop:'2px'}}>
+                        👤 {p.kullaniciAdi}
+                      </div>
+                    )}
                   </div>
                   <button onClick={() => personelSil(p._id)}
                     style={{padding:'6px 12px', background:'white', color:'#EF4444', border:'1px solid #EF4444', borderRadius:'8px', cursor:'pointer', fontSize:'13px'}}>

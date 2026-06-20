@@ -1,7 +1,7 @@
 import React from 'react';
 import { Home, Calendar, Gift, MapPin, Scissors, ShoppingBag, LogOut, Bell, Search, Heart, Settings, LayoutDashboard } from 'lucide-react';
 
-const Layout = ({ children, kullanici, onAnaSayfa, onIsletmePanel, onRandevularim, onSadakat, onYakinimda, onFavorilerim, onMarketplace, onAyarlar, onGirisYap, onKayitGit, onCikis, aktifSayfa }) => {
+const Layout = ({ children, kullanici, onAnaSayfa, onIsletmePanel, onRandevularim, onSadakat, onYakinimda, onFavorilerim, onMarketplace, onAyarlar, onGirisYap, onKayitGit, onCikis, onPersonelGiris, aktifSayfa }) => {
   return (
     <div className="layout-govde">
       <header className="layout-header">
@@ -31,6 +31,9 @@ const Layout = ({ children, kullanici, onAnaSayfa, onIsletmePanel, onRandevulari
             </div>
           ) : (
             <>
+              <button onClick={onPersonelGiris} style={{fontSize:'12px', color:'#94A3B8', background:'none', border:'none', cursor:'pointer', textDecoration:'underline'}}>
+                Personel Girişi
+              </button>
               <button className="layout-kayit-btn" onClick={onKayitGit}>Kayıt Ol</button>
               <button className="layout-giris-btn" onClick={onGirisYap}>Giriş Yap</button>
             </>
