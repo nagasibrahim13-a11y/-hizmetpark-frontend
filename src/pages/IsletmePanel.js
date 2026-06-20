@@ -33,6 +33,12 @@ function IsletmePanel({ kullanici, onCikis }) {
   const [musaitlikSaatler, setMusaitlikSaatler] = useState([]);
   const [musaitlikAciklama, setMusaitlikAciklama] = useState('');
   const [musaitlikBasari, setMusaitlikBasari] = useState('');
+  const [secilenPersonelIzin, setSecilenPersonelIzin] = useState(null);
+  const [izinTarih, setIzinTarih] = useState('');
+  const [izinTumGun, setIzinTumGun] = useState(true);
+  const [izinSaatler, setIzinSaatler] = useState([]);
+  const [izinAciklama, setIzinAciklama] = useState('');
+  const [izinBasari, setIzinBasari] = useState('');
   const [duzenleModuAcik, setDuzenleModuAcik] = useState(false);
   const [profilAnahtar, setProfilAnahtar] = useState(0);
   const [manuelModal, setManuelModal] = useState(false);
@@ -41,10 +47,14 @@ function IsletmePanel({ kullanici, onCikis }) {
   const [manuelHata, setManuelHata] = useState('');
   const [personelListesi, setPersonelListesi] = useState([]);
   const [personelFiltre, setPersonelFiltre] = useState('hepsi');
+  const [duzenlenenPersonelId, setDuzenlenenPersonelId] = useState(null);
   const [yeniPersonelAd, setYeniPersonelAd] = useState('');
   const [yeniPersonelUnvan, setYeniPersonelUnvan] = useState('');
+  const [yeniPersonelTelefon, setYeniPersonelTelefon] = useState('');
   const [yeniPersonelKullaniciAdi, setYeniPersonelKullaniciAdi] = useState('');
   const [yeniPersonelSifre, setYeniPersonelSifre] = useState('');
+  const [yeniPersonelGunler, setYeniPersonelGunler] = useState(['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi']);
+  const [yeniPersonelHizmetler, setYeniPersonelHizmetler] = useState([]);
   const [personelYukleniyor, setPersonelYukleniyor] = useState(false);
   const [analitik, setAnalitik] = useState(null);
   const [analitikYukleniyor, setAnalitikYukleniyor] = useState(false);
@@ -124,24 +134,43 @@ function IsletmePanel({ kullanici, onCikis }) {
     if (!yeniPersonelAd.trim()) return;
     setPersonelYukleniyor(true);
     try {
-      const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/personel`, {
-        method: 'POST',
+      const url = duzenlenenPersonelId
+        ? `http://localhost:5000/api/isletmeler/${isletme._id}/personel/${duzenlenenPersonelId}`
+        : `http://localhost:5000/api/isletmeler/${isletme._id}/personel`;
+      const method = duzenlenenPersonelId ? 'PUT' : 'POST';
+      const cevap = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ad: yeniPersonelAd,
           unvan: yeniPersonelUnvan || 'Çalışan',
+          telefon: yeniPersonelTelefon,
           kullaniciAdi: yeniPersonelKullaniciAdi,
-          sifre: yeniPersonelSifre
+          sifre: yeniPersonelSifre,
+          calismaGunleri: yeniPersonelGunler,
+          yetkiliHizmetler: yeniPersonelHizmetler
         })
       });
       const veri = await cevap.json();
       setPersonelListesi(veri.personel);
-      setYeniPersonelAd('');
-      setYeniPersonelUnvan('');
-      setYeniPersonelKullaniciAdi('');
-      setYeniPersonelSifre('');
+      setYeniPersonelAd(''); setYeniPersonelUnvan(''); setYeniPersonelTelefon('');
+      setYeniPersonelKullaniciAdi(''); setYeniPersonelSifre('');
+      setYeniPersonelGunler(['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi']);
+      setYeniPersonelHizmetler([]);
+      setDuzenlenenPersonelId(null);
     } catch (err) { console.error(err); }
     setPersonelYukleniyor(false);
+  };
+
+  const personelDuzenlemeyiBaslat = (p) => {
+    setDuzenlenenPersonelId(p._id);
+    setYeniPersonelAd(p.ad);
+    setYeniPersonelUnvan(p.unvan);
+    setYeniPersonelTelefon(p.telefon || '');
+    setYeniPersonelKullaniciAdi(p.kullaniciAdi || '');
+    setYeniPersonelSifre('');
+    setYeniPersonelGunler(p.calismaGunleri || ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi']);
+    setYeniPersonelHizmetler(p.yetkiliHizmetler || []);
   };
 
   const personelSil = async (personelId) => {
@@ -342,6 +371,29 @@ function IsletmePanel({ kullanici, onCikis }) {
           kapaliTarihler: prev.kapaliTarihler.filter(kt => kt._id !== tarihId)
         }));
       }
+    } catch (err) { console.error(err); }
+  };
+
+  const personelIzinEkle = async () => {
+    if (!secilenPersonelIzin || !izinTarih) { alert('Personel ve tarih seçin'); return; }
+    if (!izinTumGun && izinSaatler.length === 0) { alert('En az bir saat seçin veya tüm gün seçin'); return; }
+    try {
+      await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/personel/${secilenPersonelIzin}/izin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tarih: izinTarih, tumGun: izinTumGun, saatler: izinTumGun ? [] : izinSaatler, aciklama: izinAciklama })
+      });
+      setIzinBasari('İzin eklendi!');
+      setIzinTarih(''); setIzinAciklama(''); setIzinSaatler([]); setIzinTumGun(true);
+      setTimeout(() => setIzinBasari(''), 2000);
+      personelGetir();
+    } catch (err) { console.error(err); }
+  };
+
+  const personelIzinSil = async (personelId, izinId) => {
+    try {
+      await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/personel/${personelId}/izin/${izinId}`, { method: 'DELETE' });
+      personelGetir();
     } catch (err) { console.error(err); }
   };
 
@@ -898,6 +950,67 @@ function IsletmePanel({ kullanici, onCikis }) {
                 </div>
               ))
             )}
+
+            <div style={{marginTop:'32px', paddingTop:'24px', borderTop:'2px solid #F1F5F9'}}>
+              <h3 style={{marginBottom:'16px'}}>👤 Personel İzin Yönetimi</h3>
+
+              <div style={{marginBottom:'12px'}}>
+                <label style={{fontSize:'12px', fontWeight:'600', color:'#374151', display:'block', marginBottom:'6px'}}>Personel Seç</label>
+                <select value={secilenPersonelIzin || ''} onChange={e => setSecilenPersonelIzin(e.target.value)}
+                  style={{width:'100%', padding:'10px 14px', borderRadius:'10px', border:'1px solid #E2E8F0', fontSize:'14px'}}>
+                  <option value="">Personel seçin...</option>
+                  {personelListesi.map(p => (
+                    <option key={p._id} value={p._id}>{p.ad} — {p.unvan}</option>
+                  ))}
+                </select>
+              </div>
+
+              {secilenPersonelIzin && (
+                <>
+                  <div style={{display:'flex', gap:'10px', marginBottom:'12px', flexWrap:'wrap'}}>
+                    <input type="date" value={izinTarih} onChange={e => setIzinTarih(e.target.value)}
+                      style={{flex:1, minWidth:'160px', padding:'10px 14px', borderRadius:'10px', border:'1px solid #E2E8F0', fontSize:'14px'}} />
+                    <input placeholder="Açıklama (opsiyonel)" value={izinAciklama} onChange={e => setIzinAciklama(e.target.value)}
+                      style={{flex:1, minWidth:'160px', padding:'10px 14px', borderRadius:'10px', border:'1px solid #E2E8F0', fontSize:'14px'}} />
+                  </div>
+
+                  <label style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'12px', fontSize:'14px'}}>
+                    <input type="checkbox" checked={izinTumGun} onChange={e => setIzinTumGun(e.target.checked)} />
+                    Tüm gün izinli
+                  </label>
+
+                  {!izinTumGun && (
+                    <div style={{display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'8px', marginBottom:'12px'}}>
+                      {saatler.map(s => (
+                        <label key={s} style={{display:'flex', alignItems:'center', gap:'4px', fontSize:'13px'}}>
+                          <input type="checkbox" checked={izinSaatler.includes(s)}
+                            onChange={() => setIzinSaatler(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])} />
+                          {s}
+                        </label>
+                      ))}
+                    </div>
+                  )}
+
+                  {izinBasari && <div style={{background:'#D1FAE5', color:'#065F46', padding:'10px', borderRadius:'8px', fontSize:'13px', marginBottom:'12px'}}>✓ {izinBasari}</div>}
+
+                  <button onClick={personelIzinEkle} style={{padding:'10px 24px', background:'#4F46E5', color:'white', border:'none', borderRadius:'10px', fontWeight:'600', cursor:'pointer'}}>
+                    + İzin Ekle
+                  </button>
+
+                  <div style={{marginTop:'20px'}}>
+                    {personelListesi.find(p => p._id === secilenPersonelIzin)?.izinTarihleri?.map(izin => (
+                      <div key={izin._id} style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 14px', background:'#F8FAFC', borderRadius:'10px', marginBottom:'8px'}}>
+                        <div>
+                          <div style={{fontWeight:'600', fontSize:'13px'}}>{new Date(izin.tarih).toLocaleDateString('tr-TR')}</div>
+                          <div style={{fontSize:'12px', color:'#64748B'}}>{izin.tumGun ? 'Tüm gün' : izin.saatler.join(', ')} {izin.aciklama && `· ${izin.aciklama}`}</div>
+                        </div>
+                        <button onClick={() => personelIzinSil(secilenPersonelIzin, izin._id)} style={{padding:'4px 10px', background:'white', color:'#EF4444', border:'1px solid #EF4444', borderRadius:'6px', cursor:'pointer', fontSize:'12px'}}>Sil</button>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         )}
 
@@ -919,6 +1032,12 @@ function IsletmePanel({ kullanici, onCikis }) {
                 style={{padding:'8px 12px', borderRadius:'8px', border:'1px solid #E2E8F0', fontSize:'14px', flex:1, minWidth:'140px'}}
               />
               <input
+                placeholder="Telefon"
+                value={yeniPersonelTelefon}
+                onChange={e => setYeniPersonelTelefon(e.target.value)}
+                style={{padding:'8px 12px', borderRadius:'8px', border:'1px solid #E2E8F0', fontSize:'14px', flex:1, minWidth:'140px'}}
+              />
+              <input
                 placeholder="Kullanıcı adı (giriş için)"
                 value={yeniPersonelKullaniciAdi}
                 onChange={e => setYeniPersonelKullaniciAdi(e.target.value)}
@@ -933,8 +1052,73 @@ function IsletmePanel({ kullanici, onCikis }) {
               />
               <button onClick={personelEkle} disabled={personelYukleniyor}
                 style={{padding:'8px 16px', background:'#4F46E5', color:'white', border:'none', borderRadius:'8px', cursor:'pointer', fontWeight:'600'}}>
-                + Ekle
+                {duzenlenenPersonelId ? 'Güncelle' : '+ Ekle'}
               </button>
+              {duzenlenenPersonelId && (
+                <button onClick={() => {
+                  setDuzenlenenPersonelId(null);
+                  setYeniPersonelAd(''); setYeniPersonelUnvan(''); setYeniPersonelTelefon('');
+                  setYeniPersonelKullaniciAdi(''); setYeniPersonelSifre('');
+                  setYeniPersonelGunler(['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi']);
+                  setYeniPersonelHizmetler([]);
+                }} style={{padding:'8px 16px', background:'white', color:'#64748B', border:'1px solid #E2E8F0', borderRadius:'8px', cursor:'pointer'}}>
+                  İptal
+                </button>
+              )}
+            </div>
+            <div style={{marginTop:'10px', marginBottom:'10px'}}>
+              <label style={{fontSize:'12px', fontWeight:'600', color:'#374151', display:'block', marginBottom:'6px'}}>Çalışma Günleri</label>
+              <div style={{display:'flex', gap:'6px', flexWrap:'wrap'}}>
+                {['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'].map(gun => {
+                  const secili = yeniPersonelGunler.includes(gun);
+                  return (
+                    <button
+                      key={gun}
+                      type="button"
+                      onClick={() => {
+                        setYeniPersonelGunler(prev => prev.includes(gun) ? prev.filter(g => g !== gun) : [...prev, gun]);
+                      }}
+                      style={{
+                        padding:'6px 12px', borderRadius:'20px',
+                        border: secili ? 'none' : '1px solid #E2E8F0',
+                        background: secili ? '#4F46E5' : 'white',
+                        color: secili ? 'white' : '#374151',
+                        fontSize:'13px', cursor:'pointer'
+                      }}
+                    >
+                      {gun.slice(0,3)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div style={{marginTop:'10px', marginBottom:'10px'}}>
+              <label style={{fontSize:'12px', fontWeight:'600', color:'#374151', display:'block', marginBottom:'6px'}}>
+                Verebileceği Hizmetler (boş bırakılırsa tüm hizmetleri verebilir)
+              </label>
+              <div style={{display:'flex', gap:'6px', flexWrap:'wrap'}}>
+                {isletme?.hizmetler?.map(h => {
+                  const secili = yeniPersonelHizmetler.includes(h.ad);
+                  return (
+                    <button
+                      key={h.ad}
+                      type="button"
+                      onClick={() => {
+                        setYeniPersonelHizmetler(prev => prev.includes(h.ad) ? prev.filter(x => x !== h.ad) : [...prev, h.ad]);
+                      }}
+                      style={{
+                        padding:'6px 12px', borderRadius:'20px',
+                        border: secili ? 'none' : '1px solid #E2E8F0',
+                        background: secili ? '#10B981' : 'white',
+                        color: secili ? 'white' : '#374151',
+                        fontSize:'13px', cursor:'pointer'
+                      }}
+                    >
+                      {h.ad}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             <div style={{display:'flex', flexDirection:'column', gap:'8px'}}>
               {personelListesi.length === 0 && <p style={{color:'#94A3B8'}}>Henüz personel eklenmemiş.</p>}
@@ -943,16 +1127,32 @@ function IsletmePanel({ kullanici, onCikis }) {
                   <div>
                     <div style={{fontWeight:'600', fontSize:'14px'}}>👤 {p.ad}</div>
                     <div style={{fontSize:'12px', color:'#64748B'}}>{p.unvan}</div>
+                    {p.telefon && (
+                      <div style={{fontSize:'11px', color:'#94A3B8', marginTop:'2px'}}>
+                        📞 {p.telefon}
+                      </div>
+                    )}
                     {p.kullaniciAdi && (
                       <div style={{fontSize:'11px', color:'#94A3B8', marginTop:'2px'}}>
                         👤 {p.kullaniciAdi}
                       </div>
                     )}
+                    {p.yetkiliHizmetler && p.yetkiliHizmetler.length > 0 && (
+                      <div style={{fontSize:'11px', color:'#10B981', marginTop:'4px'}}>
+                        ✓ {p.yetkiliHizmetler.join(', ')}
+                      </div>
+                    )}
                   </div>
-                  <button onClick={() => personelSil(p._id)}
-                    style={{padding:'6px 12px', background:'white', color:'#EF4444', border:'1px solid #EF4444', borderRadius:'8px', cursor:'pointer', fontSize:'13px'}}>
-                    Sil
-                  </button>
+                  <div style={{display:'flex', gap:'6px'}}>
+                    <button onClick={() => personelDuzenlemeyiBaslat(p)}
+                      style={{padding:'6px 12px', background:'white', color:'#4F46E5', border:'1px solid #4F46E5', borderRadius:'8px', cursor:'pointer', fontSize:'13px', marginRight:'8px'}}>
+                      Düzenle
+                    </button>
+                    <button onClick={() => personelSil(p._id)}
+                      style={{padding:'6px 12px', background:'white', color:'#EF4444', border:'1px solid #EF4444', borderRadius:'8px', cursor:'pointer', fontSize:'13px'}}>
+                      Sil
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

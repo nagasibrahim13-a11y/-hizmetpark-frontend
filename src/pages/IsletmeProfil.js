@@ -482,25 +482,45 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData, isOw
                   })}
                 </div>
 
-                {personelListesi.length > 0 && (
-                  <div style={{marginTop:'16px'}}>
-                    <div style={{fontWeight:'600', fontSize:'14px', marginBottom:'8px'}}>👤 Personel Seçin (İsteğe bağlı)</div>
-                    <div style={{display:'flex', gap:'8px', flexWrap:'wrap'}}>
-                      <button
-                        onClick={() => setSecilenPersonel(null)}
-                        style={{padding:'8px 14px', borderRadius:'20px', border: secilenPersonel === null ? 'none' : '1px solid #E2E8F0', background: secilenPersonel === null ? '#4F46E5' : 'white', color: secilenPersonel === null ? 'white' : '#374151', fontSize:'13px', cursor:'pointer'}}>
-                        Fark etmez
-                      </button>
-                      {personelListesi.map(p => (
-                        <button key={p._id}
-                          onClick={() => setSecilenPersonel(p._id)}
-                          style={{padding:'8px 14px', borderRadius:'20px', border: secilenPersonel === p._id ? 'none' : '1px solid #E2E8F0', background: secilenPersonel === p._id ? '#4F46E5' : 'white', color: secilenPersonel === p._id ? 'white' : '#374151', fontSize:'13px', cursor:'pointer'}}>
-                          {p.ad} — {p.unvan}
+                {personelListesi.length > 0 && (() => {
+                  const secilenHizmetAdlari = secilenHizmetler.map(h => h.ad);
+                  const uygunPersoneller = personelListesi.filter(p => {
+                    if (!p.yetkiliHizmetler || p.yetkiliHizmetler.length === 0) return true;
+                    return secilenHizmetAdlari.every(ad => p.yetkiliHizmetler.includes(ad));
+                  });
+
+                  if (uygunPersoneller.length === 0) return null;
+
+                  return (
+                    <div style={{marginTop:'16px'}}>
+                      <div style={{fontWeight:'600', fontSize:'14px', marginBottom:'8px'}}>👤 Personel Seçin (İsteğe bağlı)</div>
+                      <div style={{display:'flex', gap:'8px', flexWrap:'wrap'}}>
+                        <button
+                          onClick={() => setSecilenPersonel(null)}
+                          style={{padding:'8px 14px', borderRadius:'20px', border: secilenPersonel === null ? 'none' : '1px solid #E2E8F0', background: secilenPersonel === null ? '#4F46E5' : 'white', color: secilenPersonel === null ? 'white' : '#374151', fontSize:'13px', cursor:'pointer'}}>
+                          Fark etmez
                         </button>
-                      ))}
+                        {uygunPersoneller.map(p => (
+                          <button key={p._id}
+                            onClick={() => setSecilenPersonel(p._id)}
+                            style={{padding:'8px 14px', borderRadius:'20px', border: secilenPersonel === p._id ? 'none' : '1px solid #E2E8F0', background: secilenPersonel === p._id ? '#4F46E5' : 'white', color: secilenPersonel === p._id ? 'white' : '#374151', fontSize:'13px', cursor:'pointer'}}>
+                            {p.ad} — {p.unvan}
+                          </button>
+                        ))}
+                      </div>
+                      {secilenPersonel && (() => {
+                        const seciliP = uygunPersoneller.find(p => p._id === secilenPersonel);
+                        if (!seciliP) return null;
+                        const gunKisalt = { 'Pazartesi':'Pzt','Salı':'Sal','Çarşamba':'Çar','Perşembe':'Per','Cuma':'Cum','Cumartesi':'Cmt','Pazar':'Paz' };
+                        return (
+                          <div style={{fontSize:'12px', color:'#64748B', marginTop:'8px'}}>
+                            Çalışma günleri: {seciliP.calismaGunleri?.map(g => gunKisalt[g]).join(', ')}
+                          </div>
+                        );
+                      })()}
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {secilenHizmetler.length > 0 && secilenSaat && (
                   <div style={{display:'flex', justifyContent:'space-between', background:'#F8FAFC', borderRadius:'12px', padding:'12px 16px', marginTop:'16px', marginBottom:'10px'}}>
