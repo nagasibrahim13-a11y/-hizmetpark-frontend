@@ -1,0 +1,61 @@
+- generic [ref=e115]:
+  - banner [ref=e116]:
+    - generic [ref=e117] [cursor=pointer]:
+      - img [ref=e118]
+      - generic [ref=e120]: HizmetPark
+    - generic [ref=e121]:
+      - img [ref=e122]
+      - textbox "Berber, hizmet veya ürün ara..." [ref=e125]
+    - generic [ref=e126]:
+      - button "2" [ref=e127] [cursor=pointer]:
+        - img [ref=e128]
+        - generic [ref=e131]: "2"
+      - generic [ref=e132] [cursor=pointer]:
+        - generic [ref=e133]: İ
+        - generic [ref=e134]: İbrahim
+  - generic [ref=e135]:
+    - generic [ref=e136]:
+      - generic [ref=e137] [cursor=pointer]:
+        - img [ref=e138]
+        - generic [ref=e141]: Ana Sayfa
+      - generic [ref=e142] [cursor=pointer]:
+        - img [ref=e143]
+        - generic [ref=e145]: Randevularım
+      - generic [ref=e146] [cursor=pointer]:
+        - img [ref=e147]
+        - generic [ref=e151]: Sadakat Programı
+      - generic [ref=e152] [cursor=pointer]:
+        - img [ref=e153]
+        - generic [ref=e156]: Yakınımdaki İşletmeler
+      - generic [ref=e157] [cursor=pointer]:
+        - img [ref=e158]
+        - generic [ref=e160]: Favorilerim
+      - generic [ref=e161] [cursor=pointer]:
+        - img [ref=e162]
+        - generic [ref=e165]: Marketplace
+      - generic [ref=e166] [cursor=pointer]:
+        - img [ref=e167]
+        - generic [ref=e170]: Ayarlar
+      - generic [ref=e171] [cursor=pointer]:
+        - img [ref=e172]
+        - generic [ref=e175]: Çıkış Yap
+    - generic [ref=e177]:
+      - heading "Ayarlar" [level=2] [ref=e178]
+      - paragraph [ref=e179]: Profil bilgilerini düzenle
+      - generic [ref=e180]:
+        - generic [ref=e181]:
+          - generic [ref=e183]: İ
+          - generic [ref=e184]:
+            - generic [ref=e185] [cursor=pointer]: 📷 Fotoğraf Yükle
+            - generic [ref=e186]: Max 2MB
+        - generic [ref=e187]:
+          - generic [ref=e188]:
+            - generic [ref=e189]: AD
+            - textbox [ref=e190]: İbrahim
+          - generic [ref=e191]:
+            - generic [ref=e192]: SOYAD
+            - textbox [ref=e193]
+        - generic [ref=e194]:
+          - generic [ref=e195]: TELEFON
+          - textbox [ref=e196]
+        - button "Kaydet" [ref=e197] [cursor=pointer]

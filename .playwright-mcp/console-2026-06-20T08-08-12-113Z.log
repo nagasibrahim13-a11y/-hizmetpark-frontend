@@ -1,0 +1,9 @@
+[     379ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/static/js/bundle.js:42578
+[    3063ms] [WARNING] [GSI_LOGGER]: google.accounts.id.initialize() is called multiple times. This could cause unexpected behavior and only the last initialized instance will be used. @ https://accounts.google.com/gsi/client:86
+[    3150ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3000/:0
+[    3291ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://accounts.google.com/gsi/button?type=standard&theme=outline&size=large&text=signin_with&shape=undefined&logo_alignment=undefined&width=undefined&locale=undefined&click_listener=undefined&is_fedcm_supported=true&client_id=439731124916-6imggphqs1tooat7nck3mpirfsctn4vk.apps.googleusercontent.com&iframe_id=gsi_895178_71660&cas=m7tKu0iuhv5%2BTgzZlKjf4J%2BqAtUR2h4AtaN3BdFNpmE:0
+[    3486ms] [ERROR] [GSI_LOGGER]: The given origin is not allowed for the given client ID. @ https://ssl.gstatic.com/_/gsi/_/js/k=gsi.gsi.tr.fH_MX1qYPwc.O/am=AAAAABIEMCUE/d=1/rs=AF0KOtXVF0rg_KhSFHF7h9Er8kgtI7amoQ/m=credential_button_library:87
+[  192585ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5000/api/kullanicilar/6a30dd48adc425552e5f9613:0
+[  192586ms] [ERROR] SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON @ http://localhost:3000/static/js/bundle.js:2038
+[  277232ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5000/api/kullanicilar/6a30dd48adc425552e5f9613:0
+[  277232ms] [ERROR] SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON @ http://localhost:3000/static/js/bundle.js:2038

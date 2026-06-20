@@ -230,7 +230,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
       if (!cevap.ok) {
         setRandevuHata(veri.hata);
       } else {
-        setRandevuBasari(`Randevu talebiniz alındı! ${secilenSaat} - ${toplamSure} dk. İşletmenin onayını bekliyor.`);
+        setRandevuBasari(`✅ Randevunuz onaylandı! ${secilenSaat} - ${toplamSure} dk. Sizi bekliyoruz!`);
         setTimeout(() => {
           setRandevuModal(false);
           setRandevuBasari('');
@@ -639,7 +639,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
 
                   <div className="calisma-saati">🕐 {isletme.calismaBaslangic} - {isletme.calismaBitis}</div>
 
-                  <button className="btn-primary" style={{ marginTop: '14px' }} onClick={e => modalAc(isletme, e)}>
+                  <button className="btn-primary" style={{ marginTop: '14px' }} onClick={(e) => { e.stopPropagation(); onProfilAc(isletme._id); }}>
                     Randevu Al
                   </button>
                   <button className="btn-secondary" style={{ marginTop: '8px' }} onClick={e => yorumModalAc(isletme, e)}>

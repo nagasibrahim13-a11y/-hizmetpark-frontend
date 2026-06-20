@@ -171,13 +171,12 @@ function IsletmePanel({ kullanici, onCikis }) {
     } catch (err) { console.error(err); }
   };
 
-  const durumGuncelle = async (randevuId, durum) => {
+  const durumGuncelle = async (id, durum) => {
     try {
-      await fetch(`http://localhost:5000/api/randevular/${randevuId}/durum`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ durum })
-      });
+      const endpoint = durum === 'iptal'
+        ? `http://localhost:5000/api/randevular/${id}/iptal`
+        : `http://localhost:5000/api/randevular/${id}/durum`;
+      await fetch(endpoint, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: durum === 'iptal' ? undefined : JSON.stringify({ durum }) });
       randevulariGetir(isletme._id);
     } catch (err) { console.error(err); }
   };
@@ -388,9 +387,9 @@ function IsletmePanel({ kullanici, onCikis }) {
 
   const durumLabel = (durum) => {
     if (durum === 'onaylandi') return '✅ Onaylandı';
-    if (durum === 'reddedildi') return '❌ Reddedildi';
     if (durum === 'tamamlandi') return '🏁 Tamamlandı';
-    return '⏳ Bekliyor';
+    if (durum === 'iptal') return '🚫 İptal Edildi';
+    return durum;
   };
 
   const kategoriEmoji = (kat) => {
@@ -432,8 +431,8 @@ function IsletmePanel({ kullanici, onCikis }) {
         </div>
         <div className="metrik-kart">
           <div className="metrik-ikon"><Hourglass size={24} color="#EF4444" /></div>
-          <div className="metrik-sayi">{randevular.filter(r => r.durum === 'bekliyor').length}</div>
-          <div className="metrik-label">Bekleyen</div>
+          <div className="metrik-sayi">{randevular.filter(r => r.durum === 'iptal').length}</div>
+          <div className="metrik-label">İptal Edilen</div>
         </div>
         <div className="metrik-kart">
           <div className="metrik-ikon"><Star size={24} color="#F59E0B" /></div>
@@ -521,13 +520,13 @@ function IsletmePanel({ kullanici, onCikis }) {
                     </div>
                     <div className="randevu-sag">
                       <span className="durum-badge" style={{ background: stil.bg, color: stil.color, border: `1px solid ${stil.border}` }}>{durumLabel(r.durum)}</span>
-                      {r.durum === 'bekliyor' && (
-                        <div className="aksiyon-butonlar">
-                          <button className="onayla-btn" onClick={() => durumGuncelle(r._id, 'onaylandi')}>Onayla</button>
-                          <button className="reddet-btn" onClick={() => durumGuncelle(r._id, 'reddedildi')}>Reddet</button>
-                        </div>
+                      {r.durum === 'onaylandi' && (
+                        <button
+                          onClick={() => { if (window.confirm('Bu randevuyu iptal etmek istediğinize emin misiniz?')) durumGuncelle(r._id, 'iptal'); }}
+                          style={{ padding: '6px 14px', background: 'white', color: '#EF4444', border: '1px solid #EF4444', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
+                          İptal Et
+                        </button>
                       )}
-                      {r.durum === 'onaylandi' && <button className="tamamla-btn" onClick={() => durumGuncelle(r._id, 'tamamlandi')}>Tamamlandı</button>}
                     </div>
                   </div>
                 );

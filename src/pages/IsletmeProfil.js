@@ -140,7 +140,7 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData, isOw
       } else {
         setRandevuBasari(hediyeliRandevuData
           ? `🎁 Hediye randevunuz oluşturuldu! ${secilenSaat} — Ücretsiz!`
-          : `Randevu talebiniz alındı! ${secilenSaat} - ${toplamSure} dk. İşletmenin onayını bekliyor.`
+          : `✅ Randevunuz onaylandı! ${secilenSaat} - ${toplamSure} dk. Sizi bekliyoruz!`
         );
         setTimeout(() => {
           setRandevuModal(false);

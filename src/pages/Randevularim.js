@@ -31,9 +31,9 @@ function Randevularim({ kullanici, onGeri }) {
 
   const durumLabel = (durum) => {
     if (durum === 'onaylandi') return '✅ Onaylandı';
-    if (durum === 'reddedildi') return '❌ Reddedildi';
     if (durum === 'tamamlandi') return '🏁 Tamamlandı';
-    return '⏳ Bekliyor';
+    if (durum === 'iptal') return '🚫 İptal Edildi';
+    return durum;
   };
 
   const kategoriEmoji = (isletme) => {
@@ -46,10 +46,9 @@ function Randevularim({ kullanici, onGeri }) {
 
   const filtreler = [
     { deger: 'hepsi', label: 'Hepsi' },
-    { deger: 'bekliyor', label: '⏳ Bekleyen' },
     { deger: 'onaylandi', label: '✅ Onaylanan' },
     { deger: 'tamamlandi', label: '🏁 Tamamlanan' },
-    { deger: 'reddedildi', label: '❌ Reddedilen' },
+    { deger: 'iptal', label: '🚫 İptal Edilen' },
   ];
 
   const filtreliRandevular = aktifFiltre === 'hepsi'
@@ -71,12 +70,6 @@ function Randevularim({ kullanici, onGeri }) {
             <div className="istat-label">Toplam</div>
           </div>
           <div className="istat-kart">
-            <div className="istat-sayi" style={{ color: '#F59E0B' }}>
-              {randevular.filter(r => r.durum === 'bekliyor').length}
-            </div>
-            <div className="istat-label">Bekleyen</div>
-          </div>
-          <div className="istat-kart">
             <div className="istat-sayi" style={{ color: '#4F46E5' }}>
               {randevular.filter(r => r.durum === 'onaylandi').length}
             </div>
@@ -90,9 +83,9 @@ function Randevularim({ kullanici, onGeri }) {
           </div>
           <div className="istat-kart">
             <div className="istat-sayi" style={{ color: '#EF4444' }}>
-              {randevular.filter(r => r.durum === 'reddedildi').length}
+              {randevular.filter(r => r.durum === 'iptal').length}
             </div>
-            <div className="istat-label">Reddedilen</div>
+            <div className="istat-label">İptal Edilen</div>
           </div>
         </div>
 
@@ -166,6 +159,19 @@ function Randevularim({ kullanici, onGeri }) {
                     >
                       {durumLabel(r.durum)}
                     </span>
+                    {r.durum === 'onaylandi' && (
+                      <button
+                        onClick={async () => {
+                          if (!window.confirm('Randevunuzu iptal etmek istediğinize emin misiniz?')) return;
+                          try {
+                            await fetch(`http://localhost:5000/api/randevular/${r._id}/iptal`, { method: 'PUT' });
+                            randevulariGetir();
+                          } catch (err) { console.error(err); }
+                        }}
+                        style={{ padding: '6px 14px', background: 'white', color: '#EF4444', border: '1px solid #EF4444', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '600', marginTop: '8px' }}>
+                        İptal Et
+                      </button>
+                    )}
                   </div>
                 </div>
               );

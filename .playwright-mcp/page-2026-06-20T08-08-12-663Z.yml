@@ -1,0 +1,97 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e6] [cursor=pointer]:
+      - img [ref=e7]
+      - generic [ref=e9]: HizmetPark
+    - generic [ref=e10]:
+      - img [ref=e11]
+      - textbox "Berber, hizmet veya ürün ara..." [ref=e14]
+    - generic [ref=e15]:
+      - button "2" [ref=e16] [cursor=pointer]:
+        - img [ref=e17]
+        - generic [ref=e20]: "2"
+      - button "Kayıt Ol" [ref=e21] [cursor=pointer]
+      - button "Giriş Yap" [ref=e22] [cursor=pointer]
+  - generic [ref=e23]:
+    - generic [ref=e24]:
+      - generic [ref=e25] [cursor=pointer]:
+        - img [ref=e26]
+        - generic [ref=e29]: Ana Sayfa
+      - generic [ref=e30] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e33]: Randevularım
+      - generic [ref=e34] [cursor=pointer]:
+        - img [ref=e35]
+        - generic [ref=e39]: Sadakat Programı
+      - generic [ref=e40] [cursor=pointer]:
+        - img [ref=e41]
+        - generic [ref=e44]: Yakınımdaki İşletmeler
+      - generic [ref=e45] [cursor=pointer]:
+        - img [ref=e46]
+        - generic [ref=e48]: Favorilerim
+      - generic [ref=e49] [cursor=pointer]:
+        - img [ref=e50]
+        - generic [ref=e53]: Marketplace
+    - generic [ref=e55]:
+      - button "📍 Yakınımdaki İşletmeleri Göster" [ref=e57] [cursor=pointer]
+      - generic [ref=e58]:
+        - generic [ref=e59]:
+          - button "🏪 Tümü" [ref=e60] [cursor=pointer]
+          - button "✂️ Berber" [ref=e61] [cursor=pointer]
+          - button "💅 Kuaför" [ref=e62] [cursor=pointer]
+          - button "💆 Güzellik" [ref=e63] [cursor=pointer]
+          - button "⚽ Halısaha" [ref=e64] [cursor=pointer]
+        - generic [ref=e65]:
+          - combobox [ref=e66] [cursor=pointer]:
+            - option "📍 Tüm Şehirler" [selected]
+          - combobox [ref=e67] [cursor=pointer]:
+            - option "🔀 Varsayılan" [selected]
+            - option "⭐ En Yüksek Puan"
+            - option "💬 En Çok Yorum"
+            - option "🔤 İsme Göre (A-Z)"
+      - generic [ref=e69]: 0 işletme bulundu
+      - generic [ref=e70]: Yükleniyor...
+      - generic [ref=e71]:
+        - generic [ref=e72]: ⚡ Öne Çıkan Fırsatlar
+        - generic [ref=e73]: Şu an fırsat yok
+        - generic [ref=e74]:
+          - generic [ref=e75]: 📅 20 Haziran 2026
+          - generic [ref=e76]: 11:08
+          - generic [ref=e77]:
+            - generic [ref=e78]: Pt
+            - generic [ref=e79]: Sa
+            - generic [ref=e80]: Ça
+            - generic [ref=e81]: Pe
+            - generic [ref=e82]: Cu
+            - generic [ref=e83]: Ct
+            - generic [ref=e84]: Pa
+            - generic [ref=e85]: "1"
+            - generic [ref=e86]: "2"
+            - generic [ref=e87]: "3"
+            - generic [ref=e88]: "4"
+            - generic [ref=e89]: "5"
+            - generic [ref=e90]: "6"
+            - generic [ref=e91]: "7"
+            - generic [ref=e92]: "8"
+            - generic [ref=e93]: "9"
+            - generic [ref=e94]: "10"
+            - generic [ref=e95]: "11"
+            - generic [ref=e96]: "12"
+            - generic [ref=e97]: "13"
+            - generic [ref=e98]: "14"
+            - generic [ref=e99]: "15"
+            - generic [ref=e100]: "16"
+            - generic [ref=e101]: "17"
+            - generic [ref=e102]: "18"
+            - generic [ref=e103]: "19"
+            - generic [ref=e104]: "20"
+            - generic [ref=e105]: "21"
+            - generic [ref=e106]: "22"
+            - generic [ref=e107]: "23"
+            - generic [ref=e108]: "24"
+            - generic [ref=e109]: "25"
+            - generic [ref=e110]: "26"
+            - generic [ref=e111]: "27"
+            - generic [ref=e112]: "28"
+            - generic [ref=e113]: "29"
+            - generic [ref=e114]: "30"
