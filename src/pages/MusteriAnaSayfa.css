@@ -172,6 +172,11 @@
   animation: dropDown 0.15s ease;
 }
 
+@keyframes firsatFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes dropDown {
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: translateY(0); }

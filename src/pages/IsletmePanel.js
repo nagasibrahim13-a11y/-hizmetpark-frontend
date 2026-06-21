@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
-import { Calendar, Gift, Scissors, Megaphone, Store, CalendarDays, Users, Crown, BarChart3, Sun, Hourglass, Star } from 'lucide-react';
+import { Calendar, Gift, Scissors, Megaphone, Store, CalendarDays, Users, Crown, BarChart3, Sun, Hourglass, Star, UserCheck, FileText, TrendingUp, Lock } from 'lucide-react';
 import IsletmeProfil from './IsletmeProfil';
 import './IsletmePanel.css';
 
-function IsletmePanel({ kullanici, onCikis }) {
+function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
   const [randevular, setRandevular] = useState([]);
   const [isletme, setIsletme] = useState(null);
   const [aktifSekme, setAktifSekme] = useState('randevular');
@@ -123,6 +123,7 @@ function IsletmePanel({ kullanici, onCikis }) {
       const benim = veri.find(i => i.sahip._id === kullanici.id || i.sahip === kullanici.id);
       if (benim) {
         setIsletme(benim);
+        if (onIsletmeYuklendi) onIsletmeYuklendi(benim._id);
         setProfilForm({
           isletmeAdi: benim.isletmeAdi,
           telefon: benim.telefon || '',
@@ -725,7 +726,7 @@ function IsletmePanel({ kullanici, onCikis }) {
           )}
           {isletme?.premium?.aktif && (
             <button className={`sekme-btn ${aktifSekme === 'segmentAnalizi' ? 'aktif' : ''}`} onClick={() => setAktifSekme('segmentAnalizi')}>
-              <Users size={16} /> Segment Analizi
+              <Users size={16} /> Müşteri Analizi
             </button>
           )}
         </div>
@@ -1399,36 +1400,36 @@ function IsletmePanel({ kullanici, onCikis }) {
           <div className="sekme-icerik">
             {isletme?.premium?.aktif ? (
               <div>
-                <div style={{background:'linear-gradient(135deg,#4F46E5,#7C3AED)', borderRadius:'16px', padding:'24px', color:'white', marginBottom:'24px'}}>
-                  <div style={{fontSize:'28px', marginBottom:'4px'}}>👑 Premium Aktif</div>
-                  <div style={{opacity:0.85, fontSize:'14px'}}>Paket: {isletme.premium.paket === 'yillik' ? 'Yıllık' : 'Aylık'}</div>
-                  <div style={{opacity:0.85, fontSize:'14px'}}>Bitiş: {new Date(isletme.premium.bitis).toLocaleDateString('tr-TR')}</div>
+                <div style={{background:'linear-gradient(135deg,#4F46E5,#7C3AED)', borderRadius:'16px', padding:'24px', color:'white', marginBottom:'24px', display:'flex', alignItems:'center', gap:'12px'}}>
+                  <Crown size={28} />
+                  <div>
+                    <div style={{fontSize:'20px', fontWeight:'800'}}>Premium Aktif</div>
+                    <div style={{opacity:0.85, fontSize:'13px'}}>Paket: {isletme.premium.paket === 'yillik' ? 'Yıllık' : 'Aylık'} · Bitiş: {new Date(isletme.premium.bitis).toLocaleDateString('tr-TR')}</div>
+                  </div>
                 </div>
                 <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px'}}>
-                  <div
-                    key="analitik"
-                    onClick={() => setAktifSekme('analitik')}
-                    style={{background:'#F8FAFC', borderRadius:'12px', padding:'16px', border:'1px solid #E2E8F0', cursor:'pointer', transition:'box-shadow 0.2s'}}
-                    onMouseEnter={e => e.currentTarget.style.boxShadow='0 4px 12px rgba(79,70,229,0.15)'}
-                    onMouseLeave={e => e.currentTarget.style.boxShadow='none'}
-                  >
-                    <div style={{fontSize:'24px', marginBottom:'6px'}}>📊</div>
-                    <div style={{fontWeight:'600', fontSize:'14px', marginBottom:'4px'}}>Analitik Dashboard</div>
-                    <div style={{fontSize:'12px', color:'#64748B'}}>Ciro, müşteri ve randevu istatistikleri</div>
-                    <div style={{marginTop:'8px', fontSize:'12px', color:'#10B981', fontWeight:'600'}}>✓ Aç →</div>
-                  </div>
                   {[
-                    {ikon:'👑', baslik:'VIP Müşteri Sistemi', aciklama:'Özel hediye ve indirimler'},
-                    {ikon:'🎨', baslik:'Yoğunluk Göstergesi', aciklama:'Takvimde dolu/boş saat renkleri'},
-                    {ikon:'⭐', baslik:'Öne Çıkma', aciklama:'Anasayfada üst sırada görün'},
-                    {ikon:'🎁', baslik:'Gelişmiş Hediyeler', aciklama:'VIP müşterilere özel ödüller'},
-                    {ikon:'📈', baslik:'Segment Analizi', aciklama:'Müşteri segmentlerini görüntüle'},
+                    {Ikon: BarChart3, baslik:'Performans Analizi', aciklama:'Ciro, gider ve net karını anlık takip et', sekme:'analitik'},
+                    {Ikon: UserCheck, baslik:'Personel Performans Takibi', aciklama:'Her çalışanın randevu ve cirosunu gör', sekme:'analitik'},
+                    {Ikon: FileText, baslik:'Raporlar', aciklama:'Tek tıkla PDF finansal rapor indir', sekme:'analitik'},
+                    {Ikon: Crown, baslik:'VIP Müşteri', aciklama:'Sadık müşterilerini otomatik öne çıkar', sekme:'sadakat'},
+                    {Ikon: Star, baslik:'Öne Çıkma', aciklama:'Anasayfada en üst sırada görün', sekme:null},
+                    {Ikon: TrendingUp, baslik:'Müşteri Analizi', aciklama:'Segmentlere göre ciro ve davranış analizi', sekme:'segmentAnalizi'},
                   ].map(f => (
-                    <div key={f.baslik} style={{background:'#F8FAFC', borderRadius:'12px', padding:'16px', border:'1px solid #E2E8F0'}}>
-                      <div style={{fontSize:'24px', marginBottom:'6px'}}>{f.ikon}</div>
-                      <div style={{fontWeight:'600', fontSize:'14px', marginBottom:'4px'}}>{f.baslik}</div>
+                    <div key={f.baslik}
+                      onClick={() => f.sekme && setAktifSekme(f.sekme)}
+                      style={{background:'#F8FAFC', borderRadius:'12px', padding:'16px', border:'1px solid #E2E8F0', cursor: f.sekme ? 'pointer' : 'default', transition:'box-shadow 0.2s'}}
+                      onMouseEnter={e => f.sekme && (e.currentTarget.style.boxShadow='0 4px 12px rgba(79,70,229,0.15)')}
+                      onMouseLeave={e => e.currentTarget.style.boxShadow='none'}
+                    >
+                      <div style={{marginBottom:'8px'}}>
+                        <f.Ikon size={22} color="#4F46E5" />
+                      </div>
+                      <div style={{fontWeight:'700', fontSize:'14px', marginBottom:'4px', color:'#0F172A'}}>{f.baslik}</div>
                       <div style={{fontSize:'12px', color:'#64748B'}}>{f.aciklama}</div>
-                      <div style={{marginTop:'8px', fontSize:'12px', color:'#10B981', fontWeight:'600'}}>✓ Aktif</div>
+                      <div style={{marginTop:'8px', fontSize:'12px', color:'#10B981', fontWeight:'600'}}>
+                        {f.sekme ? '✓ Aç →' : '✓ Aktif'}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1440,18 +1441,22 @@ function IsletmePanel({ kullanici, onCikis }) {
                 <p style={{color:'#64748B', marginBottom:'24px', fontSize:'14px'}}>Analitik, VIP müşteri sistemi, yoğunluk göstergesi ve daha fazlası</p>
                 <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', marginBottom:'24px', textAlign:'left'}}>
                   {[
-                    {ikon:'📊', baslik:'Analitik Dashboard', aciklama:'Ciro ve istatistikler'},
-                    {ikon:'👑', baslik:'VIP Müşteri', aciklama:'Özel hediye ve indirimler'},
-                    {ikon:'🎨', baslik:'Yoğunluk Göstergesi', aciklama:'Takvim renk kodlaması'},
-                    {ikon:'⭐', baslik:'Öne Çıkma', aciklama:'Anasayfada üst sıra'},
-                    {ikon:'🎁', baslik:'Gelişmiş Hediyeler', aciklama:'VIP ödül sistemi'},
-                    {ikon:'📈', baslik:'Segment Analizi', aciklama:'Müşteri grupları'},
+                    {Ikon: BarChart3, baslik:'Performans Analizi', aciklama:'Ciro, gider ve net karını anlık takip et'},
+                    {Ikon: UserCheck, baslik:'Personel Performans Takibi', aciklama:'Her çalışanın randevu ve cirosunu gör'},
+                    {Ikon: FileText, baslik:'Raporlar', aciklama:'Tek tıkla PDF finansal rapor indir'},
+                    {Ikon: Crown, baslik:'VIP Müşteri', aciklama:'Sadık müşterilerini otomatik öne çıkar'},
+                    {Ikon: Star, baslik:'Öne Çıkma', aciklama:'Anasayfada en üst sırada görün'},
+                    {Ikon: TrendingUp, baslik:'Müşteri Analizi', aciklama:'Segmentlere göre ciro ve davranış analizi'},
                   ].map(f => (
-                    <div key={f.baslik} style={{background:'#F8FAFC', borderRadius:'12px', padding:'12px', border:'1px solid #E2E8F0', opacity:0.7}}>
-                      <div style={{fontSize:'20px', marginBottom:'4px'}}>{f.ikon}</div>
-                      <div style={{fontWeight:'600', fontSize:'13px'}}>{f.baslik}</div>
-                      <div style={{fontSize:'12px', color:'#64748B'}}>{f.aciklama}</div>
-                      <div style={{marginTop:'6px', fontSize:'11px', color:'#94A3B8'}}>🔒 Kilitli</div>
+                    <div key={f.baslik} style={{position:'relative', background:'#F8FAFC', borderRadius:'12px', padding:'14px', border:'1px solid #E2E8F0', overflow:'hidden'}}>
+                      <div style={{marginBottom:'8px'}}>
+                        <f.Ikon size={22} color="#4F46E5" />
+                      </div>
+                      <div style={{fontWeight:'700', fontSize:'13px', color:'#0F172A'}}>{f.baslik}</div>
+                      <div style={{fontSize:'12px', color:'#64748B', marginTop:'2px', lineHeight:'1.4'}}>{f.aciklama}</div>
+                      <div style={{position:'absolute', top:'10px', right:'10px', background:'white', borderRadius:'50%', width:'26px', height:'26px', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 1px 4px rgba(0,0,0,0.1)'}}>
+                        <Lock size={12} color="#94A3B8" />
+                      </div>
                     </div>
                   ))}
                 </div>

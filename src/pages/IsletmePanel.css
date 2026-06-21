@@ -106,16 +106,19 @@
 }
 
 .sekme-btn {
-  padding: 10px 18px;
+  padding: 9px 13px;
   border: none;
   background: transparent;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.18s;
   color: #6B7280;
   border-radius: 9px;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 .sekme-btn:hover { background: white; color: #DC2626; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
 .sekme-btn.aktif {

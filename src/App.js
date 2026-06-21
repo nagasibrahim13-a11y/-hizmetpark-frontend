@@ -23,6 +23,7 @@ function AppRouter() {
   const [profilIsletmeId, setProfilIsletmeId] = useState(null);
   const [personelBilgisi, setPersonelBilgisi] = useState(null);
   const [hediyeliRandevuData, setHediyeliRandevuData] = useState(null);
+  const [aktifIsletmeId, setAktifIsletmeId] = useState(null);
 
   // Guard: if user logs out while on a protected page, return to anaSayfa
   useEffect(() => {
@@ -77,6 +78,7 @@ function AppRouter() {
 
   const layoutProps = {
     kullanici,
+    isletmeId: aktifIsletmeId,
     onAnaSayfa: () => setSayfa('anaSayfa'),
     onRandevularim: handleRandevularimTikla,
     onSadakat: handleSadakatTikla,
@@ -137,7 +139,7 @@ function AppRouter() {
 
       {sayfa === 'isletmePanel' && kullanici && (
         <Layout {...layoutProps}>
-          <IsletmePanel kullanici={kullanici} onCikis={handleCikis} />
+          <IsletmePanel kullanici={kullanici} onCikis={handleCikis} onIsletmeYuklendi={setAktifIsletmeId} />
         </Layout>
       )}
 

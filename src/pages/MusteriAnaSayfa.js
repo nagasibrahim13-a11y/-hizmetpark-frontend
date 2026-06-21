@@ -59,6 +59,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
   const [sponsorluReklamlar, setSponsorluReklamlar] = useState([]);
   const [oneCikanReklamlar, setOneCikanReklamlar] = useState([]);
   const [sliderIndex, setSliderIndex] = useState(0);
+  const [firsatIndex, setFirsatIndex] = useState(0);
 
   const kategoriler = [
     { deger: '', label: 'Tümü', emoji: '🏪' },
@@ -87,6 +88,14 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
       setTamamlananRandevular([]);
     }
   }, [kullanici]);
+
+  useEffect(() => {
+    if (oneCikanReklamlar.length <= 1) return;
+    const interval = setInterval(() => {
+      setFirsatIndex(i => (i + 1) % oneCikanReklamlar.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [oneCikanReklamlar]);
 
   useEffect(() => {
     filtreUygula();
@@ -655,13 +664,42 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
       {(
         <div className="ozel-firsatlar-panel">
           <div className="ozel-firsatlar-baslik">⚡ Öne Çıkan Fırsatlar</div>
-          {oneCikanReklamlar.slice(0, 3).map(r => (
-            <div key={r._id} className="ozel-firsat-kart" onClick={() => { fetch(`http://localhost:5000/api/reklamlar/${r._id}/tikla`, {method:'PUT'}); onProfilAc(r.isletme._id); }}>
-              <div className="ozel-firsat-isletme">{r.isletme?.isletmeAdi}</div>
-              <div className="ozel-firsat-baslik">{r.baslik}</div>
-              <button className="ozel-firsat-buton">İncele</button>
+          {oneCikanReklamlar.length > 0 && (() => {
+            const r = oneCikanReklamlar[firsatIndex];
+            return (
+              <div
+                key={r._id}
+                onClick={() => { fetch(`http://localhost:5000/api/reklamlar/${r._id}/tikla`, {method:'PUT'}); onProfilAc(r.isletme._id); }}
+                style={{
+                  position:'relative',
+                  height:'180px',
+                  borderRadius:'16px',
+                  overflow:'hidden',
+                  cursor:'pointer',
+                  animation:'firsatFadeIn 0.5s ease',
+                  backgroundImage: r.isletme?.fotograf ? `linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.75) 100%), url(${r.isletme.fotograf})` : 'linear-gradient(135deg,#4F46E5,#7C3AED)',
+                  backgroundSize:'cover',
+                  backgroundPosition:'center'
+                }}
+              >
+                <div style={{position:'absolute', bottom:0, left:0, right:0, padding:'16px'}}>
+                  <div style={{display:'inline-block', background:'rgba(255,255,255,0.2)', backdropFilter:'blur(4px)', color:'white', fontSize:'10px', fontWeight:'700', padding:'3px 10px', borderRadius:'20px', marginBottom:'8px', textTransform:'uppercase', letterSpacing:'0.05em'}}>
+                    Fırsat
+                  </div>
+                  <div style={{color:'white', fontWeight:'800', fontSize:'17px', lineHeight:'1.2', marginBottom:'2px'}}>{r.baslik}</div>
+                  <div style={{color:'rgba(255,255,255,0.85)', fontSize:'13px'}}>{r.isletme?.isletmeAdi}</div>
+                </div>
+              </div>
+            );
+          })()}
+          {oneCikanReklamlar.length > 1 && (
+            <div style={{display:'flex', justifyContent:'center', gap:'6px', marginTop:'10px'}}>
+              {oneCikanReklamlar.map((_, i) => (
+                <div key={i} onClick={() => setFirsatIndex(i)}
+                  style={{width:'6px', height:'6px', borderRadius:'50%', background: i === firsatIndex ? '#4F46E5' : '#E2E8F0', cursor:'pointer'}} />
+              ))}
             </div>
-          ))}
+          )}
           {oneCikanReklamlar.length === 0 && (
             <div style={{fontSize:'13px', color:'#94A3B8', textAlign:'center', padding:'12px 0'}}>Şu an fırsat yok</div>
           )}
