@@ -549,12 +549,14 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
           </div>
         )}
 
-        <div className="sonuc-satiri">
-          <span className="sonuc-sayi">
-            {filtreliIsletmeler.length} işletme bulundu
-            {aktifFiltreVar && <span className="filtre-aktif-badge"> • Filtre aktif</span>}
-          </span>
-        </div>
+        {!yukleniyor && (
+          <div className="sonuc-satiri">
+            <span className="sonuc-sayi">
+              {filtreliIsletmeler.length} işletme bulundu
+              {aktifFiltreVar && <span className="filtre-aktif-badge"> • Filtre aktif</span>}
+            </span>
+          </div>
+        )}
 
         {/* İŞLETME LİSTESİ */}
         {yukleniyor ? (
