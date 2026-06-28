@@ -5,6 +5,7 @@ import { Scissors, Sparkles, Heart, CircleDot, Store } from 'lucide-react';
 import AcikGunler from '../components/AcikGunler';
 import { sessizKonumAl, mesafeHesapla } from '../utils/mesafe';
 import MesafeGoster from '../components/MesafeGoster';
+import useScrollReveal from '../hooks/useScrollReveal';
 import './MusteriAnaSayfa.css';
 
 function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilAc, onRandevularim, onSadakat, onMarketplace }) {
@@ -60,6 +61,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
   const [oneCikanReklamlar, setOneCikanReklamlar] = useState([]);
   const [sliderIndex, setSliderIndex] = useState(0);
   const [firsatIndex, setFirsatIndex] = useState(0);
+  const revealRef = useScrollReveal({ staggerMs: 70, deps: [filtreliIsletmeler.length] });
 
   const kategoriler = [
     { deger: '', label: 'Tümü', emoji: '🏪' },
@@ -380,7 +382,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
 
   const oneCikanGosterilsin = !aktifFiltreVar && (puaniYuksekler.length > 0 || populerler.length > 0);
 
-  const KategoriIkon = ({ kat, size = 20, color = '#DC2626' }) => {
+  const KategoriIkon = ({ kat, size = 20, color = '#2B3A8C' }) => {
     if (kat === 'berber') return <Scissors size={size} color={color} />;
     if (kat === 'kuafor') return <Sparkles size={size} color={color} />;
     if (kat === 'guzellik') return <Heart size={size} color={color} />;
@@ -396,6 +398,9 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
 
   return (
     <div className="musteri-sayfa">
+      <div className="icerik">
+      <div style={{display:'flex', gap:'24px', alignItems:'flex-start'}}>
+        <div style={{flex:1, minWidth:0}} ref={revealRef}>
 
 
         {/* SLIDER REKLAMLAR */}
@@ -449,10 +454,10 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
             onClick={() => setHaritaGoster(v => !v)}
             style={{
               display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '10px 20px', background: haritaGoster ? '#DC2626' : '#fff',
-              color: haritaGoster ? '#fff' : '#DC2626', border: '2px solid #DC2626',
-              borderRadius: '8px', fontWeight: '600', fontSize: '14px',
-              cursor: 'pointer', transition: 'all 0.2s'
+              padding: '10px 20px', background: haritaGoster ? '#1B1D3A' : '#fff',
+              color: haritaGoster ? '#fff' : '#1B1D3A', border: '1.5px solid #1B1D3A',
+              borderRadius: '12px', fontWeight: '600', fontSize: '14px',
+              cursor: 'pointer', transition: 'all 0.22s'
             }}
           >
             📍 Yakınımdaki İşletmeleri {haritaGoster ? 'Gizle' : 'Göster'}
@@ -499,7 +504,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
                 <h3 className="one-cikan-baslik">⭐ Puanı Yüksek İşletmeler</h3>
                 <div className="one-cikan-row">
                   {puaniYuksekler.map(isletme => (
-                    <div key={isletme._id} className="mini-kart" onClick={() => onProfilAc(isletme._id)}>
+                    <div key={isletme._id} className="mini-kart" data-reveal onClick={() => onProfilAc(isletme._id)}>
                       <div className="mini-kart-ust">
                         <span className="mini-kart-isim">{isletme.isletmeAdi}</span>
                         <span className="mini-kart-puan">⭐ {isletme.ortalamaPuan}</span>
@@ -517,7 +522,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
                 <h3 className="one-cikan-baslik">🔥 Popüler İşletmeler</h3>
                 <div className="one-cikan-row-4">
                   {populerler.map(isletme => (
-                    <div key={isletme._id} className="mini-kart-kucuk" onClick={() => onProfilAc(isletme._id)}>
+                    <div key={isletme._id} className="mini-kart-kucuk" data-reveal onClick={() => onProfilAc(isletme._id)}>
                       <span className="mini-kart-kucuk-emoji"><KategoriIkon kat={isletme.kategori} size={28} /></span>
                       <div className="mini-kart-kucuk-isim">{isletme.isletmeAdi}</div>
                       <div className="mini-kart-kucuk-yorum">{isletme.yorumSayisi} yorum</div>
@@ -556,7 +561,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
           <div className="bos">
             <div style={{ fontSize: '48px', marginBottom: '12px' }}>🔍</div>
             <p>Sonuç bulunamadı</p>
-            <button onClick={filtreleriSifirla} style={{ marginTop: '12px', padding: '8px 16px', background: '#E53935', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}>Filtreleri Temizle</button>
+            <button onClick={filtreleriSifirla} style={{ marginTop: '12px', padding: '8px 18px', background: '#1B1D3A', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: '600' }}>Filtreleri Temizle</button>
           </div>
         ) : (
           <div className="isletme-grid">
@@ -565,7 +570,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
                 return (
                   <div
                     key={`sponsorlu-${idx}`}
-                    className="isletme-kart card sponsorlu-kart"
+                    className="isletme-kart card sponsorlu-kart" data-reveal
                     onClick={async () => {
                       try { await fetch(`http://localhost:5000/api/reklamlar/${isletme._reklamId}/tikla`, { method: 'PUT' }); } catch (e) {}
                       onProfilAc(isletme._id);
@@ -588,13 +593,13 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
               }
 
               return (
-                <div key={isletme._id} className="isletme-kart" onClick={() => onProfilAc(isletme._id)}>
+                <div key={isletme._id} className="isletme-kart" data-reveal onClick={() => onProfilAc(isletme._id)}>
                   <div className="isletme-kart-foto">
                     {isletme.fotograf ? (
                       <img src={isletme.fotograf} alt={isletme.isletmeAdi} />
                     ) : (
                       <div className="isletme-kart-foto-placeholder">
-                        <KategoriIkon kat={isletme.kategori} size={40} color="#C7D2FE" />
+                        <KategoriIkon kat={isletme.kategori} size={40} color="#D0D4F0" />
                       </div>
                     )}
                   </div>
@@ -660,46 +665,51 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
             })}
           </div>
         )}
+        </div>
 
       {(
-        <div className="ozel-firsatlar-panel">
-          <div className="ozel-firsatlar-baslik">⚡ Öne Çıkan Fırsatlar</div>
-          {oneCikanReklamlar.length > 0 && (() => {
-            const r = oneCikanReklamlar[firsatIndex];
-            return (
-              <div
-                key={r._id}
-                onClick={() => { fetch(`http://localhost:5000/api/reklamlar/${r._id}/tikla`, {method:'PUT'}); onProfilAc(r.isletme._id); }}
-                style={{
-                  position:'relative',
-                  height:'180px',
-                  borderRadius:'16px',
-                  overflow:'hidden',
-                  cursor:'pointer',
-                  animation:'firsatFadeIn 0.5s ease',
-                  backgroundImage: r.isletme?.fotograf ? `linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.75) 100%), url(${r.isletme.fotograf})` : 'linear-gradient(135deg,#4F46E5,#7C3AED)',
-                  backgroundSize:'cover',
-                  backgroundPosition:'center'
-                }}
-              >
-                <div style={{position:'absolute', bottom:0, left:0, right:0, padding:'16px'}}>
-                  <div style={{display:'inline-block', background:'rgba(255,255,255,0.2)', backdropFilter:'blur(4px)', color:'white', fontSize:'10px', fontWeight:'700', padding:'3px 10px', borderRadius:'20px', marginBottom:'8px', textTransform:'uppercase', letterSpacing:'0.05em'}}>
-                    Fırsat
+        <div className="ozel-firsatlar-panel" style={{perspective:'1200px', minHeight:'320px'}}>
+          <div style={{fontSize:'13px', fontWeight:'700', color:'#374151', marginBottom:'20px'}}>⚡ Öne Çıkan Fırsatlar</div>
+          <div style={{position:'relative', height:'260px'}}>
+            {oneCikanReklamlar.slice(0, 3).map((r, i) => {
+              const aktif = i === (firsatIndex % Math.min(oneCikanReklamlar.length, 3));
+              const offset = i - (firsatIndex % Math.min(oneCikanReklamlar.length, 3));
+              const normalizedOffset = ((offset % 3) + 3) % 3;
+              return (
+                <div
+                  key={r._id}
+                  onClick={() => { if (aktif) { fetch(`http://localhost:5000/api/reklamlar/${r._id}/tikla`, {method:'PUT'}); onProfilAc(r.isletme._id); } }}
+                  style={{
+                    position:'absolute',
+                    top: `${normalizedOffset * 14}px`,
+                    left: `${normalizedOffset * 10}px`,
+                    width:'100%',
+                    height:'220px',
+                    borderRadius:'18px',
+                    overflow:'hidden',
+                    cursor: aktif ? 'pointer' : 'default',
+                    transform: `rotate(${normalizedOffset === 0 ? 0 : normalizedOffset === 1 ? 4 : -4}deg) scale(${1 - normalizedOffset * 0.06})`,
+                    zIndex: 10 - normalizedOffset,
+                    opacity: normalizedOffset === 2 ? 0.5 : 1,
+                    transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    boxShadow: normalizedOffset === 0 ? '0 12px 32px rgba(0,0,0,0.18)' : '0 4px 12px rgba(0,0,0,0.08)',
+                    backgroundImage: r.isletme?.fotograf ? `linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.78) 100%), url(${r.isletme.fotograf})` : 'linear-gradient(135deg,#4F46E5,#7C3AED)',
+                    backgroundSize:'cover',
+                    backgroundPosition:'center',
+                    border:'1px solid rgba(255,255,255,0.5)'
+                  }}
+                >
+                  <div style={{position:'absolute', bottom:0, left:0, right:0, padding:'16px'}}>
+                    <div style={{display:'inline-block', background:'rgba(255,255,255,0.25)', backdropFilter:'blur(6px)', color:'white', fontSize:'10px', fontWeight:'700', padding:'3px 10px', borderRadius:'20px', marginBottom:'8px', textTransform:'uppercase', letterSpacing:'0.05em'}}>
+                      Fırsat
+                    </div>
+                    <div style={{color:'white', fontWeight:'800', fontSize:'16px', lineHeight:'1.2', marginBottom:'2px'}}>{r.baslik}</div>
+                    <div style={{color:'rgba(255,255,255,0.85)', fontSize:'12px'}}>{r.isletme?.isletmeAdi}</div>
                   </div>
-                  <div style={{color:'white', fontWeight:'800', fontSize:'17px', lineHeight:'1.2', marginBottom:'2px'}}>{r.baslik}</div>
-                  <div style={{color:'rgba(255,255,255,0.85)', fontSize:'13px'}}>{r.isletme?.isletmeAdi}</div>
                 </div>
-              </div>
-            );
-          })()}
-          {oneCikanReklamlar.length > 1 && (
-            <div style={{display:'flex', justifyContent:'center', gap:'6px', marginTop:'10px'}}>
-              {oneCikanReklamlar.map((_, i) => (
-                <div key={i} onClick={() => setFirsatIndex(i)}
-                  style={{width:'6px', height:'6px', borderRadius:'50%', background: i === firsatIndex ? '#4F46E5' : '#E2E8F0', cursor:'pointer'}} />
-              ))}
-            </div>
-          )}
+              );
+            })}
+          </div>
           {oneCikanReklamlar.length === 0 && (
             <div style={{fontSize:'13px', color:'#94A3B8', textAlign:'center', padding:'12px 0'}}>Şu an fırsat yok</div>
           )}
@@ -735,6 +745,8 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
           </div>
         </div>
       )}
+      </div>
+      </div>
 
       {/* RANDEVU MODAL */}
       {randevuModal && secilenIsletme && (

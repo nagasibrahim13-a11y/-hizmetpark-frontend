@@ -1,4 +1,4 @@
-.profil-sayfa { min-height: 100vh; background: #F5F7FA; }
+.profil-sayfa { min-height: 100vh; background: var(--bg, #FAFAF6); }
 
 /* ======================== HEADER ======================== */
 .profil-header {
@@ -7,8 +7,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #E2E8F0;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  border-bottom: 1px solid var(--border, #E6E4EF);
+  box-shadow: var(--shadow-card, 0 1px 4px rgba(27,29,58,0.06));
   position: sticky;
   top: 0;
   z-index: 100;
@@ -18,7 +18,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #DC2626;
+  color: var(--navy, #1B1D3A);
   font-size: 20px;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -26,20 +26,20 @@
 
 .geri-btn {
   background: transparent;
-  border: 1.5px solid #E2E8F0;
-  color: #374151;
+  border: 1.5px solid var(--border, #E6E4EF);
+  color: var(--text-muted, #6B6B80);
   padding: 7px 16px;
-  border-radius: 8px;
+  border-radius: var(--radius-btn, 12px);
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
   transition: all 0.15s;
 }
-.geri-btn:hover { border-color: #DC2626; color: #DC2626; background: #FEF2F2; }
+.geri-btn:hover { border-color: var(--navy-mid, #2B3A8C); color: var(--navy-mid, #2B3A8C); background: rgba(43,58,140,0.05); }
 
-/* ======================== KOYU BANNER (mockup 2) ======================== */
+/* ======================== KOYU BANNER ======================== */
 .profil-kapak {
-  background: #2D2D2D;
+  background: var(--navy, #1B1D3A);
   padding: 40px 24px 36px;
   text-align: center;
   display: flex;
@@ -52,12 +52,11 @@
   background-position: center 30% !important;
 }
 
-/* Yuvarlak avatar — kırmızı bg, emoji içinde */
 .profil-avatar-daire {
   width: 88px;
   height: 88px;
   border-radius: 50%;
-  background: #DC2626;
+  background: var(--navy-mid, #2B3A8C);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,7 +103,7 @@
 /* ======================== ÇALIŞMA GÜNLERİ ======================== */
 .profil-gunler {
   background: white;
-  border-bottom: 1px solid #F0F0F0;
+  border-bottom: 1px solid var(--border, #E6E4EF);
   padding: 12px 24px;
 }
 .gunler-icerik {
@@ -125,7 +124,7 @@
   font-weight: 600;
   min-width: 48px;
 }
-.gun-item.aktif { background: #FEF2F2; color: #DC2626; }
+.gun-item.aktif { background: rgba(43,58,140,0.08); color: var(--navy-mid, #2B3A8C); }
 .gun-item.kapali { background: #F5F5F5; color: #BDBDBD; }
 
 /* ======================== İKİ SÜTUN İÇERİK ======================== */
@@ -145,23 +144,23 @@
 .profil-sol,
 .profil-sag {
   background: white;
-  border-radius: 14px;
+  border-radius: var(--radius-card, 20px);
   padding: 24px;
-  border: 1px solid #E2E8F0;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  border: 1px solid var(--border, #E6E4EF);
+  box-shadow: var(--shadow-card, 0 1px 4px rgba(27,29,58,0.05));
 }
 
 .profil-kolon-baslik {
   font-size: 15px;
   font-weight: 800;
-  color: #111827;
+  color: var(--text-primary, #1B1D3A);
   margin-bottom: 16px;
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-/* Hizmet fiyat listesi (mockup stili) */
+/* Hizmet fiyat listesi */
 .hizmet-fiyat-liste { display: flex; flex-direction: column; }
 
 .hizmet-fiyat-satir {
@@ -169,26 +168,26 @@
   justify-content: space-between;
   align-items: center;
   padding: 11px 0;
-  border-bottom: 1px solid #F3F4F6;
+  border-bottom: 1px solid var(--border, #E6E4EF);
 }
 .hizmet-fiyat-satir:last-child { border-bottom: none; }
 
-.hizmet-fiyat-ad { font-size: 14px; font-weight: 500; color: #111827; }
-.hizmet-fiyat-sure { font-size: 12px; color: #9CA3AF; margin-top: 2px; }
+.hizmet-fiyat-ad { font-size: 14px; font-weight: 500; color: var(--text-primary, #1B1D3A); }
+.hizmet-fiyat-sure { font-size: 12px; color: var(--text-faint, #9B9BAA); margin-top: 2px; }
 
 .hizmet-fiyat-sag { display: flex; align-items: center; gap: 10px; }
 
 .hizmet-fiyat-tl {
   font-size: 16px;
   font-weight: 800;
-  color: #DC2626;
+  color: var(--cta, #E85D26);
   white-space: nowrap;
 }
 
 .hizmet-hizli-btn {
-  background: #FEF2F2;
-  color: #DC2626;
-  border: 1px solid #FECACA;
+  background: rgba(232,93,38,0.08);
+  color: var(--cta, #E85D26);
+  border: 1px solid rgba(232,93,38,0.2);
   padding: 5px 12px;
   border-radius: 6px;
   font-size: 12px;
@@ -197,7 +196,7 @@
   transition: all 0.15s;
   white-space: nowrap;
 }
-.hizmet-hizli-btn:hover { background: #DC2626; color: white; border-color: #DC2626; }
+.hizmet-hizli-btn:hover { background: var(--cta, #E85D26); color: white; border-color: var(--cta, #E85D26); }
 
 /* Puan bloku */
 .profil-puan-blok {
@@ -210,33 +209,33 @@
   border: 1px solid #FDE68A;
 }
 .profil-puan-buyuk { font-size: 48px; font-weight: 800; color: #F59E0B; line-height: 1; }
-.profil-puan-alt { font-size: 12px; color: #9CA3AF; margin-top: 4px; }
+.profil-puan-alt { font-size: 12px; color: var(--text-faint, #9B9BAA); margin-top: 4px; }
 
-/* Yorum kartları (sağ kolon) */
+/* Yorum kartları */
 .yorumlar-liste { display: flex; flex-direction: column; gap: 12px; }
 
 .yorum-kart-profil {
-  background: #F9FAFB;
+  background: var(--bg, #FAFAF6);
   border-radius: 10px;
   padding: 14px;
-  border: 1px solid #E5E7EB;
+  border: 1px solid var(--border, #E6E4EF);
 }
 .yorum-ust-profil { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
 .yorum-avatar-profil {
   width: 36px; height: 36px;
   border-radius: 50%;
-  background: #DC2626;
+  background: var(--navy, #1B1D3A);
   color: white;
   display: flex; align-items: center; justify-content: center;
   font-size: 13px; font-weight: 700; flex-shrink: 0;
 }
-.yorum-isim-profil { font-size: 14px; font-weight: 600; color: #111827; }
-.yorum-tarih-profil { font-size: 12px; color: #9CA3AF; margin-top: 1px; }
+.yorum-isim-profil { font-size: 14px; font-weight: 600; color: var(--text-primary, #1B1D3A); }
+.yorum-tarih-profil { font-size: 12px; color: var(--text-faint, #9B9BAA); margin-top: 1px; }
 .yorum-puan-profil { margin-left: auto; font-size: 16px; display: flex; align-items: center; }
-.yorum-metin-profil { font-size: 13px; color: #4B5563; line-height: 1.6; }
-.bos-yorum { text-align: center; padding: 40px 20px; color: #9CA3AF; font-size: 14px; }
+.yorum-metin-profil { font-size: 13px; color: var(--text-muted, #6B6B80); line-height: 1.6; }
+.bos-yorum { text-align: center; padding: 40px 20px; color: var(--text-faint, #9B9BAA); font-size: 14px; }
 
-/* ======================== BÜYÜK RANDEVU AL (pill, ortalanmış) ======================== */
+/* ======================== BÜYÜK RANDEVU AL ======================== */
 .randevu-al-alan {
   display: flex;
   justify-content: center;
@@ -245,7 +244,7 @@
 }
 
 .randevu-al-pill {
-  background: #DC2626;
+  background: var(--cta, #E85D26);
   color: white;
   border: none;
   padding: 16px 48px;
@@ -254,13 +253,13 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 16px rgba(220,38,38,0.35);
+  box-shadow: 0 4px 16px rgba(232,93,38,0.3);
   letter-spacing: 0.01em;
 }
 .randevu-al-pill:hover {
-  background: #B91C1C;
+  background: var(--cta-hover, #D14D1A);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(220,38,38,0.4);
+  box-shadow: 0 8px 24px rgba(232,93,38,0.38);
 }
 
 /* ======================== MODAL ======================== */
@@ -273,50 +272,50 @@
 }
 .modal {
   background: white;
-  border-radius: 16px;
+  border-radius: 20px;
   padding: 28px;
   width: 100%;
   max-width: 480px;
   max-height: 85vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  box-shadow: 0 20px 60px rgba(27,29,58,0.18);
 }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.modal-header h2 { font-size: 18px; font-weight: 700; color: #111827; }
+.modal-header h2 { font-size: 18px; font-weight: 700; color: var(--text-primary, #1B1D3A); }
 .modal-kapat {
   background: #F5F5F5; border: none; width: 32px; height: 32px;
-  border-radius: 50%; cursor: pointer; font-size: 14px; color: #6B7280;
+  border-radius: 50%; cursor: pointer; font-size: 14px; color: var(--text-muted, #6B6B80);
   display: flex; align-items: center; justify-content: center;
 }
-.modal-kapat:hover { background: #E5E7EB; }
-.modal-label { font-size: 12px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.05em; margin: 16px 0 8px; }
+.modal-kapat:hover { background: var(--border, #E6E4EF); }
+.modal-label { font-size: 12px; font-weight: 700; color: var(--text-muted, #6B6B80); text-transform: uppercase; letter-spacing: 0.05em; margin: 16px 0 8px; }
 
 .hizmet-secim { display: flex; flex-direction: column; gap: 8px; }
-.hizmet-secim-item { display: flex; justify-content: space-between; padding: 12px 16px; border: 1.5px solid #E2E8F0; border-radius: 10px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
-.hizmet-secim-item:hover { border-color: #DC2626; }
-.hizmet-secim-item.secili { border-color: #DC2626; background: #FEF2F2; }
+.hizmet-secim-item { display: flex; justify-content: space-between; padding: 12px 16px; border: 1.5px solid var(--border, #E6E4EF); border-radius: 10px; cursor: pointer; font-size: 14px; transition: all 0.2s; }
+.hizmet-secim-item:hover { border-color: var(--navy-mid, #2B3A8C); }
+.hizmet-secim-item.secili { border-color: var(--navy-mid, #2B3A8C); background: rgba(43,58,140,0.06); }
 
-.toplam-fiyat { display: flex; justify-content: space-between; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; padding: 10px 14px; margin-top: 8px; font-size: 14px; color: #6B7280; }
+.toplam-fiyat { display: flex; justify-content: space-between; background: rgba(43,58,140,0.05); border: 1px solid rgba(43,58,140,0.12); border-radius: 8px; padding: 10px 14px; margin-top: 8px; font-size: 14px; color: var(--text-muted, #6B6B80); }
 
-.tarih-input { width: 100%; padding: 11px 14px; border: 1.5px solid #E2E8F0; border-radius: 10px; font-size: 14px; outline: none; background: #F9FAFB; color: #111827; }
-.tarih-input:focus { border-color: #DC2626; }
+.tarih-input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--border, #E6E4EF); border-radius: 10px; font-size: 14px; outline: none; background: var(--bg, #FAFAF6); color: var(--text-primary, #1B1D3A); }
+.tarih-input:focus { border-color: var(--navy-mid, #2B3A8C); }
 
 .saat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.saat-btn { padding: 9px; border: 1.5px solid #E2E8F0; border-radius: 8px; background: white; font-size: 13px; cursor: pointer; transition: all 0.2s; color: #6B7280; }
-.saat-btn:hover { border-color: #DC2626; color: #DC2626; }
-.saat-btn.secili { background: #DC2626; color: white; border-color: #DC2626; }
-.saat-btn.dolu { background: #F5F5F5; color: #D1D5DB; border-color: #E5E7EB; cursor: not-allowed; }
+.saat-btn { padding: 9px; border: 1.5px solid var(--border, #E6E4EF); border-radius: 8px; background: white; font-size: 13px; cursor: pointer; transition: all 0.2s; color: var(--text-muted, #6B6B80); }
+.saat-btn:hover { border-color: var(--navy-mid, #2B3A8C); color: var(--navy-mid, #2B3A8C); }
+.saat-btn.secili { background: var(--navy, #1B1D3A); color: white; border-color: var(--navy, #1B1D3A); }
+.saat-btn.dolu { background: #F5F5F5; color: #D1D5DB; border-color: var(--border, #E6E4EF); cursor: not-allowed; }
 
 .basari { background: #ECFDF5; color: #065F46; padding: 14px; border-radius: 10px; font-size: 14px; border: 1px solid #A7F3D0; margin-bottom: 12px; }
 .hata { background: #FEF2F2; color: #991B1B; padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; border: 1px solid #FECACA; }
-.fiyat { font-weight: 700; color: #DC2626; }
+.fiyat { font-weight: 700; color: var(--cta, #E85D26); }
 
-.btn-primary { background: #DC2626; color: white; border: none; padding: 13px 24px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; transition: background 0.2s; }
-.btn-primary:hover { background: #B91C1C; }
-.btn-primary:disabled { background: #FCA5A5; cursor: not-allowed; }
+.btn-primary { background: var(--cta, #E85D26); color: white; border: none; padding: 13px 24px; border-radius: var(--radius-btn, 12px); font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; transition: background 0.2s; }
+.btn-primary:hover { background: var(--cta-hover, #D14D1A); }
+.btn-primary:disabled { background: rgba(232,93,38,0.4); cursor: not-allowed; }
 
 /* ======================== LOADING ======================== */
-.profil-yukleniyor { text-align: center; padding: 80px; color: #9CA3AF; font-size: 16px; }
+.profil-yukleniyor { text-align: center; padding: 80px; color: var(--text-faint, #9B9BAA); font-size: 16px; }
 
 /* ======================== RESPONSIVE ======================== */
 @media (max-width: 680px) {

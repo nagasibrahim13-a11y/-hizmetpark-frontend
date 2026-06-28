@@ -185,12 +185,12 @@ function IsletmeProfil({ isletmeId, kullanici, onGeri, hediyeliRandevuData, isOw
           <button className="geri-btn" onClick={onGeri}>← Geri</button>
           <div className="header-logo">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <rect x="3" y="4" width="18" height="18" rx="3" stroke="#DC2626" strokeWidth="2"/>
-              <path d="M3 9h18" stroke="#DC2626" strokeWidth="2"/>
-              <path d="M8 2.5v3M16 2.5v3" stroke="#DC2626" strokeWidth="2" strokeLinecap="round"/>
-              <circle cx="8" cy="14" r="1.5" fill="#DC2626"/>
-              <circle cx="12" cy="14" r="1.5" fill="#DC2626"/>
-              <circle cx="16" cy="14" r="1.5" fill="#DC2626"/>
+              <rect x="3" y="4" width="18" height="18" rx="3" stroke="#E85D26" strokeWidth="2"/>
+              <path d="M3 9h18" stroke="#E85D26" strokeWidth="2"/>
+              <path d="M8 2.5v3M16 2.5v3" stroke="#E85D26" strokeWidth="2" strokeLinecap="round"/>
+              <circle cx="8" cy="14" r="1.5" fill="#E85D26"/>
+              <circle cx="12" cy="14" r="1.5" fill="#E85D26"/>
+              <circle cx="16" cy="14" r="1.5" fill="#E85D26"/>
             </svg>
             HizmetPark
           </div>

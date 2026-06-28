@@ -1,20 +1,19 @@
 /* ======================== PAGE ======================== */
 .randevularim-sayfa {
   min-height: 100vh;
-  background: #F8FAFC;
+  background: var(--bg, #FAFAF6);
   font-family: inherit;
 }
 
 /* ======================== HEADER ======================== */
-/* .rnd-header — çakışmayı önlemek için renamed */
 .rnd-header {
   background: #FFFFFF;
   padding: 16px 28px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #E2E8F0;
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.07);
+  border-bottom: 1px solid var(--border, #E6E4EF);
+  box-shadow: var(--shadow-card, 0 1px 4px rgba(27,29,58,0.07));
   position: sticky;
   top: 0;
   z-index: 100;
@@ -26,7 +25,7 @@
   gap: 8px;
   font-size: 19px;
   font-weight: 800;
-  color: #1E1B4B;
+  color: var(--navy, #1B1D3A);
   letter-spacing: -0.02em;
 }
 
@@ -34,11 +33,11 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #F8FAFC;
-  border: 1.5px solid #E2E8F0;
-  color: #64748B;
+  background: var(--bg, #FAFAF6);
+  border: 1.5px solid var(--border, #E6E4EF);
+  color: var(--text-muted, #6B6B80);
   padding: 8px 16px;
-  border-radius: 10px;
+  border-radius: var(--radius-btn, 12px);
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
@@ -46,9 +45,9 @@
   white-space: nowrap;
 }
 .randevularim-sayfa .geri-btn:hover {
-  background: #EEF2FF;
-  border-color: #4F46E5;
-  color: #4F46E5;
+  background: rgba(43,58,140,0.06);
+  border-color: var(--navy-mid, #2B3A8C);
+  color: var(--navy-mid, #2B3A8C);
 }
 
 /* ======================== CONTENT ======================== */
@@ -64,12 +63,12 @@
 .randevularim-baslik h2 {
   font-size: 26px;
   font-weight: 800;
-  color: #0F172A;
+  color: var(--text-primary, #1B1D3A);
   letter-spacing: -0.02em;
 }
 .randevularim-baslik p {
   font-size: 14px;
-  color: #64748B;
+  color: var(--text-muted, #6B6B80);
   margin-top: 5px;
 }
 
@@ -83,16 +82,16 @@
 
 .istat-kart {
   background: #FFFFFF;
-  border-radius: 14px;
+  border-radius: var(--radius-card, 20px);
   padding: 18px 12px;
   text-align: center;
-  border: 1px solid #E2E8F0;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  border: 1px solid var(--border, #E6E4EF);
+  box-shadow: var(--shadow-card, 0 1px 3px rgba(27,29,58,0.06));
   transition: transform 0.15s, box-shadow 0.15s;
 }
 .istat-kart:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.10);
+  box-shadow: 0 4px 14px rgba(27,29,58,0.10);
 }
 
 .istat-sayi {
@@ -102,7 +101,7 @@
 }
 .istat-label {
   font-size: 11px;
-  color: #94A3B8;
+  color: var(--text-faint, #9B9BAA);
   margin-top: 6px;
   font-weight: 600;
   text-transform: uppercase;
@@ -120,9 +119,9 @@
 .filtre-btn {
   padding: 8px 18px;
   border-radius: 999px;
-  border: 1.5px solid #E2E8F0;
+  border: 1.5px solid var(--border, #E6E4EF);
   background: #FFFFFF;
-  color: #64748B;
+  color: var(--text-muted, #6B6B80);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -130,15 +129,15 @@
   white-space: nowrap;
 }
 .filtre-btn:hover {
-  border-color: #4F46E5;
-  color: #4F46E5;
-  background: #EEF2FF;
+  border-color: var(--navy-mid, #2B3A8C);
+  color: var(--navy-mid, #2B3A8C);
+  background: rgba(43,58,140,0.06);
 }
 .filtre-btn.aktif {
-  background: #4F46E5;
+  background: var(--navy, #1B1D3A);
   color: #FFFFFF;
-  border-color: #4F46E5;
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+  border-color: var(--navy, #1B1D3A);
+  box-shadow: 0 2px 8px rgba(27,29,58,0.2);
 }
 
 /* ======================== RANDEVU LIST ======================== */
@@ -150,18 +149,18 @@
 
 .randevu-kart-musteri {
   background: #FFFFFF;
-  border-radius: 14px;
+  border-radius: var(--radius-card, 20px);
   padding: 18px 20px;
   display: flex;
   align-items: center;
   gap: 18px;
-  border: 1px solid #E2E8F0;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  border: 1px solid var(--border, #E6E4EF);
+  box-shadow: var(--shadow-card, 0 1px 3px rgba(27,29,58,0.08));
   transition: all 0.2s;
 }
 .randevu-kart-musteri:hover {
-  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.11);
-  border-color: #C7D2FE;
+  box-shadow: var(--shadow-hover, 0 8px 28px rgba(27,29,58,0.1));
+  border-color: var(--border-hover, rgba(43,58,140,0.22));
   transform: translateY(-1px);
 }
 
@@ -170,27 +169,27 @@
   text-align: center;
   min-width: 68px;
   flex-shrink: 0;
-  background: #EEF2FF;
+  background: rgba(43,58,140,0.07);
   border-radius: 12px;
   padding: 12px 10px;
 }
 .randevu-gun {
   font-size: 12px;
   font-weight: 700;
-  color: #4F46E5;
+  color: var(--navy-mid, #2B3A8C);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 .randevu-saat-buyuk {
   font-size: 21px;
   font-weight: 800;
-  color: #1E1B4B;
+  color: var(--navy, #1B1D3A);
   margin-top: 3px;
   letter-spacing: -0.02em;
 }
 .randevu-sure {
   font-size: 11px;
-  color: #94A3B8;
+  color: var(--text-faint, #9B9BAA);
   margin-top: 4px;
   font-weight: 500;
 }
@@ -203,14 +202,14 @@
 .randevu-isletme-adi {
   font-size: 15px;
   font-weight: 700;
-  color: #0F172A;
+  color: var(--text-primary, #1B1D3A);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .randevu-hizmet-adi {
   font-size: 13px;
-  color: #64748B;
+  color: var(--text-muted, #6B6B80);
   margin-top: 3px;
   white-space: nowrap;
   overflow: hidden;
@@ -218,13 +217,13 @@
 }
 .randevu-konum {
   font-size: 12px;
-  color: #94A3B8;
+  color: var(--text-faint, #9B9BAA);
   margin-top: 5px;
 }
 .randevu-tutar {
   font-size: 13px;
   font-weight: 700;
-  color: #4F46E5;
+  color: var(--cta, #E85D26);
   margin-top: 5px;
 }
 
@@ -255,7 +254,7 @@
 }
 .bos-randevu p {
   font-size: 15px;
-  color: #94A3B8;
+  color: var(--text-faint, #9B9BAA);
   font-weight: 500;
 }
 
@@ -263,7 +262,7 @@
 .randevularim-sayfa .yukleniyor {
   text-align: center;
   padding: 72px;
-  color: #94A3B8;
+  color: var(--text-faint, #9B9BAA);
   font-size: 15px;
 }
 

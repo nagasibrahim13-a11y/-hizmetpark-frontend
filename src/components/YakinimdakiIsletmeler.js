@@ -101,7 +101,7 @@ function YakinimdakiIsletmeler({ onProfilAc }) {
               padding: '6px 14px',
               borderRadius: '20px',
               border: kategori === k ? 'none' : '1px solid #E2E8F0',
-              background: kategori === k ? '#DC2626' : 'white',
+              background: kategori === k ? '#1B1D3A' : 'white',
               color: kategori === k ? 'white' : '#374151',
               fontSize: '13px',
               cursor: 'pointer',
@@ -174,7 +174,7 @@ function YakinimdakiIsletmeler({ onProfilAc }) {
                       onClick={() => onProfilAc && onProfilAc(isletme._id)}
                       style={{
                         padding: '6px 12px', borderRadius: '6px', cursor: 'pointer',
-                        background: '#DC2626', color: '#fff', border: 'none',
+                        background: '#E85D26', color: '#fff', border: 'none',
                         fontSize: '12px', fontWeight: '600',
                       }}
                     >
@@ -246,7 +246,7 @@ function YakinimdakiIsletmeler({ onProfilAc }) {
             <div style={{display:'flex', gap:'8px'}}>
               <button
                 onClick={() => onProfilAc && onProfilAc(isl._id)}
-                style={{flex:1, padding:'8px', background:'#DC2626', color:'white', border:'none', borderRadius:'8px', cursor:'pointer', fontSize:'13px', fontWeight:'600'}}>
+                style={{flex:1, padding:'8px', background:'#E85D26', color:'white', border:'none', borderRadius:'8px', cursor:'pointer', fontSize:'13px', fontWeight:'600'}}>
                 Profili Gör
               </button>
               <button

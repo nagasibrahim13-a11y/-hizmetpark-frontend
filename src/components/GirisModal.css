@@ -85,7 +85,7 @@
   color: #64748B;
 }
 .giris-modal-kayit span {
-  color: #DC2626;
+  color: var(--navy-mid, #2B3A8C);
   font-weight: 600;
   cursor: pointer;
 }

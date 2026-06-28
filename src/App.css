@@ -1,13 +1,35 @@
+/* ── Design tokens: Krem & Lacivert ── */
+:root {
+  --bg: #FAFAF6;
+  --surface: #FFFFFF;
+  --navy: #1B1D3A;
+  --navy-mid: #2B3A8C;
+  --cta: #E85D26;
+  --cta-hover: #D14D1A;
+  --text-primary: #1B1D3A;
+  --text-muted: #6B6B80;
+  --text-faint: #9B9BAA;
+  --border: #E6E4EF;
+  --border-hover: rgba(43,58,140,0.22);
+  --shadow-card: 0 1px 4px rgba(27,29,58,0.06);
+  --shadow-hover: 0 8px 28px rgba(27,29,58,0.1);
+  --radius-card: 20px;
+  --radius-btn: 12px;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body: 'DM Sans', 'Inter', system-ui, sans-serif;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-body);
 }
 
 body {
-  background: #F4F1EA;
-  color: #0F172A;
+  background: var(--bg);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
 }
 
 .app { min-height: 100vh; }
@@ -17,36 +39,40 @@ h1, h2, h3, h4 {
   letter-spacing: -0.02em;
 }
 
-/* ── Primary button (kırmızı vurgu) ── */
+/* ── Primary button ── */
 .btn-primary {
-  background: #DC2626;
+  background: var(--cta);
   color: white;
   border: none;
   padding: 13px 24px;
-  border-radius: 10px;
+  border-radius: var(--radius-btn);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   width: 100%;
-  transition: background 0.2s;
+  transition: background 0.22s, box-shadow 0.22s, transform 0.15s;
 }
-.btn-primary:hover { background: #B91C1C; }
-.btn-primary:disabled { background: #FCA5A5; cursor: not-allowed; }
+.btn-primary:hover {
+  background: var(--cta-hover);
+  box-shadow: 0 4px 16px rgba(232,93,38,0.28);
+  transform: translateY(-1px);
+}
+.btn-primary:disabled { background: #F5B89A; cursor: not-allowed; }
 
 /* ── Secondary button ── */
 .btn-secondary {
   background: white;
-  color: #DC2626;
-  border: 1.5px solid #DC2626;
+  color: var(--navy-mid);
+  border: 1.5px solid var(--navy-mid);
   padding: 13px 24px;
-  border-radius: 10px;
+  border-radius: var(--radius-btn);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   width: 100%;
-  transition: all 0.2s;
+  transition: all 0.22s;
 }
-.btn-secondary:hover { background: #FEF2F2; }
+.btn-secondary:hover { background: rgba(43,58,140,0.05); }
 
 /* ── Inputs ── */
 .input-group {
@@ -57,38 +83,39 @@ h1, h2, h3, h4 {
 }
 .input-group label {
   font-size: 12px;
-  font-weight: 600;
-  color: #64748B;
+  font-weight: 700;
+  color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.07em;
 }
 .input-group input,
 .input-group select {
   padding: 12px 14px;
-  border: 1.5px solid #E2E8F0;
+  border: 1.5px solid var(--border);
   border-radius: 10px;
   font-size: 14px;
   outline: none;
-  background: #F8FAFC;
-  color: #0F172A;
+  background: #F7F6FB;
+  color: var(--text-primary);
   transition: border 0.2s;
+  font-family: var(--font-body);
 }
 .input-group input:focus,
 .input-group select:focus {
-  border-color: #DC2626;
+  border-color: var(--navy-mid);
   background: white;
 }
 
 /* ── Card ── */
 .card {
-  background: white;
-  border-radius: 16px;
-  padding: 20px;
-  border: 1px solid #E2E8F0;
-  box-shadow: 0 1px 3px rgba(15,23,42,0.08);
+  background: var(--surface);
+  border-radius: var(--radius-card);
+  padding: 28px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
 }
 
-/* ── Error (distinct dark burgundy — #991B1B, not primary red) ── */
+/* ── Error ── */
 .hata {
   background: #FEF2F2;
   color: #991B1B;
@@ -99,7 +126,7 @@ h1, h2, h3, h4 {
   border: 1px solid #FECACA;
 }
 
-/* ── Success (emerald — stays green to not clash with red) ── */
+/* ── Success ── */
 .basari {
   background: #ECFDF5;
   color: #065F46;
@@ -108,4 +135,18 @@ h1, h2, h3, h4 {
   font-size: 13px;
   margin-bottom: 16px;
   border: 1px solid #A7F3D0;
+}
+
+/* ── Scroll Reveal ── */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+[data-reveal].reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { opacity: 1; transform: none; transition: none; }
 }

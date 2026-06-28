@@ -1,5 +1,5 @@
 /* ======================== PAGE ======================== */
-.sadakat-sayfa { min-height: 100vh; background: #F8FAFC; }
+.sadakat-sayfa { min-height: 100vh; background: var(--bg, #FAFAF6); }
 
 /* ======================== HEADER ======================== */
 .header {
@@ -10,8 +10,8 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
-  border-bottom: 1px solid #E2E8F0;
-  box-shadow: 0 1px 3px rgba(15,23,42,0.08);
+  border-bottom: 1px solid var(--border, #E6E4EF);
+  box-shadow: var(--shadow-card, 0 1px 3px rgba(27,29,58,0.08));
   position: sticky;
   top: 0;
   z-index: 100;
@@ -21,7 +21,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #1E1B4B;
+  color: var(--navy, #1B1D3A);
   font-size: 20px;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -29,33 +29,33 @@
 
 .geri-btn {
   background: white;
-  border: 1.5px solid #E2E8F0;
-  color: #64748B;
+  border: 1.5px solid var(--border, #E6E4EF);
+  color: var(--text-muted, #6B6B80);
   padding: 8px 16px;
-  border-radius: 10px;
+  border-radius: var(--radius-btn, 12px);
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
   transition: all 0.2s;
 }
-.geri-btn:hover { background: #EEF2FF; border-color: #4F46E5; color: #4F46E5; }
+.geri-btn:hover { background: rgba(43,58,140,0.06); border-color: var(--navy-mid, #2B3A8C); color: var(--navy-mid, #2B3A8C); }
 
 /* ======================== CONTENT ======================== */
 .sadakat-icerik { max-width: 760px; margin: 0 auto; padding: 32px 20px; }
 
 .sadakat-baslik { margin-bottom: 28px; }
-.sadakat-baslik h2 { font-size: 26px; font-weight: 800; color: #0F172A; }
-.sadakat-baslik p { font-size: 14px; color: #64748B; margin-top: 4px; }
+.sadakat-baslik h2 { font-size: 26px; font-weight: 800; color: var(--text-primary, #1B1D3A); }
+.sadakat-baslik p { font-size: 14px; color: var(--text-muted, #6B6B80); margin-top: 4px; }
 
 .sadakat-grid { display: flex; flex-direction: column; gap: 16px; }
 
 /* ======================== LOYALTY CARD ======================== */
 .sadakat-kart {
   background: white;
-  border-radius: 16px;
+  border-radius: var(--radius-card, 20px);
   padding: 22px;
-  border: 1.5px solid #E2E8F0;
-  box-shadow: 0 1px 3px rgba(15,23,42,0.06);
+  border: 1.5px solid var(--border, #E6E4EF);
+  box-shadow: var(--shadow-card, 0 1px 3px rgba(27,29,58,0.06));
   transition: all 0.2s;
 }
 
@@ -76,22 +76,22 @@
 .sadakat-avatar {
   width: 48px;
   height: 48px;
-  background: #EEF2FF;
+  background: rgba(43,58,140,0.08);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24px;
-  border: 1px solid #C7D2FE;
+  border: 1px solid rgba(43,58,140,0.14);
 }
 
-.sadakat-isletme-adi { font-size: 16px; font-weight: 700; color: #0F172A; }
-.sadakat-isletme-konum { font-size: 12px; color: #94A3B8; margin-top: 2px; }
+.sadakat-isletme-adi { font-size: 16px; font-weight: 700; color: var(--text-primary, #1B1D3A); }
+.sadakat-isletme-konum { font-size: 12px; color: var(--text-faint, #9B9BAA); margin-top: 2px; }
 
 .sadakat-toplam-badge {
-  background: #F1F5F9;
-  color: #475569;
-  border: 1px solid #E2E8F0;
+  background: rgba(27,29,58,0.05);
+  color: var(--text-muted, #6B6B80);
+  border: 1px solid var(--border, #E6E4EF);
   padding: 6px 14px;
   border-radius: 20px;
   font-size: 12px;
@@ -140,8 +140,8 @@
   margin-bottom: 12px;
 }
 
-.ilerleme-label { font-size: 13px; color: #64748B; }
-.ilerleme-sayi { font-size: 13px; font-weight: 600; color: #475569; }
+.ilerleme-label { font-size: 13px; color: var(--text-muted, #6B6B80); }
+.ilerleme-sayi { font-size: 13px; font-weight: 600; color: var(--text-primary, #1B1D3A); }
 
 .nokta-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
 
@@ -149,14 +149,14 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #F1F5F9;
-  border: 2px solid #E2E8F0;
+  background: var(--bg, #FAFAF6);
+  border: 2px solid var(--border, #E6E4EF);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 11px;
   font-weight: 600;
-  color: #94A3B8;
+  color: var(--text-faint, #9B9BAA);
   transition: all 0.3s;
 }
 
@@ -170,7 +170,7 @@
 .progress-bar-bg {
   width: 100%;
   height: 8px;
-  background: #E2E8F0;
+  background: var(--border, #E6E4EF);
   border-radius: 20px;
   overflow: hidden;
   margin-bottom: 10px;
@@ -178,7 +178,7 @@
 
 .progress-bar-dolu {
   height: 100%;
-  background: linear-gradient(90deg, #4F46E5, #10B981);
+  background: linear-gradient(90deg, var(--navy-mid, #2B3A8C), #10B981);
   border-radius: 20px;
   transition: width 0.6s ease;
 }
@@ -188,7 +188,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: 13px;
-  color: #64748B;
+  color: var(--text-muted, #6B6B80);
 }
 
 .odul-hediye-adi {
@@ -203,14 +203,14 @@
 
 /* ======================== HISTORY ======================== */
 .gecmis-oduller {
-  border-top: 1px solid #F1F5F9;
+  border-top: 1px solid var(--border, #E6E4EF);
   padding-top: 14px;
 }
 
 .gecmis-baslik {
   font-size: 12px;
   font-weight: 700;
-  color: #94A3B8;
+  color: var(--text-faint, #9B9BAA);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 8px;
@@ -221,17 +221,17 @@
   justify-content: space-between;
   font-size: 13px;
   padding: 6px 0;
-  border-bottom: 1px solid #F1F5F9;
+  border-bottom: 1px solid var(--bg, #FAFAF6);
 }
 
 .gecmis-satir.bekliyor { color: #92400E; }
-.gecmis-satir.kullanildi { color: #94A3B8; }
+.gecmis-satir.kullanildi { color: var(--text-faint, #9B9BAA); }
 .gecmis-tarih { font-size: 12px; }
 
 /* ======================== EMPTY / LOADING ======================== */
 .bos-sadakat { text-align: center; padding: 60px 20px; }
 .bos-emoji { font-size: 56px; margin-bottom: 16px; }
-.bos-sadakat h3 { font-size: 18px; font-weight: 700; color: #0F172A; margin-bottom: 8px; }
-.bos-sadakat p { font-size: 14px; color: #64748B; }
+.bos-sadakat h3 { font-size: 18px; font-weight: 700; color: var(--text-primary, #1B1D3A); margin-bottom: 8px; }
+.bos-sadakat p { font-size: 14px; color: var(--text-muted, #6B6B80); }
 
-.yukleniyor { text-align: center; padding: 60px; color: #94A3B8; }
+.yukleniyor { text-align: center; padding: 60px; color: var(--text-faint, #9B9BAA); }

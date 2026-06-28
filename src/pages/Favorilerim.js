@@ -79,13 +79,13 @@ const Favorilerim = ({ kullanici, onProfilAc }) => {
                 {isl.hizmetler?.slice(0,3).map((h, i) => (
                   <div key={i} style={{display:'flex', justifyContent:'space-between', fontSize:'13px', padding:'4px 0', color:'#374151'}}>
                     <span>{h.ad}</span>
-                    <span style={{fontWeight:'700', color:'#DC2626'}}>{h.fiyat} ₺</span>
+                    <span style={{fontWeight:'700', color:'#E85D26'}}>{h.fiyat} ₺</span>
                   </div>
                 ))}
 
                 <button
                   onClick={(e) => { e.stopPropagation(); onProfilAc(isl._id); }}
-                  style={{width:'100%', marginTop:'12px', padding:'10px', background:'#DC2626', color:'white', border:'none', borderRadius:'10px', fontWeight:'600', fontSize:'14px', cursor:'pointer'}}>
+                  style={{width:'100%', marginTop:'12px', padding:'10px', background:'#E85D26', color:'white', border:'none', borderRadius:'10px', fontWeight:'600', fontSize:'14px', cursor:'pointer'}}>
                   Randevu Al
                 </button>
               </div>

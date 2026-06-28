@@ -840,10 +840,10 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
                   <label style={labelStyle}>Hediye ne olsun?</label>
                   <input type="text" value={hediye} onChange={e => setHediye(e.target.value)} placeholder="Örn: Ücretsiz Saç Yıkama" style={inputStyle} />
                 </div>
-                <button onClick={sadakatKaydet} style={{ background: '#DC2626', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', marginBottom: '12px' }}>Kaydet</button>
+                <button onClick={sadakatKaydet} style={{ background: '#E85D26', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', marginBottom: '12px' }}>Kaydet</button>
               </div>
               {sadakatKayitBasari && <div style={{ background: '#F1F8E9', color: '#2E7D32', padding: '10px', borderRadius: '8px', fontSize: '13px', border: '1px solid #C8E6C9' }}>✅ {sadakatKayitBasari}</div>}
-              <div style={{ background: '#FFF5F5', border: '1px solid #FFCDD2', borderRadius: '8px', padding: '10px 14px', marginTop: '8px', fontSize: '13px', color: '#DC2626' }}>
+              <div style={{ background: 'rgba(232,93,38,0.06)', border: '1px solid rgba(232,93,38,0.18)', borderRadius: '8px', padding: '10px 14px', marginTop: '8px', fontSize: '13px', color: '#E85D26' }}>
                 🎁 Her <strong>{hedefZiyaret}</strong> ziyarette müşteriye <strong>{hediye}</strong> hediye edilecek
               </div>
               {isletme?.premium?.aktif && (
@@ -883,7 +883,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
                 return (
                   <div key={i} className="randevu-kart">
                     <div className="randevu-sol" style={{ minWidth: '50px' }}>
-                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#FFF5F5', border: '2px solid #FFCDD2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '700', color: '#DC2626' }}>
+                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(27,29,58,0.08)', border: '2px solid rgba(27,29,58,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '700', color: '#1B1D3A' }}>
                         {s.musteri?.ad?.[0]}{s.musteri?.soyad?.[0]}
                       </div>
                     </div>
@@ -897,15 +897,15 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
                       <div className="randevu-hizmet">{s.musteri?.email}</div>
                       <div style={{ marginTop: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <div style={{ flex: '1', height: '6px', background: '#F0F0F0', borderRadius: '20px', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${Math.min((s.mevcutPuan / s.odul.hedefZiyaret) * 100, 100)}%`, background: '#DC2626', borderRadius: '20px' }} />
+                          <div style={{ height: '100%', width: `${Math.min((s.mevcutPuan / s.odul.hedefZiyaret) * 100, 100)}%`, background: '#E85D26', borderRadius: '20px' }} />
                         </div>
-                        <span style={{ fontSize: '12px', color: '#DC2626', fontWeight: '700' }}>{s.mevcutPuan}/{s.odul.hedefZiyaret}</span>
+                        <span style={{ fontSize: '12px', color: '#E85D26', fontWeight: '700' }}>{s.mevcutPuan}/{s.odul.hedefZiyaret}</span>
                       </div>
                     </div>
                     <div className="randevu-sag">
                       <div style={{ textAlign: 'right' }}>
                         <div style={{ fontSize: '12px', color: '#999' }}>Toplam</div>
-                        <div style={{ fontSize: '16px', fontWeight: '700', color: '#DC2626' }}>{s.toplamZiyaret} ziyaret</div>
+                        <div style={{ fontSize: '16px', fontWeight: '700', color: '#E85D26' }}>{s.toplamZiyaret} ziyaret</div>
                       </div>
                       {bekleyenOdul > 0 && <div style={{ background: '#FFF8E1', border: '1px solid #FFE082', borderRadius: '20px', padding: '4px 10px', fontSize: '11px', fontWeight: '600', color: '#F57F17', marginTop: '4px' }}>🎁 {bekleyenOdul} ödül bekliyor</div>}
                     </div>
@@ -920,7 +920,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
         {aktifSekme === 'hizmetler' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px' }}>
-              <button onClick={() => setYeniHizmetModal(true)} style={{ background: '#DC2626', color: 'white', border: 'none', padding: '9px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>+ Yeni Hizmet Ekle</button>
+              <button onClick={() => setYeniHizmetModal(true)} style={{ background: '#E85D26', color: 'white', border: 'none', padding: '9px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>+ Yeni Hizmet Ekle</button>
             </div>
             {isletme.hizmetler.map((h, i) => (
               <div key={i} className="hizmet-satir-panel">
@@ -963,7 +963,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
-              <button onClick={() => setYeniReklamModal(true)} style={{ background: '#DC2626', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+              <button onClick={() => setYeniReklamModal(true)} style={{ background: '#E85D26', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                 + Yeni Reklam Oluştur
               </button>
             </div>
@@ -1116,7 +1116,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
                   </label>
 
                   {profilBasari && <div style={{ background: '#ECFDF5', color: '#065F46', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', marginBottom: '12px', border: '1px solid #A7F3D0' }}>✅ {profilBasari}</div>}
-                  <button onClick={profilKaydet} style={{ background: '#DC2626', color: 'white', border: 'none', padding: '13px', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', width: '100%' }}>Kaydet</button>
+                  <button onClick={profilKaydet} style={{ background: '#E85D26', color: 'white', border: 'none', padding: '13px', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', width: '100%' }}>Kaydet</button>
                 </div>
               </div>
             )}
@@ -1143,7 +1143,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
                   <label style={labelStyle}>Kapalı Saatler</label>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '16px' }}>
                     {saatler.map(s => (
-                      <label key={s} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '9px', border: `1.5px solid ${musaitlikSaatler.includes(s) ? '#DC2626' : '#E0E0E0'}`, borderRadius: '8px', cursor: 'pointer', background: musaitlikSaatler.includes(s) ? '#FFF5F5' : 'white', fontSize: '13px', fontWeight: '500', color: musaitlikSaatler.includes(s) ? '#DC2626' : '#555', transition: 'all 0.15s' }}>
+                      <label key={s} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '9px', border: `1.5px solid ${musaitlikSaatler.includes(s) ? '#1B1D3A' : '#E0E0E0'}`, borderRadius: '8px', cursor: 'pointer', background: musaitlikSaatler.includes(s) ? 'rgba(27,29,58,0.07)' : 'white', fontSize: '13px', fontWeight: '500', color: musaitlikSaatler.includes(s) ? '#1B1D3A' : '#555', transition: 'all 0.15s' }}>
                         <input type="checkbox" checked={musaitlikSaatler.includes(s)} onChange={e => setMusaitlikSaatler(e.target.checked ? [...musaitlikSaatler, s] : musaitlikSaatler.filter(x => x !== s))} style={{ display: 'none' }} />
                         {s}
                       </label>
@@ -1152,7 +1152,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
                 </div>
               )}
               {musaitlikBasari && <div style={{ background: '#F1F8E9', color: '#2E7D32', padding: '10px', borderRadius: '8px', fontSize: '13px', border: '1px solid #C8E6C9', marginBottom: '12px' }}>✅ {musaitlikBasari}</div>}
-              <button onClick={kapaliTarihEkle} style={{ background: '#DC2626', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+              <button onClick={kapaliTarihEkle} style={{ background: '#E85D26', color: 'white', border: 'none', padding: '10px 24px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                 + Ekle
               </button>
             </div>
@@ -1777,7 +1777,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
             <input style={inputStyle} type="number" value={duzenleHizmet.sure} onFocus={e => e.target.select()} onChange={e => setDuzenleHizmet({ ...duzenleHizmet, sure: e.target.value })} />
             <label style={labelStyle}>Fiyat (₺)</label>
             <input style={inputStyle} type="number" value={duzenleHizmet.fiyat} onFocus={e => e.target.select()} onChange={e => setDuzenleHizmet({ ...duzenleHizmet, fiyat: e.target.value })} />
-            <button onClick={hizmetDuzenleKaydet} style={{ background: '#DC2626', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>Kaydet</button>
+            <button onClick={hizmetDuzenleKaydet} style={{ background: '#E85D26', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>Kaydet</button>
           </div>
         </div>
       )}
@@ -1793,7 +1793,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
             <input style={inputStyle} type="number" placeholder="20" value={yeniHizmet.sure} onFocus={e => e.target.select()} onChange={e => setYeniHizmet({ ...yeniHizmet, sure: e.target.value })} />
             <label style={labelStyle}>Fiyat (₺)</label>
             <input style={inputStyle} type="number" placeholder="150" value={yeniHizmet.fiyat} onFocus={e => e.target.select()} onChange={e => setYeniHizmet({ ...yeniHizmet, fiyat: e.target.value })} />
-            <button onClick={hizmetEkle} style={{ background: '#DC2626', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>Ekle</button>
+            <button onClick={hizmetEkle} style={{ background: '#E85D26', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>Ekle</button>
           </div>
         </div>
       )}
@@ -1814,9 +1814,9 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
                 <div
                   key={t.tip}
                   onClick={() => setYeniReklam({ ...yeniReklam, tip: t.tip })}
-                  style={{ border: `2px solid ${yeniReklam.tip === t.tip ? '#DC2626' : '#E0E0E0'}`, borderRadius: '8px', padding: '10px', textAlign: 'center', cursor: 'pointer', background: yeniReklam.tip === t.tip ? '#FFF5F5' : 'white' }}
+                  style={{ border: `2px solid ${yeniReklam.tip === t.tip ? '#E85D26' : '#E0E0E0'}`, borderRadius: '8px', padding: '10px', textAlign: 'center', cursor: 'pointer', background: yeniReklam.tip === t.tip ? 'rgba(232,93,38,0.06)' : 'white' }}
                 >
-                  <div style={{ fontSize: '13px', fontWeight: '600', color: yeniReklam.tip === t.tip ? '#DC2626' : '#555' }}>{t.label}</div>
+                  <div style={{ fontSize: '13px', fontWeight: '600', color: yeniReklam.tip === t.tip ? '#E85D26' : '#555' }}>{t.label}</div>
                   <div style={{ fontSize: '11px', color: '#999', marginTop: '2px' }}>{t.fiyat}</div>
                 </div>
               ))}
@@ -1846,7 +1846,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
                 <button
                   key={g}
                   onClick={() => setYeniReklam({ ...yeniReklam, gun: g })}
-                  style={{ flex: 1, padding: '10px', border: `2px solid ${yeniReklam.gun === g ? '#DC2626' : '#E0E0E0'}`, borderRadius: '8px', background: yeniReklam.gun === g ? '#FFF5F5' : 'white', cursor: 'pointer', fontSize: '13px', fontWeight: '600', color: yeniReklam.gun === g ? '#DC2626' : '#555' }}
+                  style={{ flex: 1, padding: '10px', border: `2px solid ${yeniReklam.gun === g ? '#E85D26' : '#E0E0E0'}`, borderRadius: '8px', background: yeniReklam.gun === g ? 'rgba(232,93,38,0.06)' : 'white', cursor: 'pointer', fontSize: '13px', fontWeight: '600', color: yeniReklam.gun === g ? '#E85D26' : '#555' }}
                 >
                   {g} gün<br />
                   <span style={{ fontSize: '11px', fontWeight: '400' }}>{reklamFiyat(yeniReklam.tip, g)} ₺</span>
@@ -1854,11 +1854,11 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
               ))}
             </div>
 
-            <div style={{ background: '#FFF5F5', border: '1px solid #FFCDD2', borderRadius: '8px', padding: '12px', marginBottom: '16px', fontSize: '13px', color: '#DC2626', textAlign: 'center' }}>
+            <div style={{ background: 'rgba(232,93,38,0.06)', border: '1px solid rgba(232,93,38,0.18)', borderRadius: '8px', padding: '12px', marginBottom: '16px', fontSize: '13px', color: '#E85D26', textAlign: 'center' }}>
               Toplam: <strong>{reklamFiyat(yeniReklam.tip, yeniReklam.gun)} ₺</strong> — {yeniReklam.gun} gün {tipLabel[yeniReklam.tip]}
             </div>
 
-            <button onClick={reklamOlustur} style={{ background: '#DC2626', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>
+            <button onClick={reklamOlustur} style={{ background: '#E85D26', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', width: '100%' }}>
               Reklamı Yayınla
             </button>
           </div>

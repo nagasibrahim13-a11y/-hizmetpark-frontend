@@ -1,21 +1,21 @@
 .layout-govde {
   min-height: 100vh;
-  background: #F4F1EA;
+  background: var(--bg, #FAFAF6);
 }
 
 .layout-header {
   position: sticky;
-  top: 16px;
+  top: 14px;
   z-index: 100;
-  background: #FFFFFF;
-  border: 1px solid #E8E3D8;
+  background: var(--navy, #1B1D3A);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 20px;
   padding: 10px 20px;
   display: flex;
   align-items: center;
   gap: 16px;
-  margin: 16px 24px 0;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  margin: 14px 24px 0;
+  box-shadow: 0 4px 20px rgba(27,29,58,0.18);
 }
 
 .layout-logo {
@@ -25,17 +25,29 @@
   flex-shrink: 0;
 }
 
+.layout-logo span {
+  color: #FFFFFF !important;
+}
+
 .layout-arama {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #F4F1EA;
-  border-radius: 16px;
-  padding: 9px 16px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 8px 14px;
   flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: background 0.2s, border-color 0.2s;
 }
-
-.layout-logo span { color: #1A1A1A !important; }
+.layout-arama:focus-within {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.2);
+}
+.layout-arama input {
+  color: rgba(255,255,255,0.9) !important;
+}
+.layout-arama input::placeholder { color: rgba(255,255,255,0.45) !important; }
 
 .layout-sag {
   display: flex;
@@ -46,8 +58,8 @@
 
 .layout-bildirim {
   position: relative;
-  background: #F1F5F9;
-  border: none;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 12px;
   width: 40px;
   height: 40px;
@@ -56,13 +68,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  color: rgba(255,255,255,0.8);
+  transition: background 0.2s;
 }
+.layout-bildirim:hover { background: rgba(255,255,255,0.16); }
 
 .layout-bildirim-rozet {
   position: absolute;
   top: -2px;
   right: -2px;
-  background: #EF4444;
+  background: var(--cta, #E85D26);
   color: white;
   font-size: 10px;
   font-weight: 700;
@@ -95,26 +110,36 @@
 }
 
 .layout-kayit-btn {
-  padding: 10px 20px;
-  border-radius: 12px;
-  border: 1px solid #E2E8F0;
-  background: white;
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: transparent;
+  color: rgba(255,255,255,0.85);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.layout-kayit-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.4);
 }
 
 .layout-giris-btn {
-  padding: 10px 20px;
-  border-radius: 12px;
+  padding: 8px 18px;
+  border-radius: 10px;
   border: none;
-  background: #DC2626;
+  background: var(--cta, #E85D26);
   color: white;
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 700;
+  font-size: 13px;
   cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
 }
-
+.layout-giris-btn:hover {
+  background: var(--cta-hover, #D14D1A);
+  box-shadow: 0 4px 14px rgba(232,93,38,0.35);
+}
 
 .layout-icerik {
   flex: 1;

@@ -56,7 +56,7 @@ const Layout = ({ children, kullanici, isletmeId, onAnaSayfa, onIsletmePanel, on
     <div className="layout-govde">
       <header className="layout-header">
         <div className="layout-logo" onClick={onAnaSayfa} style={{cursor:'pointer', flexShrink:0}}>
-          <Calendar size={20} color="#DC2626" />
+          <Calendar size={20} color="#E85D26" />
           <span style={{fontSize:'17px', fontWeight:'800', color:'#1A1A1A'}}>HizmetPark</span>
         </div>
 
@@ -96,8 +96,8 @@ const Layout = ({ children, kullanici, isletmeId, onAnaSayfa, onIsletmePanel, on
                 style={{
                   display:'flex', alignItems:'center', gap:'5px',
                   padding:'7px 10px', borderRadius:'8px', border:'none',
-                  background: aktifSayfa === m.key ? '#1A1A1A' : 'transparent',
-                  color: aktifSayfa === m.key ? '#FFFFFF' : '#64748B',
+                  background: aktifSayfa === m.key ? 'rgba(255,255,255,0.15)' : 'transparent',
+                  color: aktifSayfa === m.key ? '#FFFFFF' : 'rgba(255,255,255,0.55)',
                   fontSize:'12.5px', fontWeight: aktifSayfa === m.key ? '700' : '500',
                   cursor:'pointer', whiteSpace:'nowrap', transition:'all 0.15s'
                 }}>
@@ -119,8 +119,8 @@ const Layout = ({ children, kullanici, isletmeId, onAnaSayfa, onIsletmePanel, on
                     kullanici.ad?.[0]?.toUpperCase() || '👤'
                   )}
                 </div>
-                <span style={{fontSize:'13px', fontWeight:'600', color:'#374151'}}>{kullanici.ad}</span>
-                <ChevronDown size={14} color="#94A3B8" />
+                <span style={{fontSize:'13px', fontWeight:'600', color:'rgba(255,255,255,0.9)'}}>{kullanici.ad}</span>
+                <ChevronDown size={14} color="rgba(255,255,255,0.5)" />
               </div>
               {profilMenuAcik && (
                 <div style={{position:'absolute', top:'44px', right:'0', width:'200px', background:'white', borderRadius:'12px', boxShadow:'0 10px 40px rgba(0,0,0,0.15)', border:'1px solid #E2E8F0', zIndex:200, overflow:'hidden'}}>
@@ -137,7 +137,7 @@ const Layout = ({ children, kullanici, isletmeId, onAnaSayfa, onIsletmePanel, on
             </div>
           ) : (
             <>
-              <button onClick={onPersonelGiris} style={{fontSize:'12px', color:'#94A3B8', background:'none', border:'none', cursor:'pointer', textDecoration:'underline'}}>
+              <button onClick={onPersonelGiris} style={{fontSize:'12px', color:'rgba(255,255,255,0.35)', background:'none', border:'none', cursor:'pointer', textDecoration:'underline'}}>
                 Personel Girişi
               </button>
               <button className="layout-kayit-btn" onClick={onKayitGit}>Kayıt Ol</button>
