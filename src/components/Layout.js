@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Home, Calendar, Gift, MapPin, ShoppingBag, LogOut, Bell, Search, Heart, Settings, LayoutDashboard, ChevronDown } from 'lucide-react';
 
-const Layout = ({ children, kullanici, isletmeId, onAnaSayfa, onIsletmePanel, onRandevularim, onSadakat, onYakinimda, onFavorilerim, onMarketplace, onAyarlar, onGirisYap, onKayitGit, onCikis, onPersonelGiris, aktifSayfa }) => {
+const Layout = ({ children, kullanici, isletmeId, onAnaSayfa, onIsletmePanel, onRandevularim, onSadakat, onYakinimda, onFavorilerim, onMarketplace, onAyarlar, onGirisYap, onKayitGit, onCikis, onPersonelGiris, aktifSayfa, onArama, aramaMetni }) => {
   const [bildirimler, setBildirimler] = useState([]);
   const [bildirimPanelAcik, setBildirimPanelAcik] = useState(false);
   const [okunmamisSayi, setOkunmamisSayi] = useState(0);
@@ -62,7 +62,12 @@ const Layout = ({ children, kullanici, isletmeId, onAnaSayfa, onIsletmePanel, on
 
         <div className="layout-arama" style={{maxWidth:'240px'}}>
           <Search size={16} color="#94A3B8" />
-          <input placeholder="Ara..." style={{border:'none', outline:'none', background:'transparent', flex:1, fontSize:'13px'}} />
+          <input
+            placeholder="Ara..."
+            value={aramaMetni || ''}
+            onChange={e => onArama?.(e.target.value)}
+            style={{border:'none', outline:'none', background:'transparent', flex:1, fontSize:'13px'}}
+          />
         </div>
 
         <div style={{position:'relative', marginLeft:'auto'}} ref={bildirimPanelRef}>

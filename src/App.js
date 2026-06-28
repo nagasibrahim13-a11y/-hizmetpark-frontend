@@ -24,6 +24,7 @@ function AppRouter() {
   const [personelBilgisi, setPersonelBilgisi] = useState(null);
   const [hediyeliRandevuData, setHediyeliRandevuData] = useState(null);
   const [aktifIsletmeId, setAktifIsletmeId] = useState(null);
+  const [aramaMetni, setAramaMetni] = useState('');
 
   // Guard: if user logs out while on a protected page, return to anaSayfa
   useEffect(() => {
@@ -91,7 +92,9 @@ function AppRouter() {
     onKayitGit: () => setSayfa('kayit'),
     onPersonelGiris: () => setSayfa('personelGiris'),
     onCikis: handleCikis,
-    aktifSayfa: sayfa
+    aktifSayfa: sayfa,
+    onArama: (v) => { setAramaMetni(v); if (sayfa !== 'anaSayfa') setSayfa('anaSayfa'); },
+    aramaMetni,
   };
 
   return (
@@ -133,6 +136,8 @@ function AppRouter() {
             onRandevularim={handleRandevularimTikla}
             onSadakat={handleSadakatTikla}
             onMarketplace={() => setSayfa('marketplace')}
+            aramaMetni={aramaMetni}
+            onArama={setAramaMetni}
           />
         </Layout>
       )}

@@ -8,7 +8,7 @@ import MesafeGoster from '../components/MesafeGoster';
 import useScrollReveal from '../hooks/useScrollReveal';
 import './MusteriAnaSayfa.css';
 
-function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilAc, onRandevularim, onSadakat, onMarketplace }) {
+function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilAc, onRandevularim, onSadakat, onMarketplace, aramaMetni: aramaMetniProp, onArama }) {
   const { girisGerektir } = useAuth();
   const [dropdownAcik, setDropdownAcik] = useState(false);
   const [favoriler, setFavoriler] = useState(new Set());
@@ -31,7 +31,9 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
   const [isletmeler, setIsletmeler] = useState([]);
   const [filtreliIsletmeler, setFiltreliIsletmeler] = useState([]);
   const [kategori, setKategori] = useState('');
-  const [aramaMetni, setAramaMetni] = useState('');
+  const [aramaMetniYerel, setAramaMetniYerel] = useState('');
+  const aramaMetni = aramaMetniProp !== undefined ? aramaMetniProp : aramaMetniYerel;
+  const setAramaMetni = onArama ?? setAramaMetniYerel;
   const [sehir, setSehir] = useState('');
   const [siralama, setSiralama] = useState('varsayilan');
   const [yukleniyor, setYukleniyor] = useState(true);
