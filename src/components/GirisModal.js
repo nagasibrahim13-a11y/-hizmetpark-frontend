@@ -25,7 +25,7 @@ function GirisModal({ onKayitGit }) {
       });
       const veri = await cevap.json();
       if (cevap.ok) {
-        girisYap(veri.kullanici);
+        girisYap(veri.kullanici, veri.token);
       } else {
         setGoogleHata(veri.hata || 'Google ile giriş başarısız');
       }

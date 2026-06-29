@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import jsPDF from 'jspdf';
 import { Calendar, Gift, Scissors, Megaphone, Store, CalendarDays, Users, Crown, BarChart3, Sun, Hourglass, Star, UserCheck, FileText, TrendingUp, Lock } from 'lucide-react';
 import IsletmeProfil from './IsletmeProfil';
 import './IsletmePanel.css';
 
 function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
+  const { authHeaders } = useAuth();
   const [randevular, setRandevular] = useState([]);
   const [isletme, setIsletme] = useState(null);
   const [aktifSekme, setAktifSekme] = useState('randevular');
@@ -76,6 +78,8 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
   const [vipHediye, setVipHediye] = useState('VIP Özel Hizmet');
   const [vipMusteriler, setVipMusteriler] = useState([]);
   const [secilenSegment, setSecilenSegment] = useState(null);
+  const [premiumYukleniyor, setPremiumYukleniyor] = useState(false);
+  const [premiumHata, setPremiumHata] = useState('');
 
   const fiyatlar = {
     slider: { haftalik: 400, aylik: 1200 },
@@ -247,7 +251,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
     try {
       const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/gider`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({ ad: yeniGiderAd, tutar: Number(yeniGiderTutar) })
       });
       const veri = await cevap.json();
@@ -259,7 +263,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
 
   const giderSil = async (giderId) => {
     try {
-      const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/gider/${giderId}`, { method: 'DELETE' });
+      const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/gider/${giderId}`, { method: 'DELETE', headers: authHeaders() });
       const veri = await cevap.json();
       setGiderler(veri.giderler);
       netKarGetir();
@@ -270,7 +274,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
     try {
       await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/personel/${personelId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({ maas: Number(maas) })
       });
       personelGetir();
@@ -320,7 +324,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
       const method = duzenlenenPersonelId ? 'PUT' : 'POST';
       const cevap = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({
           ad: yeniPersonelAd,
           unvan: yeniPersonelUnvan || 'Çalışan',
@@ -355,7 +359,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
 
   const personelSil = async (personelId) => {
     try {
-      const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/personel/${personelId}`, { method: 'DELETE' });
+      const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/personel/${personelId}`, { method: 'DELETE', headers: authHeaders() });
       const veri = await cevap.json();
       setPersonelListesi(veri.personel);
     } catch (err) { console.error(err); }
@@ -394,7 +398,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
       const endpoint = durum === 'iptal'
         ? `http://localhost:5000/api/randevular/${id}/iptal`
         : `http://localhost:5000/api/randevular/${id}/durum`;
-      await fetch(endpoint, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: durum === 'iptal' ? undefined : JSON.stringify({ durum }) });
+      await fetch(endpoint, { method: 'PUT', headers: authHeaders(), body: durum === 'iptal' ? undefined : JSON.stringify({ durum }) });
       randevulariGetir(isletme._id);
     } catch (err) { console.error(err); }
   };
@@ -403,7 +407,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
     try {
       await fetch(`http://localhost:5000/api/sadakat/isletme/${isletme._id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({ hedefZiyaret: Number(hedefZiyaret), hediye, vipHedef: Number(vipHedef), vipHediye })
       });
       setSadakatKayitBasari('Sadakat ayarları kaydedildi!');
@@ -415,7 +419,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
     try {
       await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/hizmet/${duzenleHizmet._id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({ ad: duzenleHizmet.ad, sure: Number(duzenleHizmet.sure), fiyat: Number(duzenleHizmet.fiyat) })
       });
       setDuzenleModal(false);
@@ -426,7 +430,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
   const hizmetSil = async (hizmetId) => {
     if (!window.confirm('Bu hizmeti silmek istediğinize emin misiniz?')) return;
     try {
-      await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/hizmet/${hizmetId}`, { method: 'DELETE' });
+      await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/hizmet/${hizmetId}`, { method: 'DELETE', headers: authHeaders() });
       isletmeyiGetir();
     } catch (err) { console.error(err); }
   };
@@ -436,7 +440,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
     try {
       await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/hizmet`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({ ad: yeniHizmet.ad, sure: Number(yeniHizmet.sure), fiyat: Number(yeniHizmet.fiyat) })
       });
       setYeniHizmetModal(false);
@@ -449,7 +453,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
     try {
       await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify(profilForm)
       });
       setProfilBasari('Profil güncellendi!');
@@ -488,7 +492,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
       bitis.setDate(bitis.getDate() + Number(yeniReklam.gun));
       await fetch('http://localhost:5000/api/reklamlar', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({
           isletme: isletme._id,
           tip: yeniReklam.tip,
@@ -511,9 +515,30 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
   const reklamIptal = async (reklamId) => {
     if (!window.confirm('Reklamı iptal etmek istiyor musunuz?')) return;
     try {
-      await fetch(`http://localhost:5000/api/reklamlar/${reklamId}/iptal`, { method: 'PUT' });
+      await fetch(`http://localhost:5000/api/reklamlar/${reklamId}/iptal`, { method: 'PUT', headers: authHeaders() });
       reklamlariGetir(isletme._id);
     } catch (err) { console.error(err); }
+  };
+
+  const premiumAktifEt = async (paket) => {
+    setPremiumHata('');
+    setPremiumYukleniyor(true);
+    try {
+      const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/premium`, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({ paket })
+      });
+      const veri = await cevap.json();
+      if (!cevap.ok) {
+        setPremiumHata(veri.hata || 'Bir hata oluştu');
+      } else {
+        setIsletme(prev => ({ ...prev, premium: veri.premium }));
+      }
+    } catch (err) {
+      setPremiumHata('Bağlantı hatası');
+    }
+    setPremiumYukleniyor(false);
   };
 
   const kapaliTarihEkle = async () => {
@@ -526,7 +551,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
       const method = duzenlenenKapaliTarihId ? 'PUT' : 'POST';
       const cevap = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({
           tarih: musaitlikTarih,
           tumGun: musaitlikTumGun,
@@ -557,7 +582,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
 
   const kapaliTarihKaldir = async (tarihId) => {
     try {
-      const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/kapali-tarih/${tarihId}`, { method: 'DELETE' });
+      const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/kapali-tarih/${tarihId}`, { method: 'DELETE', headers: authHeaders() });
       if (cevap.ok) {
         setIsletme(prev => ({
           ...prev,
@@ -572,11 +597,11 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
     if (!izinTumGun && izinSaatler.length === 0) { alert('En az bir saat seçin veya tüm gün seçin'); return; }
     try {
       if (duzenlenenIzinId) {
-        await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/personel/${secilenPersonelIzin}/izin/${duzenlenenIzinId}`, { method: 'DELETE' });
+        await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/personel/${secilenPersonelIzin}/izin/${duzenlenenIzinId}`, { method: 'DELETE', headers: authHeaders() });
       }
       await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/personel/${secilenPersonelIzin}/izin`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({ tarih: izinTarih, tumGun: izinTumGun, saatler: izinTumGun ? [] : izinSaatler, aciklama: izinAciklama })
       });
       setIzinBasari(duzenlenenIzinId ? 'İzin güncellendi!' : 'İzin eklendi!');
@@ -597,7 +622,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
 
   const personelIzinSil = async (personelId, izinId) => {
     try {
-      await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/personel/${personelId}/izin/${izinId}`, { method: 'DELETE' });
+      await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/personel/${personelId}/izin/${izinId}`, { method: 'DELETE', headers: authHeaders() });
       personelGetir();
     } catch (err) { console.error(err); }
   };
@@ -620,7 +645,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
         .filter(Boolean);
       const cevap = await fetch('http://localhost:5000/api/randevular', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify({
           musteriAdi: manuelForm.musteriAdi,
           musteriTelefon: manuelForm.musteriTelefon,
@@ -1404,7 +1429,7 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
                   <Crown size={28} />
                   <div>
                     <div style={{fontSize:'20px', fontWeight:'800'}}>Premium Aktif</div>
-                    <div style={{opacity:0.85, fontSize:'13px'}}>Paket: {isletme.premium.paket === 'yillik' ? 'Yıllık' : 'Aylık'} · Bitiş: {new Date(isletme.premium.bitis).toLocaleDateString('tr-TR')}</div>
+                    <div style={{opacity:0.85, fontSize:'13px'}}>Paket: {{ deneme: 'Ücretsiz Deneme', aylik: 'Aylık', yillik: 'Yıllık' }[isletme.premium.paket] || 'Deneme'} · Bitiş: {new Date(isletme.premium.bitis).toLocaleDateString('tr-TR')}</div>
                   </div>
                 </div>
                 <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px'}}>
@@ -1461,39 +1486,34 @@ function IsletmePanel({ kullanici, onCikis, onIsletmeYuklendi }) {
                   ))}
                 </div>
                 <div style={{display:'flex', gap:'12px', justifyContent:'center', flexWrap:'wrap'}}>
-                  <div style={{background:'white', border:'2px solid #4F46E5', borderRadius:'16px', padding:'20px 24px', minWidth:'160px'}}>
+                  <div style={{background:'white', border:'2px solid #4F46E5', borderRadius:'16px', padding:'20px 24px', minWidth:'160px', display:'flex', flexDirection:'column', alignItems:'center'}}>
                     <div style={{fontWeight:'700', fontSize:'16px', color:'#4F46E5'}}>Aylık</div>
                     <div style={{fontSize:'24px', fontWeight:'800', margin:'8px 0'}}>299₺</div>
-                    <div style={{fontSize:'12px', color:'#64748B'}}>/ ay</div>
+                    <div style={{fontSize:'12px', color:'#64748B', marginBottom:'16px'}}>/ ay</div>
+                    <button
+                      disabled={premiumYukleniyor}
+                      onClick={() => premiumAktifEt('aylik')}
+                      style={{background:'#4F46E5', color:'white', border:'none', borderRadius:'10px', padding:'10px 20px', fontSize:'13px', fontWeight:'700', cursor:'pointer', width:'100%', opacity: premiumYukleniyor ? 0.6 : 1}}
+                    >
+                      {premiumYukleniyor ? 'İşleniyor…' : 'Aylık Başla'}
+                    </button>
                   </div>
-                  <div style={{background:'linear-gradient(135deg,#4F46E5,#7C3AED)', borderRadius:'16px', padding:'20px 24px', minWidth:'160px', color:'white', position:'relative'}}>
-                    <div style={{position:'absolute', top:'-10px', left:'50%', transform:'translateX(-50%)', background:'#10B981', color:'white', fontSize:'11px', fontWeight:'700', padding:'3px 10px', borderRadius:'20px'}}>EN POPÜLER</div>
+                  <div style={{background:'linear-gradient(135deg,#4F46E5,#7C3AED)', borderRadius:'16px', padding:'20px 24px', minWidth:'160px', color:'white', position:'relative', display:'flex', flexDirection:'column', alignItems:'center'}}>
+                    <div style={{position:'absolute', top:'-10px', left:'50%', transform:'translateX(-50%)', background:'#10B981', color:'white', fontSize:'11px', fontWeight:'700', padding:'3px 10px', borderRadius:'20px', whiteSpace:'nowrap'}}>EN POPÜLER</div>
                     <div style={{fontWeight:'700', fontSize:'16px'}}>Yıllık</div>
                     <div style={{fontSize:'24px', fontWeight:'800', margin:'8px 0'}}>199₺</div>
-                    <div style={{fontSize:'12px', opacity:0.8}}>/ ay · %33 indirim</div>
+                    <div style={{fontSize:'12px', opacity:0.8, marginBottom:'16px'}}>/ ay · %33 indirim</div>
+                    <button
+                      disabled={premiumYukleniyor}
+                      onClick={() => premiumAktifEt('yillik')}
+                      style={{background:'white', color:'#4F46E5', border:'none', borderRadius:'10px', padding:'10px 20px', fontSize:'13px', fontWeight:'700', cursor:'pointer', width:'100%', opacity: premiumYukleniyor ? 0.6 : 1}}
+                    >
+                      {premiumYukleniyor ? 'İşleniyor…' : 'Yıllık Başla'}
+                    </button>
                   </div>
                 </div>
-                <p style={{marginTop:'16px', fontSize:'12px', color:'#94A3B8'}}>Premium aktivasyonu için yöneticinizle iletişime geçin.</p>
-                {!isletme?.premium?.aktif && (
-                  <button
-                    onClick={async () => {
-                      try {
-                        const cevap = await fetch(`http://localhost:5000/api/isletmeler/${isletme._id}/premium`, {
-                          method: 'PUT',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ paket: 'aylik' })
-                        });
-                        if (cevap.ok) {
-                          await isletmeyiGetir();
-                        } else {
-                          const veri = await cevap.json();
-                          console.error('Premium hata:', veri);
-                        }
-                      } catch (err) { console.error(err); }
-                    }}
-                    style={{marginTop:'12px', padding:'10px 24px', background:'#10B981', color:'white', border:'none', borderRadius:'10px', cursor:'pointer', fontWeight:'600', fontSize:'14px'}}>
-                    🧪 Test: Premium Aktif Et (Geçici)
-                  </button>
+                {premiumHata && (
+                  <p style={{marginTop:'12px', fontSize:'13px', color:'#EF4444', fontWeight:'600'}}>{premiumHata}</p>
                 )}
               </div>
             )}

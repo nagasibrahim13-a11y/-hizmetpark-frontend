@@ -18,7 +18,7 @@ import './components/Layout.css';
 import './App.css';
 
 function AppRouter() {
-  const { kullanici, girisModalAcik, girisGerektir, girisYap, cikisYap, modalKapat } = useAuth();
+  const { kullanici, girisModalAcik, girisGerektir, girisYap, cikisYap, modalKapat, yukleniyor } = useAuth();
   const [sayfa, setSayfa] = useState('anaSayfa');
   const [profilIsletmeId, setProfilIsletmeId] = useState(null);
   const [personelBilgisi, setPersonelBilgisi] = useState(null);
@@ -96,6 +96,13 @@ function AppRouter() {
     onArama: (v) => { setAramaMetni(v); if (sayfa !== 'anaSayfa') setSayfa('anaSayfa'); },
     aramaMetni,
   };
+
+  if (yukleniyor) return (
+    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--hp-krem, #f5ede0)' }}>
+      <style>{`@keyframes hp-spin { to { transform: rotate(360deg); } }`}</style>
+      <div style={{ width: 36, height: 36, borderRadius: '50%', border: '3px solid #e8d5b5', borderTopColor: 'var(--hp-lacivert, #1a2f5e)', animation: 'hp-spin 0.7s linear infinite' }} />
+    </div>
+  );
 
   return (
     <div className="app">

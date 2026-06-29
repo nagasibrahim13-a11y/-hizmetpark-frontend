@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Scissors, Sparkles, Heart, CircleDot, MapPin } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './SadakatKartlarim.css';
 
 function SadakatKartlarim({ kullanici, onGeri, onHediyeliRandevu }) {
+  const { token } = useAuth();
   const [sadakatlar, setSadakatlar] = useState([]);
   const [yukleniyor, setYukleniyor] = useState(true);
 
@@ -13,7 +15,9 @@ function SadakatKartlarim({ kullanici, onGeri, onHediyeliRandevu }) {
   const sadakatlariGetir = async () => {
     setYukleniyor(true);
     try {
-      const cevap = await fetch(`http://localhost:5000/api/sadakat/musteri/${kullanici.id}`);
+      const cevap = await fetch(`http://localhost:5000/api/sadakat/musteri/${kullanici.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       const veri = await cevap.json();
       setSadakatlar(veri);
     } catch (err) {

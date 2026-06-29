@@ -1,0 +1,33 @@
+/* ======================== HARITA ======================== */
+.yakin-harita {
+  height: 550px;
+}
+
+/* ======================== İŞLETME KARTI GRİD ======================== */
+.yakin-isletme-grid {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+/* ======================== RESPONSIVE ======================== */
+@media (max-width: 768px) {
+  .yakin-harita {
+    height: 300px;
+    border-radius: 10px !important;
+  }
+
+  /* Harita altındaki kartlar: yatay kaydırılabilir şerit */
+  .yakin-isletme-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+@media (max-width: 540px) {
+  .yakin-harita {
+    height: 260px;
+  }
+
+  /* Tek sütun liste */
+  .yakin-isletme-grid {
+    grid-template-columns: 1fr;
+  }
+}

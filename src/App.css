@@ -140,8 +140,8 @@ h1, h2, h3, h4 {
 /* ── Scroll Reveal ── */
 [data-reveal] {
   opacity: 0;
-  transform: translateY(22px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transform: translateY(10px);
+  transition: opacity 0.18s ease, transform 0.18s ease;
 }
 [data-reveal].reveal-visible {
   opacity: 1;

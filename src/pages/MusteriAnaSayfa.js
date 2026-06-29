@@ -9,7 +9,7 @@ import useScrollReveal from '../hooks/useScrollReveal';
 import './MusteriAnaSayfa.css';
 
 function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilAc, onRandevularim, onSadakat, onMarketplace, aramaMetni: aramaMetniProp, onArama }) {
-  const { girisGerektir } = useAuth();
+  const { girisGerektir, token } = useAuth();
   const [dropdownAcik, setDropdownAcik] = useState(false);
   const [favoriler, setFavoriler] = useState(new Set());
   const dropdownRef = useRef(null);
@@ -63,7 +63,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
   const [oneCikanReklamlar, setOneCikanReklamlar] = useState([]);
   const [sliderIndex, setSliderIndex] = useState(0);
   const [firsatIndex, setFirsatIndex] = useState(0);
-  const revealRef = useScrollReveal({ staggerMs: 70, deps: [filtreliIsletmeler.length] });
+  const revealRef = useScrollReveal({ staggerMs: 35, deps: [filtreliIsletmeler.length] });
 
   const kategoriler = [
     { deger: '', label: 'Tümü', emoji: '🏪' },
@@ -131,7 +131,7 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
       return yeni;
     });
     try {
-      await fetch(`http://localhost:5000/api/kullanicilar/${kullanici.id}/favori/${isletmeId}`, { method: 'PUT' });
+      await fetch(`http://localhost:5000/api/kullanicilar/${kullanici.id}/favori/${isletmeId}`, { method: 'PUT', headers: { Authorization: `Bearer ${token}` } });
     } catch (err) { console.error(err); }
   };
 
@@ -311,9 +311,8 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
     try {
       const cevap = await fetch('http://localhost:5000/api/yorumlar', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
-          musteri: kullanici.id,
           isletme: yorumIsletme._id,
           randevu: secilenRandevu,
           puan: yeniPuan,
@@ -724,28 +723,50 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
             <div style={{fontSize:'24px', fontWeight:'800', color:'#4F46E5', marginBottom:'12px'}}>
               {new Date().toLocaleTimeString('tr-TR', { hour:'2-digit', minute:'2-digit' })}
             </div>
-            <div style={{display:'grid', gridTemplateColumns:'repeat(7, 1fr)', gap:'4px'}}>
-              {['Pt','Sa','Ça','Pe','Cu','Ct','Pa'].map(g => (
-                <div key={g} style={{fontSize:'10px', color:'#94A3B8', textAlign:'center', fontWeight:'600'}}>{g}</div>
-              ))}
-              {Array.from({length: 30}).map((_, i) => {
-                const gun = i + 1;
-                const bugun = new Date().getDate() === gun;
-                return (
-                  <div key={i} style={{
-                    fontSize:'11px',
-                    textAlign:'center',
-                    padding:'4px 0',
-                    borderRadius:'6px',
-                    background: bugun ? '#4F46E5' : 'transparent',
-                    color: bugun ? 'white' : '#374151',
-                    fontWeight: bugun ? '700' : '400'
-                  }}>
-                    {gun}
-                  </div>
-                );
-              })}
-            </div>
+            {(() => {
+              const simdi = new Date();
+              const yil = simdi.getFullYear();
+              const ay = simdi.getMonth();
+              const bugunGun = simdi.getDate();
+              const ayBas = new Date(yil, ay, 1);
+              const ayGunSayisi = new Date(yil, ay + 1, 0).getDate();
+              const offset = (ayBas.getDay() + 6) % 7; // Pazartesi=0
+              return (
+                <div style={{display:'grid', gridTemplateColumns:'repeat(7, 1fr)', gap:'4px'}}>
+                  {['Pt','Sa','Ça','Pe','Cu','Ct','Pa'].map(g => (
+                    <div key={g} style={{fontSize:'10px', color:'#94A3B8', textAlign:'center', fontWeight:'600'}}>{g}</div>
+                  ))}
+                  {Array.from({length: offset}).map((_, i) => (
+                    <div key={`bo-${i}`} />
+                  ))}
+                  {Array.from({length: ayGunSayisi}).map((_, i) => {
+                    const gun = i + 1;
+                    const bugun = gun === bugunGun;
+                    const tarihStr = `${yil}-${String(ay + 1).padStart(2,'0')}-${String(gun).padStart(2,'0')}`;
+                    const secili = secilenTarih === tarihStr;
+                    const gecmis = new Date(yil, ay, gun) < new Date(yil, ay, bugunGun);
+                    return (
+                      <div
+                        key={gun}
+                        onClick={() => !gecmis && setSecilenTarih(tarihStr)}
+                        style={{
+                          fontSize:'11px',
+                          textAlign:'center',
+                          padding:'4px 0',
+                          borderRadius:'6px',
+                          background: bugun ? '#4F46E5' : secili ? '#E65100' : 'transparent',
+                          color: bugun || secili ? 'white' : gecmis ? '#CBD5E1' : '#374151',
+                          fontWeight: bugun || secili ? '700' : '400',
+                          cursor: gecmis ? 'default' : 'pointer'
+                        }}
+                      >
+                        {gun}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}
@@ -906,24 +927,6 @@ function MusteriAnaSayfa({ kullanici, onCikis, onGirisYap, onKayitGit, onProfilA
           </div>
         </div>
       )}
-      <div className="mobil-alt-nav">
-        <button className="mobil-nav-item aktif" onClick={() => window.scrollTo({top:0, behavior:'smooth'})}>
-          <span className="mobil-nav-ikon">🏠</span>
-          <span className="mobil-nav-etiket">Ana Sayfa</span>
-        </button>
-        <button className="mobil-nav-item" onClick={() => { setHaritaGoster(v => !v); }}>
-          <span className="mobil-nav-ikon">📍</span>
-          <span className="mobil-nav-etiket">Yakınımda</span>
-        </button>
-        <button className="mobil-nav-item" onClick={onRandevularim}>
-          <span className="mobil-nav-ikon">📅</span>
-          <span className="mobil-nav-etiket">Randevularım</span>
-        </button>
-        <button className="mobil-nav-item" onClick={() => kullanici ? setDropdownAcik(v => !v) : onGirisYap()}>
-          <span className="mobil-nav-ikon">👤</span>
-          <span className="mobil-nav-etiket">Profil</span>
-        </button>
-      </div>
     </div>
   );
 }

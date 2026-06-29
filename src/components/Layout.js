@@ -70,30 +70,38 @@ const Layout = ({ children, kullanici, isletmeId, onAnaSayfa, onIsletmePanel, on
           />
         </div>
 
-        <div style={{position:'relative', marginLeft:'auto'}} ref={bildirimPanelRef}>
-          <button className="layout-bildirim" onClick={() => { setBildirimPanelAcik(v => !v); if (!bildirimPanelAcik && okunmamisSayi > 0) bildirimleriOkunduYap(); }}>
-            <Bell size={18} />
-            {okunmamisSayi > 0 && <span className="layout-bildirim-rozet">{okunmamisSayi}</span>}
-          </button>
-          {bildirimPanelAcik && (
-            <div style={{position:'absolute', top:'44px', right:'0', width:'320px', maxHeight:'400px', overflowY:'auto', background:'white', borderRadius:'14px', boxShadow:'0 10px 40px rgba(0,0,0,0.15)', border:'1px solid #E2E8F0', zIndex:200}}>
-              <div style={{padding:'14px 16px', fontWeight:'700', fontSize:'14px', borderBottom:'1px solid #F1F5F9'}}>Bildirimler</div>
-              {bildirimler.length === 0 ? (
-                <div style={{padding:'30px', textAlign:'center', color:'#94A3B8', fontSize:'13px'}}>Henüz bildirim yok</div>
-              ) : (
-                bildirimler.map(b => (
-                  <div key={b._id} style={{padding:'12px 16px', borderBottom:'1px solid #F8FAFC', background: b.okundu ? 'white' : '#EEF2FF'}}>
-                    <div style={{fontWeight:'600', fontSize:'13px', marginBottom:'2px'}}>{b.baslik}</div>
-                    <div style={{fontSize:'12px', color:'#64748B'}}>{b.mesaj}</div>
-                    <div style={{fontSize:'11px', color:'#94A3B8', marginTop:'4px'}}>{new Date(b.olusturmaTarihi).toLocaleString('tr-TR')}</div>
-                  </div>
-                ))
-              )}
-            </div>
-          )}
-        </div>
+        <div className="layout-spacer" />
 
-        <nav style={{display:'flex', alignItems:'center', gap:'2px', flexWrap:'nowrap', overflow:'hidden'}}>
+        {kullanici && (
+          <div className="layout-bildirim-container" ref={bildirimPanelRef}>
+            <button className="layout-bildirim" onClick={() => { setBildirimPanelAcik(v => !v); if (!bildirimPanelAcik && okunmamisSayi > 0) bildirimleriOkunduYap(); }}>
+              <Bell size={18} />
+              {okunmamisSayi > 0 && <span className="layout-bildirim-rozet">{okunmamisSayi}</span>}
+            </button>
+            {bildirimPanelAcik && (
+              <div className="layout-bildirim-panel">
+                <div style={{padding:'14px 16px', fontWeight:'700', fontSize:'14px', borderBottom:'1px solid #F1F5F9'}}>Bildirimler</div>
+                {bildirimler.length === 0 ? (
+                  <div style={{padding:'30px', textAlign:'center', color:'#94A3B8', fontSize:'13px'}}>Henüz bildirim yok</div>
+                ) : (
+                  bildirimler.map(b => (
+                    <div
+                      key={b._id}
+                      onClick={() => { setBildirimPanelAcik(false); onRandevularim?.(); }}
+                      style={{padding:'12px 16px', borderBottom:'1px solid #F8FAFC', background: b.okundu ? 'white' : '#EEF2FF', cursor:'pointer'}}
+                    >
+                      <div style={{fontWeight:'600', fontSize:'13px', marginBottom:'2px'}}>{b.baslik}</div>
+                      <div style={{fontSize:'12px', color:'#64748B'}}>{b.mesaj}</div>
+                      <div style={{fontSize:'11px', color:'#94A3B8', marginTop:'4px'}}>{new Date(b.olusturmaTarihi).toLocaleString('tr-TR')}</div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        <nav className="layout-nav">
           {menuOgeleri.filter(m => m.gosterKosulu).map(m => {
             const Ikon = m.ikon;
             return (
@@ -113,7 +121,7 @@ const Layout = ({ children, kullanici, isletmeId, onAnaSayfa, onIsletmePanel, on
           })}
         </nav>
 
-        <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
+        <div className="layout-auth-btns" style={{display:'flex', alignItems:'center', gap:'12px'}}>
           {kullanici ? (
             <div style={{position:'relative'}} ref={profilMenuRef}>
               <div onClick={() => setProfilMenuAcik(v => !v)} style={{display:'flex', alignItems:'center', gap:'6px', cursor:'pointer', padding:'4px 8px', borderRadius:'10px'}}>
@@ -155,6 +163,25 @@ const Layout = ({ children, kullanici, isletmeId, onAnaSayfa, onIsletmePanel, on
       <div className="layout-icerik-tam">
         {children}
       </div>
+
+      <nav className="layout-mobil-alt-nav">
+        {menuOgeleri.filter(m => m.gosterKosulu).slice(0, 5).map(m => {
+          const Ikon = m.ikon;
+          const kisa = { anaSayfa: 'Ana', isletmePanel: 'Panel', randevularim: 'Randevu', sadakat: 'Sadakat', yakinimda: 'Yakın', favorilerim: 'Favori', marketplace: 'Market' };
+          return (
+            <button key={m.key} className={`layout-mobil-nav-item${aktifSayfa === m.key ? ' aktif' : ''}`} onClick={m.onClick}>
+              <Ikon size={22} />
+              <span>{kisa[m.key] || m.etiket}</span>
+            </button>
+          );
+        })}
+        {!kullanici && (
+          <button className="layout-mobil-nav-item" onClick={onGirisYap}>
+            <Home size={22} />
+            <span>Giriş</span>
+          </button>
+        )}
+      </nav>
     </div>
   );
 };

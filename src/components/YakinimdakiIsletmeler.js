@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
+import './YakinimdakiIsletmeler.css';
 import AcikGunler from './AcikGunler';
 
 // Leaflet varsayılan marker icon sorunu için çözüm
@@ -134,7 +135,8 @@ function YakinimdakiIsletmeler({ onProfilAc }) {
       <MapContainer
         center={[konum.lat, konum.lng]}
         zoom={13}
-        style={{ height: '550px', width: '100%', borderRadius: '12px' }}
+        className="yakin-harita"
+        style={{ width: '100%', borderRadius: '12px' }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -207,7 +209,7 @@ function YakinimdakiIsletmeler({ onProfilAc }) {
         {isletmeler.length} işletme bulundu {kategori && `(${kategori})`}
       </div>
 
-      <div style={{marginTop:'20px', display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(260px, 1fr))', gap:'16px'}}>
+      <div className="yakin-isletme-grid" style={{marginTop:'20px', display:'grid', gap:'16px'}}>
         {(() => {
           const siraliIsletmeler = [...isletmeler].sort((a, b) => {
             if (siralama === 'puan') return (b.ortalamaPuan || 0) - (a.ortalamaPuan || 0);

@@ -7,10 +7,9 @@ import './Kayit.css';
 function Kayit({ onGirisGit }) {
   const { girisYap } = useAuth();
   const [adim, setAdim] = useState(1);
-  const [kullaniciId, setKullaniciId] = useState(null);
+  const [kayitToken, setKayitToken] = useState('');
   const [hata, setHata] = useState('');
   const [yukleniyor, setYukleniyor] = useState(false);
-  const [basari, setBasari] = useState('');
 
   const [form, setForm] = useState({
     ad: '', soyad: '', email: '', sifre: '', telefon: '', rol: 'musteri'
@@ -39,7 +38,7 @@ function Kayit({ onGirisGit }) {
       });
       const veri = await cevap.json();
       if (cevap.ok) {
-        girisYap(veri.kullanici);
+        girisYap(veri.kullanici, veri.token);
         onGirisGit();
       } else {
         setHata(veri.hata || 'Google ile giriş başarısız');
@@ -66,12 +65,12 @@ function Kayit({ onGirisGit }) {
       if (!cevap.ok) {
         setHata(veri.hata);
       } else {
-        setKullaniciId(veri.kullanici.id);
         if (form.rol === 'isletme') {
+          setKayitToken(veri.token);
           setAdim(2);
         } else {
-          setBasari('Kayıt başarılı! Giriş yapabilirsiniz.');
-          setTimeout(() => onGirisGit(), 1500);
+          girisYap(veri.kullanici, veri.token);
+          onGirisGit();
         }
       }
     } catch (err) {
@@ -113,10 +112,12 @@ function Kayit({ onGirisGit }) {
     try {
       const cevap = await fetch('http://localhost:5000/api/isletmeler', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${kayitToken}`,
+        },
         body: JSON.stringify({
           ...isletmeForm,
-          sahip: kullaniciId,
           telefon: isletmeForm.telefon || form.telefon,
           hizmetler: doluHizmetler.map(h => ({
             ad: h.ad,
@@ -129,8 +130,8 @@ function Kayit({ onGirisGit }) {
       if (!cevap.ok) {
         setHata(veri.hata);
       } else {
-        setBasari('İşletmeniz oluşturuldu! Giriş yapabilirsiniz.');
-        setTimeout(() => onGirisGit(), 2000);
+        girisYap(veri.kullanici, veri.token);
+        onGirisGit();
       }
     } catch (err) {
       setHata('Sunucuya bağlanılamadı');
@@ -180,7 +181,6 @@ function Kayit({ onGirisGit }) {
             </div>
 
             {hata && <div className="hata">{hata}</div>}
-            {basari && <div className="basari">✅ {basari}</div>}
 
             <div style={{ display: 'flex', gap: '12px' }}>
               <div style={{ flex: 1 }}>
@@ -258,7 +258,6 @@ function Kayit({ onGirisGit }) {
             </div>
 
             {hata && <div className="hata">{hata}</div>}
-            {basari && <div className="basari">✅ {basari}</div>}
 
             <label className="input-label">İşletme Adı</label>
             <input style={inputStyle} placeholder="Örn: Ahmet Berber Salonu" value={isletmeForm.isletmeAdi} onChange={e => setIsletmeForm({ ...isletmeForm, isletmeAdi: e.target.value })} />

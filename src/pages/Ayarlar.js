@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 const Ayarlar = ({ kullanici, onGuncelle }) => {
+  const { authHeaders } = useAuth();
   const [form, setForm] = useState({
     ad: kullanici?.ad || '',
     soyad: kullanici?.soyad || '',
@@ -24,7 +26,7 @@ const Ayarlar = ({ kullanici, onGuncelle }) => {
     try {
       const cevap = await fetch(`http://localhost:5000/api/kullanicilar/${kullanici.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify(form)
       });
       const veri = await cevap.json();

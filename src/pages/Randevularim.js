@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import './Randevularim.css';
 
 function Randevularim({ kullanici, onGeri }) {
+  const { authHeaders } = useAuth();
   const [randevular, setRandevular] = useState([]);
   const [yukleniyor, setYukleniyor] = useState(true);
   const [aktifFiltre, setAktifFiltre] = useState('hepsi');
@@ -13,7 +15,7 @@ function Randevularim({ kullanici, onGeri }) {
   const randevulariGetir = async () => {
     setYukleniyor(true);
     try {
-      const cevap = await fetch(`http://localhost:5000/api/randevular/musteri/${kullanici.id}`);
+      const cevap = await fetch(`http://localhost:5000/api/randevular/musteri/${kullanici.id}`, { headers: authHeaders() });
       const veri = await cevap.json();
       setRandevular(veri);
     } catch (err) {
@@ -164,7 +166,7 @@ function Randevularim({ kullanici, onGeri }) {
                         onClick={async () => {
                           if (!window.confirm('Randevunuzu iptal etmek istediğinize emin misiniz?')) return;
                           try {
-                            await fetch(`http://localhost:5000/api/randevular/${r._id}/iptal`, { method: 'PUT' });
+                            await fetch(`http://localhost:5000/api/randevular/${r._id}/iptal`, { method: 'PUT', headers: authHeaders() });
                             randevulariGetir();
                           } catch (err) { console.error(err); }
                         }}

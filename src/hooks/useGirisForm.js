@@ -23,7 +23,7 @@ export function useGirisForm(onBasari) {
       if (!cevap.ok) {
         setHata(veri.hata || 'Giriş başarısız');
       } else {
-        onBasari(veri.kullanici);
+        onBasari(veri.kullanici, veri.token);
       }
     } catch {
       setHata('Sunucuya bağlanılamadı');

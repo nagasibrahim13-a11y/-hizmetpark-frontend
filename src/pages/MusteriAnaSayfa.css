@@ -546,16 +546,49 @@
 /* ======================== RESPONSIVE ======================== */
 @media (max-width: 768px) {
   .header { grid-template-columns: auto 1fr auto; gap: 12px; padding: 12px 16px; }
-  .icerik { padding: 20px 16px; }
+  .icerik { padding: 16px 12px 80px; }
   .one-cikan-row { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
   .one-cikan-row-4 { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   .header-arama { padding: 10px 14px; border-radius: 12px; }
   .header-arama-input { font-size: 14px; }
+
+  /* Reklam slider daha kompakt */
+  .reklam-slider { min-height: 200px; border-radius: 16px; }
+  .reklam-slider-baslik { font-size: 18px; }
+  .reklam-slider-icerik { padding: 16px 20px; }
+
+  /* İşletme grid: mobilde tek sütun */
+  .isletme-grid { grid-template-columns: 1fr; }
+
+  /* Featured sections: 2 sütun */
+  .one-cikan-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .one-cikan-row-4 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+  /* Modal tam ekran benzeri */
+  .modal { padding: 20px 16px; border-radius: 16px; }
+
+  /* Saat grid: 3 sütuna düş */
+  .saat-grid { grid-template-columns: repeat(3, 1fr); }
+
+  /* Filtreler scroll */
+  .kategori-row { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+  .kategori-row::-webkit-scrollbar { display: none; }
+  .kategori-btn { flex-shrink: 0; }
+  .sehir-cip-row { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+  .sehir-cip-row::-webkit-scrollbar { display: none; }
+  .sehir-cip { flex-shrink: 0; }
 }
 @media (max-width: 480px) {
   .header { grid-template-columns: auto auto; }
   .header-arama { padding: 8px 12px; border-radius: 10px; }
   .header-arama-input { font-size: 13px; }
+
+  /* Çok küçük: tek sütun featured */
+  .one-cikan-row { grid-template-columns: 1fr; }
+  .one-cikan-row-4 { grid-template-columns: repeat(2, 1fr); }
+
+  /* Saat grid: 3 sütun */
+  .saat-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
 }
 
 /* ======================== ANA GÖVDE & SOL MENÜ ======================== */
@@ -669,8 +702,7 @@
 }
 
 @media (max-width: 768px) {
-  .mobil-alt-nav { display: flex; justify-content: space-around; }
-  .musteri-sayfa { padding-bottom: 70px; }
+  .mobil-alt-nav { display: none; }
 }
 
 .mobil-nav-item {
